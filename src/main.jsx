@@ -35,7 +35,7 @@ function GameWrapper({ children }) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/musical-caterpillar">
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage/>}/>
         <Route path="/note-speller" element={<GameWrapper><NoteSpeller/></GameWrapper>}/>

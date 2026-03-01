@@ -82,7 +82,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section style={{position:'relative',zIndex:1,textAlign:'center',padding:'clamp(60px,12vh,100px) 20px 40px'}}>
-       <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Musical Caterpillar"
+       <img src="/logo.png"
           style={{
             width:'clamp(140px,30vw,220px)',
             animation:'catBounce 2s ease-in-out infinite',
