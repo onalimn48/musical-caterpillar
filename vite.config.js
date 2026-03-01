@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/musical-caterpillar/',
   build: {
-    outDir: 'dist',
+    outDir: 'docs',
     rollupOptions: {
       output: {
         manualChunks: {
