@@ -1,0 +1,16 @@
+export const ACHIEVEMENTS = [
+  { id:"first_correct", icon:"🌱", name:"First Steps", desc:"Get your first correct answer" },
+  { id:"streak_5", icon:"🔥", name:"On Fire", desc:"Get a 5-answer streak" },
+  { id:"streak_10", icon:"💎", name:"Unstoppable", desc:"Get a 10-answer streak" },
+  { id:"train_complete", icon:"📚", name:"Student", desc:"Complete all training levels" },
+  { id:"journey_3", icon:"🐛", name:"Explorer", desc:"Clear 3 Ear Journey levels" },
+  { id:"journey_all", icon:"🏆", name:"Journey Master", desc:"Complete the entire Ear Journey" },
+  { id:"perfect_level", icon:"⭐", name:"Flawless", desc:"Clear a Journey level with no hits" },
+  { id:"chords_3", icon:"⛄", name:"Chord Builder", desc:"Build 3 chords correctly" },
+  { id:"chords_10", icon:"🎹", name:"Chord Master", desc:"Build 10 chords correctly" },
+  { id:"weak_80", icon:"💪", name:"Comeback", desc:"Score 80%+ in Weak Spots" },
+  { id:"total_50", icon:"🎯", name:"Dedicated", desc:"Answer 50 total questions" },
+  { id:"total_200", icon:"👑", name:"Interval Royalty", desc:"Answer 200 total questions" },
+  { id:"all_intervals", icon:"🌈", name:"Full Spectrum", desc:"Get every interval correct at least once" },
+  { id:"chord_ear_clear", icon:"🎧", name:"Chord Ear Pro", desc:"Clear a Chord Ear level" },
+];

@@ -1,0 +1,31 @@
+export const LEVEL_TITLES = [
+  { level: 1, title: "Note Newbie", color: "#9ca3af", emoji: "🎒" },
+  { level: 5, title: "Staff Starter", color: "#6ee7b7", emoji: "🌱" },
+  { level: 10, title: "Clef Cadet", color: "#4ade80", emoji: "🎖️" },
+  { level: 15, title: "Note Noticer", color: "#34d399", emoji: "👀" },
+  { level: 20, title: "Music Pupil", color: "#22c55e", emoji: "📗" },
+  { level: 25, title: "Staff Scout", color: "#a78bfa", emoji: "🔍" },
+  { level: 30, title: "Clef Climber", color: "#8b5cf6", emoji: "🧗" },
+  { level: 35, title: "Note Navigator", color: "#7c3aed", emoji: "🧭" },
+  { level: 40, title: "Melody Maker", color: "#3b82f6", emoji: "🎹" },
+  { level: 45, title: "Staff Sergeant", color: "#2563eb", emoji: "🎖️" },
+  { level: 50, title: "Pitch Pro", color: "#f59e0b", emoji: "⭐" },
+  { level: 55, title: "Note Knight", color: "#d97706", emoji: "⚔️" },
+  { level: 60, title: "Clef Captain", color: "#ef4444", emoji: "🏅" },
+  { level: 65, title: "Music Marshal", color: "#dc2626", emoji: "🎯" },
+  { level: 70, title: "Staff Scholar", color: "#06b6d4", emoji: "📘" },
+  { level: 75, title: "Grand Noter", color: "#0891b2", emoji: "🎓" },
+  { level: 80, title: "Clef Commander", color: "#c084fc", emoji: "👑" },
+  { level: 85, title: "Note Ninja", color: "#a855f7", emoji: "🥷" },
+  { level: 90, title: "Music Monarch", color: "#e11d48", emoji: "👸" },
+  { level: 95, title: "Staff Sorcerer", color: "#9333ea", emoji: "🧙" },
+  { level: 100, title: "Legendary Maestro", color: "#f59e0b", emoji: "🏆" },
+];
+
+export const XP_CURVE_SEGMENTS = [
+  { maxLevel: 1, baseXp: 0, step: 0, startLevel: 1 },
+  { maxLevel: 10, baseXp: 0, step: 15, startLevel: 1 },
+  { maxLevel: 30, baseXp: 135, step: 25, startLevel: 10 },
+  { maxLevel: 60, baseXp: 635, step: 45, startLevel: 30 },
+  { maxLevel: 100, baseXp: 1985, step: 80, startLevel: 60 },
+];
