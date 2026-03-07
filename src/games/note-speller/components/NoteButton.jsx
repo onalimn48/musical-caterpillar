@@ -1,11 +1,19 @@
 import { useState } from "react";
 
-export default function NoteBtn({ note, onPick, disabled, gold }) {
+export default function NoteBtn({ note, onPick, disabled, gold, dark }) {
   const [hovered, setHovered] = useState(false);
-  const borderColor = gold ? "#f59e0b" : "#5b21b6";
-  const bg1 = gold ? (hovered ? "#fef3c7" : "#fffbeb") : (hovered ? "#ddd6fe" : "#ede9fe");
-  const bg2 = gold ? (hovered ? "#fde68a" : "#fef3c7") : (hovered ? "#c4b5fd" : "#ddd6fe");
-  const textColor = gold ? "#92400e" : "#5b21b6";
+  const borderColor = gold ? "#f59e0b" : dark ? "#818cf8" : "#5b21b6";
+  const bg1 = gold
+    ? (hovered ? "#fef3c7" : "#fffbeb")
+    : dark
+      ? (hovered ? "#312e81" : "#1f1a3a")
+      : (hovered ? "#ddd6fe" : "#ede9fe");
+  const bg2 = gold
+    ? (hovered ? "#fde68a" : "#fef3c7")
+    : dark
+      ? (hovered ? "#4338ca" : "#312e81")
+      : (hovered ? "#c4b5fd" : "#ddd6fe");
+  const textColor = gold ? "#92400e" : dark ? "#e0e7ff" : "#5b21b6";
   return (
     <button onClick={() => onPick(note)} disabled={disabled}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}

@@ -44,6 +44,14 @@ export function useNoteSpellerState() {
   const [butterflyToken, setButterflyToken] = useState(0);
   const [playingSong, setPlayingSong] = useState(false);
   const [selectedClef, setSelectedClef] = useState(INITIAL_STATE.clef || "treble");
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem("note-speller-dark-mode") === "true";
+    } catch {
+      return false;
+    }
+  });
 
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -253,6 +261,15 @@ export function useNoteSpellerState() {
   useEffect(() => {
     if ((state.isDone || state.storyWordDone) && state.word) speakWord(state.word.w);
   }, [state.isDone, state.storyWordDone, state.word, speakWords]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem("note-speller-dark-mode", darkMode ? "true" : "false");
+    } catch {
+      // Ignore storage failures; the toggle should still work for the current session.
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -510,6 +527,7 @@ export function useNoteSpellerState() {
       saveStreakLeaderboard,
       setLeaderboard,
       setClef: setSelectedClef,
+      setDarkMode,
       setPlayingSong,
       setShowStaffHint,
       setSpeakWords,
@@ -520,6 +538,7 @@ export function useNoteSpellerState() {
       butterflyDisplayRemaining,
       butterflyToken,
       fullArcadeUnlocked,
+      darkMode,
       timedSpecialModes: TIMED_SPECIAL_MODES,
       leaderboard,
       midiDevice,

@@ -14,8 +14,37 @@ export default function MenuScreen({
   actions,
   derived,
 }) {
-  const { leaderboard, streakLB, midiStatus, fullArcadeUnlocked, timedSpecialModes, currentTimedClefProgress } = derived;
+  const { leaderboard, streakLB, midiStatus, fullArcadeUnlocked, timedSpecialModes, currentTimedClefProgress, darkMode } = derived;
   const { addStreakLeaderboardScore, getStreakLeaderboard, saveStreakLeaderboard, setClef, setStreakLB } = actions;
+  const colors = darkMode ? {
+    title: "#e9d5ff",
+    subtitle: "#c4b5fd",
+    divider: "rgba(255,255,255,.12)",
+    cardShadow: "0 10px 30px rgba(0,0,0,.24)",
+    timedBg: "linear-gradient(180deg,rgba(30,41,59,.96),rgba(17,24,39,.96))",
+    timedBorder: "2px solid rgba(96,165,250,.35)",
+    cardBg: "linear-gradient(180deg,rgba(30,41,59,.96),rgba(17,24,39,.96))",
+    cardText: "#cbd5e1",
+    stageBg: "rgba(15,23,42,.72)",
+    stageBorder: "rgba(255,255,255,.1)",
+    midiBg: "rgba(20,83,45,.28)",
+    midiBorder: "1px solid rgba(74,222,128,.35)",
+    midiText: "#86efac",
+  } : {
+    title: "#5b21b6",
+    subtitle: "#7c3aed",
+    divider: "#e5e7eb",
+    cardShadow: "0 10px 30px rgba(15,23,42,.06)",
+    timedBg: "linear-gradient(180deg,#f8fbff,#eef4ff)",
+    timedBorder: "2px solid #bfdbfe",
+    cardBg: null,
+    cardText: "#9ca3af",
+    stageBg: "white",
+    stageBorder: null,
+    midiBg: "#ecfdf5",
+    midiBorder: "1px solid #86efac",
+    midiText: "#16a34a",
+  };
   const startWithClef = (type, clef, extra = {}) => {
     setClef(clef);
     dispatch({ type, clef, ...extra });
@@ -26,7 +55,7 @@ export default function MenuScreen({
     borderRadius: 24,
     padding: "18px 16px",
     marginBottom: 20,
-    boxShadow: "0 10px 30px rgba(15,23,42,.06)",
+    boxShadow: colors.cardShadow,
   };
   return (
     <GameLayout
@@ -39,7 +68,7 @@ export default function MenuScreen({
     >
       {state.showLeaderboard && <LBOverlay leaderboard={leaderboard} onClose={() => dispatch({ type: "HIDE_LB" })} fontFamily={ff} />}
       {state.showStreakLB && <StreakLBOverlay state={state} dispatch={dispatch} streakLB={streakLB} addStreakScore={addStreakLeaderboardScore} saveStreakLB={saveStreakLeaderboard} getStreakLB={getStreakLeaderboard} setStreakLB={setStreakLB} fontFamily={ff} />}
-      {state.showStats && <StatsPanel stats={state.stats} onClose={() => dispatch({ type: "HIDE_STATS" })} fontFamily={ff} />}
+      {state.showStats && <StatsPanel stats={state.stats} onClose={() => dispatch({ type: "HIDE_STATS" })} fontFamily={ff} dark={darkMode} />}
 
       <LevelBadge stats={state.stats} style={{ marginBottom: 12 }} />
 
@@ -84,18 +113,18 @@ export default function MenuScreen({
           <circle cx="162" cy="26" r="4" fill="#facc15" />
         </svg>
       </div>
-      <h1 style={{ fontSize: "clamp(28px,6vw,46px)", color: "#5b21b6", margin: "0 0 6px", textShadow: "2px 2px 0 #ddd6fe", textAlign: "center" }}>Note Speller</h1>
-      <p style={{ color: "#7c3aed", fontSize: 15, marginBottom: 8, textAlign: "center", maxWidth: 380, lineHeight: 1.5 }}>
+      <h1 style={{ fontSize: "clamp(28px,6vw,46px)", color: colors.title, margin: "0 0 6px", textShadow: darkMode ? "none" : "2px 2px 0 #ddd6fe", textAlign: "center" }}>Note Speller</h1>
+      <p style={{ color: colors.subtitle, fontSize: 15, marginBottom: 8, textAlign: "center", maxWidth: 380, lineHeight: 1.5 }}>
         Read the notes to spell words! 10 in a row = butterfly!
       </p>
       <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap", justifyContent: "center" }}>
         {STAGES.map((st) => (
-          <div key={st.id} style={{ background: "white", borderRadius: 8, padding: "4px 10px", border: `2px solid ${st.color}33`, fontSize: 11, color: st.color, fontWeight: 600 }}>Stage {st.id}: {st.name}</div>
+          <div key={st.id} style={{ background: colors.stageBg, borderRadius: 8, padding: "4px 10px", border: colors.stageBorder || `2px solid ${st.color}33`, fontSize: 11, color: st.color, fontWeight: 600 }}>Stage {st.id}: {st.name}</div>
         ))}
       </div>
 
       {midiStatus === "connected" && (
-        <div style={{ background: "#ecfdf5", border: "1px solid #86efac", borderRadius: 10, padding: "4px 12px", marginBottom: 10, fontSize: 12, color: "#16a34a", fontWeight: 600 }}>🎹 MIDI keyboard connected</div>
+        <div style={{ background: colors.midiBg, border: colors.midiBorder, borderRadius: 10, padding: "4px 12px", marginBottom: 10, fontSize: 12, color: colors.midiText, fontWeight: 600 }}>🎹 MIDI keyboard connected</div>
       )}
       <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center", marginBottom: 18 }}>
         {CLEFS.map((clef) => {
@@ -104,7 +133,7 @@ export default function MenuScreen({
           <button
             key={clef}
             onClick={() => startWithClef("START", clef)}
-            style={{ padding: "18px 30px", borderRadius: 18, border: "3px solid #5b21b6", background: "linear-gradient(135deg,#f5f3ff,#ede9fe)", cursor: "pointer", fontSize: 16, fontWeight: 600, fontFamily: ff, color: "#5b21b6", boxShadow: "0 4px 16px rgba(91,33,182,.1)", transition: "all .2s ease" }}
+            style={{ padding: "18px 30px", borderRadius: 18, border: darkMode ? "3px solid rgba(196,181,253,.4)" : "3px solid #5b21b6", background: darkMode ? "linear-gradient(135deg,#1f1a3a,#312e81)" : "linear-gradient(135deg,#f5f3ff,#ede9fe)", cursor: "pointer", fontSize: 16, fontWeight: 600, fontFamily: ff, color: darkMode ? "#e9d5ff" : "#5b21b6", boxShadow: darkMode ? "0 4px 16px rgba(0,0,0,.22)" : "0 4px 16px rgba(91,33,182,.1)", transition: "all .2s ease" }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.05) translateY(-2px)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.transform = ""; }}
           >
@@ -114,13 +143,13 @@ export default function MenuScreen({
         })}
       </div>
 
-      <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-      <div style={{ width: "100%", maxWidth: 640, background: "linear-gradient(180deg,#f8fbff,#eef4ff)", border: "2px solid #bfdbfe", borderRadius: 24, padding: "18px 16px", marginBottom: 20, boxShadow: "0 10px 30px rgba(37,99,235,.08)" }}>
+      <div style={{ width: "100%", maxWidth: 380, height: 1, background: colors.divider, marginBottom: 16 }} />
+      <div style={{ width: "100%", maxWidth: 640, background: colors.timedBg, border: colors.timedBorder, borderRadius: 24, padding: "18px 16px", marginBottom: 20, boxShadow: darkMode ? colors.cardShadow : "0 10px 30px rgba(37,99,235,.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
         <span style={{ fontSize: 16, fontWeight: 700, color: fullArcadeUnlocked ? "#2563eb" : "#9ca3af" }}>⌛ Timed Mode</span>
         {!fullArcadeUnlocked && <span style={{ fontSize: 11, color: "#d1d5db", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>🔒 Unlock Stage 3</span>}
       </div>
-      <p style={{ color: "#64748b", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 420, marginInline: "auto", lineHeight: 1.5 }}>
+      <p style={{ color: darkMode ? "#cbd5e1" : "#64748b", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 420, marginInline: "auto", lineHeight: 1.5 }}>
         Climb the timed ladder inside one mode: Level 1 gives you 10 seconds per word, Level 2 gives 7, and Level 3 gives 5. Clear enough Level 3 words to unlock Diamond and Legendary.
       </p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
@@ -128,7 +157,7 @@ export default function MenuScreen({
         <span style={{ background: "#eff6ff", color: "#1d4ed8", borderRadius: 999, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>Level 2 · 7s</span>
         <span style={{ background: "#fffbeb", color: "#92400e", borderRadius: 999, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>Level 3 · 5s</span>
       </div>
-      <div style={{ color: "#475569", fontSize: 12, fontWeight: 600, textAlign: "center", marginBottom: 14 }}>
+      <div style={{ color: darkMode ? "#e2e8f0" : "#475569", fontSize: 12, fontWeight: 600, textAlign: "center", marginBottom: 14 }}>
         {getClefMeta(state.clef).modeLabel} Level 3 clears: {currentTimedClefProgress.level3Clears}
       </div>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 18, opacity: fullArcadeUnlocked ? 1 : 0.4 }}>
@@ -147,11 +176,11 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fff5f5,#fff1f2)", border: "2px solid #fecaca", textAlign: "center" }}>
+      <div style={{ ...sectionCardStyle, background: colors.cardBg || "linear-gradient(180deg,#fff5f5,#fff1f2)", border: darkMode ? "2px solid rgba(248,113,113,.28)" : "2px solid #fecaca", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#dc2626" }}>📖 Story Mode</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>A fantasy adventure! Spell words to advance through the story.</p>
+      <p style={{ color: colors.cardText, fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>A fantasy adventure! Spell words to advance through the story.</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -167,11 +196,11 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fffaf0,#fffbeb)", border: "2px solid #fde68a", textAlign: "center" }}>
+      <div style={{ ...sectionCardStyle, background: colors.cardBg || "linear-gradient(180deg,#fffaf0,#fffbeb)", border: darkMode ? "2px solid rgba(250,204,21,.22)" : "2px solid #fde68a", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#f59e0b" }}>🎵 Song Mode</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>Play along with famous melodies! See notes on staff and name them.</p>
+      <p style={{ color: colors.cardText, fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>Play along with famous melodies! See notes on staff and name them.</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -187,11 +216,11 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#faf5ff,#f5f3ff)", border: "2px solid #ddd6fe", textAlign: "center" }}>
+      <div style={{ ...sectionCardStyle, background: colors.cardBg || "linear-gradient(180deg,#faf5ff,#f5f3ff)", border: darkMode ? "2px solid rgba(196,181,253,.25)" : "2px solid #ddd6fe", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#8b5cf6" }}>🔀 Scramble Mode</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>Notes are scrambled! Read them all, figure out the word, then spell it in order.</p>
+      <p style={{ color: colors.cardText, fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>Notes are scrambled! Read them all, figure out the word, then spell it in order.</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -207,11 +236,11 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fff5f5,#fef2f2)", border: "2px solid #fecaca", textAlign: "center" }}>
+      <div style={{ ...sectionCardStyle, background: colors.cardBg || "linear-gradient(180deg,#fff5f5,#fef2f2)", border: darkMode ? "2px solid rgba(248,113,113,.28)" : "2px solid #fecaca", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#dc2626" }}>🎯 Practice Weak Notes</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>
+      <p style={{ color: colors.cardText, fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>
         {(state.stats.totalGuesses || 0) < 10 ? "Play some rounds first so we can find your weak spots!" : "Auto-targets the notes you struggle with most!"}
       </p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
@@ -230,11 +259,11 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#f3fff5,#f0fdf4)", border: "2px solid #bbf7d0", textAlign: "center" }}>
+      <div style={{ ...sectionCardStyle, background: colors.cardBg || "linear-gradient(180deg,#f3fff5,#f0fdf4)", border: darkMode ? "2px solid rgba(74,222,128,.24)" : "2px solid #bbf7d0", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#22c55e" }}>🎮 Practice Arcade</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 320, marginInline: "auto" }}>60 seconds, Stage 1 words only. No leaderboard!</p>
+      <p style={{ color: colors.cardText, fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 320, marginInline: "auto" }}>60 seconds, Stage 1 words only. No leaderboard!</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -250,12 +279,12 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fffaf0,#fffbeb)", border: "2px solid #fde68a", textAlign: "center" }}>
+      <div style={{ ...sectionCardStyle, background: colors.cardBg || "linear-gradient(180deg,#fffaf0,#fffbeb)", border: darkMode ? "2px solid rgba(250,204,21,.22)" : "2px solid #fde68a", textAlign: "center" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: fullArcadeUnlocked ? "#f59e0b" : "#9ca3af" }}>⏱️ Full Arcade</span>
         {!fullArcadeUnlocked && <span style={{ fontSize: 11, color: "#d1d5db", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>🔒 Unlock Stage 3</span>}
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 14, textAlign: "center", maxWidth: 320, marginInline: "auto" }}>60 seconds, all words, leaderboard enabled!</p>
+      <p style={{ color: colors.cardText, fontSize: 12, marginBottom: 14, textAlign: "center", maxWidth: 320, marginInline: "auto" }}>60 seconds, all words, leaderboard enabled!</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20, opacity: fullArcadeUnlocked ? 1 : 0.4 }}>
         {CLEFS.map((clef) => (
           <button

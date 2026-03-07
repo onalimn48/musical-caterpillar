@@ -11,12 +11,41 @@ import ScrambleScreen from "./components/screens/ScrambleScreen.jsx";
 import TimedScreen from "./components/screens/TimedScreen.jsx";
 import WeakNotesScreen from "./components/screens/WeakNotesScreen.jsx";
 
+function ThemeToggle({ darkMode, onToggle, fontFamily }) {
+  return (
+    <button
+      onClick={onToggle}
+      title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+      style={{
+        position: "fixed",
+        top: "max(12px, calc(env(safe-area-inset-top, 0px) + 12px))",
+        right: 12,
+        zIndex: 1200,
+        border: darkMode ? "1px solid rgba(255,255,255,.16)" : "1px solid rgba(91,33,182,.14)",
+        background: darkMode ? "rgba(15,23,42,.86)" : "rgba(255,255,255,.86)",
+        color: darkMode ? "#e2e8f0" : "#5b21b6",
+        borderRadius: 999,
+        padding: "10px 14px",
+        fontFamily,
+        fontSize: 13,
+        fontWeight: 700,
+        cursor: "pointer",
+        boxShadow: darkMode ? "0 10px 24px rgba(0,0,0,.28)" : "0 10px 24px rgba(91,33,182,.14)",
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      {darkMode ? "☀️ Light" : "🌙 Dark"}
+    </button>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════
 //  MAIN APP
 // ═══════════════════════════════════════════════════════════
 export default function App() {
   const ff = "'Fredoka',sans-serif";
   const { state, dispatch, actions, derived } = useNoteSpellerState();
+  const { darkMode } = derived;
 
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
@@ -52,12 +81,21 @@ export default function App() {
     @media(max-width:500px){.staffRow{transform:scale(0.82);transform-origin:center top;margin-bottom:-12px}}
     @media(max-width:380px){.staffRow{transform:scale(0.68);transform-origin:center top;margin-bottom:-22px}}
     `;
-  const bgGradient = "linear-gradient(160deg,#fefce8 0%,#f0fdf4 40%,#ede9fe 100%)";
+  const bgGradient = darkMode
+    ? "linear-gradient(160deg,#0f172a 0%,#111827 45%,#1f1b3a 100%)"
+    : "linear-gradient(160deg,#fefce8 0%,#f0fdf4 40%,#ede9fe 100%)";
+
+  const withThemeToggle = (screen) => (
+    <>
+      <ThemeToggle darkMode={darkMode} onToggle={() => actions.setDarkMode((value) => !value)} fontFamily={ff} />
+      {screen}
+    </>
+  );
 
   // ═══════════════════════════════════════
   //  MENU
   // ═══════════════════════════════════════
-  if (state.phase === "menu") return (
+  if (state.phase === "menu") return withThemeToggle((
     <MenuScreen
       state={state}
       dispatch={dispatch}
@@ -67,13 +105,13 @@ export default function App() {
       actions={actions}
       derived={derived}
     />
-  );
+  ));
 
   // ═══════════════════════════════════════
   //  ARCADE
   // ═══════════════════════════════════════
   if (state.phase === "arcade") {
-    return (
+    return withThemeToggle((
       <ArcadeScreen
         state={state}
         dispatch={dispatch}
@@ -82,11 +120,11 @@ export default function App() {
         actions={actions}
         derived={derived}
       />
-    );
+    ));
   }
 
   if (state.phase === "timed") {
-    return (
+    return withThemeToggle((
       <TimedScreen
         state={state}
         dispatch={dispatch}
@@ -95,14 +133,14 @@ export default function App() {
         actions={actions}
         derived={derived}
       />
-    );
+    ));
   }
 
   // ═══════════════════════════════════════
   //  SONG MODE
   // ═══════════════════════════════════════
   if (state.phase === "song") {
-    return (
+    return withThemeToggle((
       <SongScreen
         state={state}
         dispatch={dispatch}
@@ -111,14 +149,14 @@ export default function App() {
         actions={actions}
         derived={derived}
       />
-    );
+    ));
   }
 
   // ═══════════════════════════════════════
   //  STORY MODE
   // ═══════════════════════════════════════
   if (state.phase === "story") {
-    return (
+    return withThemeToggle((
       <StoryScreen
         state={state}
         dispatch={dispatch}
@@ -127,14 +165,14 @@ export default function App() {
         actions={actions}
         derived={derived}
       />
-    );
+    ));
   }
 
   // ═══════════════════════════════════════
   //  SCRAMBLE MODE
   // ═══════════════════════════════════════
   if (state.phase === "scramble") {
-    return (
+    return withThemeToggle((
       <ScrambleScreen
         state={state}
         dispatch={dispatch}
@@ -143,14 +181,14 @@ export default function App() {
         actions={actions}
         derived={derived}
       />
-    );
+    ));
   }
 
   // ═══════════════════════════════════════
   //  PRACTICE WEAK NOTES
   // ═══════════════════════════════════════
   if (state.phase === "weak") {
-    return (
+    return withThemeToggle((
       <WeakNotesScreen
         state={state}
         dispatch={dispatch}
@@ -159,13 +197,13 @@ export default function App() {
         actions={actions}
         derived={derived}
       />
-    );
+    ));
   }
 
   // ═══════════════════════════════════════
   //  NORMAL GAME
   // ═══════════════════════════════════════
-  return (
+  return withThemeToggle((
     <GameScreen
       state={state}
       dispatch={dispatch}
@@ -175,5 +213,5 @@ export default function App() {
       actions={actions}
       derived={derived}
     />
-  );
+  ));
 }
