@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './storage-polyfill.js';
 import LandingPage from './LandingPage.jsx';
+import AboutPage from './AboutPage.jsx';
 
 // Lazy-load games so the landing page loads instantly
 const NoteSpeller = lazy(() => import('./games/NoteSpeller.jsx'));
@@ -38,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage/>}/>
+        <Route path="/about" element={<AboutPage/>}/>
         <Route path="/note-speller" element={<GameWrapper><NoteSpeller/></GameWrapper>}/>
         <Route path="/notes-per-minute" element={<GameWrapper><NotesPerMinute/></GameWrapper>}/>
         <Route path="/chord-snowman" element={<GameWrapper><ChordSnowman/></GameWrapper>}/>

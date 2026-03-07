@@ -81,7 +81,7 @@ export default function LandingPage() {
       </div>
 
       {/* Hero */}
-      <section style={{position:'relative',zIndex:1,textAlign:'center',padding:'clamp(60px,12vh,100px) 20px 40px'}}>
+      <section style={{position:'relative',zIndex:1,textAlign:'center',padding:'clamp(40px,8vh,72px) 20px 12px'}}>
        <img src="/logo.png"
           style={{
             width:'clamp(140px,30vw,220px)',
@@ -100,7 +100,7 @@ export default function LandingPage() {
       </section>
 
       {/* Games */}
-      <section style={{position:'relative',zIndex:1,padding:'40px 20px 60px',maxWidth:900,margin:'0 auto'}}>
+      <section style={{position:'relative',zIndex:1,padding:'8px 20px 60px',maxWidth:900,margin:'0 auto'}}>
         <h2 style={{fontFamily:"'Fredoka',sans-serif",textAlign:'center',fontSize:'clamp(20px,4vw,28px)',color:'#fde68a',marginBottom:32,fontWeight:600}}>
           🎵 Choose Your Adventure
         </h2>
@@ -122,6 +122,20 @@ export default function LandingPage() {
               }}>{g.tag}</div>
             </Link>
           ))}
+        </div>
+        <div style={{display:'flex',justifyContent:'center',marginTop:22}}>
+          <Link
+            to="/about"
+            style={{
+              display:'inline-flex',alignItems:'center',justifyContent:'center',
+              textDecoration:'none',padding:'12px 20px',borderRadius:14,
+              background:'linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.06))',
+              border:'1px solid rgba(255,255,255,.14)',color:'#f8fafc',
+              fontWeight:700,fontSize:15,boxShadow:'0 10px 24px rgba(15,23,42,.18)',
+            }}
+          >
+            About
+          </Link>
         </div>
       </section>
 

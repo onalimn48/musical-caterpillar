@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from '../pages/HomePage.jsx';
 import HomeButton from '../shell/HomeButton.jsx';
 import { gameRegistry } from './gameRegistry.js';
+import AboutPage from '../../AboutPage.jsx';
 
 function Loading() {
   return (
@@ -30,6 +31,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomePage/>}/>
+      <Route path="/about" element={<AboutPage/>}/>
       {gameRegistry.map((game) => {
         const GameComponent = game.component;
         return (
