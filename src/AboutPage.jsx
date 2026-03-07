@@ -23,13 +23,9 @@ export default function AboutPage() {
               filter:'drop-shadow(0 8px 24px rgba(74,222,128,.3))',
             }}
           />
-          <div style={{
-            display:'inline-block',marginTop:16,padding:'4px 12px',borderRadius:999,
-            background:'rgba(251,191,36,.12)',color:'#fde68a',fontSize:12,fontWeight:700,letterSpacing:'.05em',
-          }}>ABOUT THE CREATOR</div>
           <h1 style={{
             fontFamily:"'Fredoka',sans-serif",fontSize:'clamp(32px,6vw,48px)',fontWeight:700,
-            margin:'14px 0 12px',lineHeight:1.1,color:'#f8fafc',
+            margin:'16px 0 12px',lineHeight:1.1,color:'#f8fafc',
           }}>About Musical Caterpillar</h1>
         </div>
 
