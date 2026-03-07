@@ -1,24 +1,19 @@
-import { cpSync, existsSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
 const distDir = resolve(root, "dist");
-const distIndex = resolve(distDir, "index.html");
-const distAssets = resolve(distDir, "assets");
 
-if (!existsSync(distIndex) || !existsSync(distAssets)) {
+if (!existsSync(resolve(distDir, "index.html")) || !existsSync(resolve(distDir, "assets"))) {
   throw new Error("Build output is missing dist/index.html or dist/assets.");
 }
 
-const targets = [
-  {
-    index: resolve(root, "docs", "index.html"),
-    assets: resolve(root, "docs", "assets")
-  }
-];
+const docsDir = resolve(root, "docs");
 
-for (const target of targets) {
-  mkdirSync(target.assets, { recursive: true });
-  cpSync(distIndex, target.index);
-  cpSync(distAssets, target.assets, { recursive: true });
+mkdirSync(docsDir, { recursive: true });
+
+for (const entry of readdirSync(docsDir)) {
+  rmSync(resolve(docsDir, entry), { recursive: true, force: true });
 }
+
+cpSync(distDir, docsDir, { recursive: true });
