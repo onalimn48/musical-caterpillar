@@ -12,10 +12,6 @@ if (!existsSync(distIndex) || !existsSync(distAssets)) {
 
 const targets = [
   {
-    index: resolve(root, "index.html"),
-    assets: resolve(root, "assets")
-  },
-  {
     index: resolve(root, "docs", "index.html"),
     assets: resolve(root, "docs", "assets")
   }

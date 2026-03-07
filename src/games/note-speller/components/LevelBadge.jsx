@@ -37,12 +37,18 @@ export default function LevelBadge({ stats, style }) {
   const level = xpInfo.level;
   const titleInfo = getLevelTitle(level);
   const progress = xpInfo.pct;
+  const badges = [
+    stats.legendaryBadges?.treble ? { label: "👑 Treble", color: "#f59e0b", background: "#fef3c7", border: "#fcd34d" } : null,
+    stats.legendaryBadges?.alto ? { label: "🎖️ Alto", color: "#0f766e", background: "#ccfbf1", border: "#5eead4" } : null,
+    stats.legendaryBadges?.bass ? { label: "🏅 Bass", color: "#be185d", background: "#fce7f3", border: "#f9a8d4" } : null,
+  ].filter(Boolean);
 
   return (
     <SharedLevelBadge
       icon={titleInfo.emoji}
       title={`Lv.${level}`}
       subtitle={titleInfo.title}
+      badgeItems={badges}
       progress={progress}
       progressLabel={`${xpInfo.current}/${xpInfo.needed}`}
       accent={titleInfo.color}

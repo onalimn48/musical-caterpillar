@@ -4,6 +4,7 @@ export default function LevelBadge({
   icon,
   title,
   subtitle,
+  badgeItems,
   progress = 0,
   progressLabel,
   accent = "#7c3aed",
@@ -33,6 +34,15 @@ export default function LevelBadge({
           <span style={{ fontWeight: 700, color: accent, fontSize: 11 }}>{title}</span>
           {subtitle ? <span style={{ fontWeight: 600, color: "#374151", fontSize: 10 }}>{subtitle}</span> : null}
         </div>
+        {badgeItems?.length ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            {badgeItems.map((badge) => (
+              <span key={badge.label} style={{ fontWeight: 800, color: badge.color, background: badge.background, border: `1px solid ${badge.border}`, borderRadius: 999, padding: "1px 6px", fontSize: 9 }}>
+                {badge.label}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <div style={{ width: 60, height: 3, borderRadius: 2, background: "#e5e7eb", overflow: "hidden" }}>
             <div style={{ height: "100%", borderRadius: 2, background: accent, width: `${pct}%`, transition: "width .3s ease" }} />

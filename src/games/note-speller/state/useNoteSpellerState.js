@@ -3,6 +3,7 @@ import { POWERUPS } from "../data/powerups.js";
 import { SONGS } from "../data/songs.js";
 import { STAGES } from "../data/stages.js";
 import { STORY_CHAPTERS } from "../data/story.js";
+import { TIMED_LEVELS, TIMED_SPECIAL_MODES, TIMED_SPECIAL_MODE_MAP } from "../data/timed.js";
 import { ARCADE_WORDS, MUSIC_NOTES } from "../data/words.js";
 import { getFrequency, playNoteSound, playPowerupSound, playSongMelody, playSuccessChime } from "../hooks/audio.js";
 import {
@@ -50,7 +51,12 @@ export function useNoteSpellerState() {
   const stateRef = useRef(state);
   const prevStatsRef = useRef(state.stats);
   const prevPURef = useRef(state.powerups);
-  const prevProgressRef = useRef({ unlockedStages: state.unlockedStages, stageIndex: state.stageIndex, score: state.score });
+  const prevProgressRef = useRef({
+    unlockedStages: state.unlockedStages,
+    stageIndex: state.stageIndex,
+    score: state.score,
+    timedClefProgress: state.timedClefProgress,
+  });
   const prevHLRef = useRef({});
   const prevScrambleHLRef = useRef({});
   const songScrollRef = useRef(null);
@@ -62,6 +68,10 @@ export function useNoteSpellerState() {
   stateRef.current = state;
 
   const activeClef = state.phase === "menu" ? selectedClef : (state.clef || selectedClef);
+  const currentTimedClefProgress = state.timedClefProgress?.[activeClef] || { level3Clears: 0, diamondUnlocked: false, legendaryUnlocked: false };
+  const timedTimerCycle = state.phase === "timed" && TIMED_SPECIAL_MODE_MAP[state.timedMode]?.perNote
+    ? state.slotIndex
+    : state.word?.w;
 
   const butterflyDisplayRemaining = getButterflyDisplayRemaining({ ...state, clef: activeClef });
   const fullArcadeUnlocked = state.unlockedStages.includes(2);
@@ -167,6 +177,7 @@ export function useNoteSpellerState() {
         const s = stateRef.current;
         if (s.phase === "game" && !s.isDone) dispatchRef.current({ type: "PICK", note: name });
         else if (s.phase === "arcade" && !s.arcadeOver && !s.arcadeWordDone) dispatchRef.current({ type: "ARCADE_PICK", note: name });
+        else if (s.phase === "timed" && !s.timedOver && !s.timedWordDone) dispatchRef.current({ type: "TIMED_PICK", note: name });
         else if (s.phase === "story" && !s.storyWordDone) dispatchRef.current({ type: "STORY_PICK", note: name });
         else if (s.phase === "song" && !s.songDone) dispatchRef.current({ type: "SONG_PICK", note: name });
         else if (s.phase === "weak" && !s.isDone) dispatchRef.current({ type: "WEAK_PICK", note: name });
@@ -188,7 +199,16 @@ export function useNoteSpellerState() {
     });
     loadProgress().then((saved) => {
       if (saved) {
-        dispatch({ type: "LOAD_PROGRESS", unlockedStages: saved.unlockedStages, stageIndex: saved.stageIndex, score: saved.score });
+        dispatch({
+          type: "LOAD_PROGRESS",
+          unlockedStages: saved.unlockedStages,
+          stageIndex: saved.stageIndex,
+          score: saved.score,
+          timedClefProgress: saved.timedClefProgress,
+          timedDiamondProgress: saved.timedDiamondProgress,
+          diamondUnlocked: saved.diamondUnlocked,
+          legendaryUnlocked: saved.legendaryUnlocked,
+        });
       }
     });
   }, [dispatch]);
@@ -209,11 +229,26 @@ export function useNoteSpellerState() {
 
   useEffect(() => {
     const prev = prevProgressRef.current;
-    if (state.unlockedStages !== prev.unlockedStages || state.stageIndex !== prev.stageIndex || state.score !== prev.score) {
-      prevProgressRef.current = { unlockedStages: state.unlockedStages, stageIndex: state.stageIndex, score: state.score };
-      saveProgress({ unlockedStages: state.unlockedStages, stageIndex: state.stageIndex, score: state.score });
+    if (
+      state.unlockedStages !== prev.unlockedStages ||
+      state.stageIndex !== prev.stageIndex ||
+      state.score !== prev.score ||
+      state.timedClefProgress !== prev.timedClefProgress
+    ) {
+      prevProgressRef.current = {
+        unlockedStages: state.unlockedStages,
+        stageIndex: state.stageIndex,
+        score: state.score,
+        timedClefProgress: state.timedClefProgress,
+      };
+      saveProgress({
+        unlockedStages: state.unlockedStages,
+        stageIndex: state.stageIndex,
+        score: state.score,
+        timedClefProgress: state.timedClefProgress,
+      });
     }
-  }, [state.unlockedStages, state.stageIndex, state.score]);
+  }, [state.unlockedStages, state.stageIndex, state.score, state.timedClefProgress]);
 
   useEffect(() => {
     if ((state.isDone || state.storyWordDone) && state.word) speakWord(state.word.w);
@@ -225,6 +260,7 @@ export function useNoteSpellerState() {
       if (!"ABCDEFG".includes(key)) return;
       if (state.phase === "game" && !state.isDone) dispatch({ type: "PICK", note: key });
       else if (state.phase === "arcade" && !state.arcadeOver && !state.arcadeWordDone) dispatch({ type: "ARCADE_PICK", note: key });
+      else if (state.phase === "timed" && !state.timedOver && !state.timedWordDone) dispatch({ type: "TIMED_PICK", note: key });
       else if (state.phase === "story" && !state.storyWordDone) dispatch({ type: "STORY_PICK", note: key });
       else if (state.phase === "song" && !state.songDone) dispatch({ type: "SONG_PICK", note: key });
       else if (state.phase === "weak" && !state.isDone) dispatch({ type: "WEAK_PICK", note: key });
@@ -232,7 +268,7 @@ export function useNoteSpellerState() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [dispatch, state.phase, state.isDone, state.arcadeOver, state.arcadeWordDone, state.storyWordDone, state.songDone, state.scrambleDone]);
+  }, [dispatch, state.phase, state.isDone, state.arcadeOver, state.arcadeWordDone, state.timedOver, state.timedWordDone, state.storyWordDone, state.songDone, state.scrambleDone]);
 
   useEffect(() => {
     if (state.phase !== "arcade" || state.arcadeOver) return;
@@ -252,8 +288,30 @@ export function useNoteSpellerState() {
   }, [clearTimer, dispatch, state.phase, state.arcadeOver]);
 
   useEffect(() => {
+    if (state.phase !== "timed" || state.timedOver || state.timedWordDone) return;
+    clearTimer();
+    const level = TIMED_LEVELS[state.timedLevel] || TIMED_LEVELS[0];
+    const specialMode = TIMED_SPECIAL_MODE_MAP[state.timedMode] || null;
+    const duration = specialMode ? specialMode.seconds : level.seconds;
+    setTimeLeft(duration);
+    startTimeRef.current = Date.now();
+    timerRef.current = setInterval(() => {
+      const elapsed = (Date.now() - startTimeRef.current) / 1000;
+      const remaining = Math.max(0, duration - elapsed);
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        clearInterval(timerRef.current);
+        dispatch({ type: "TIMED_END" });
+      }
+    }, 50);
+    return clearTimer;
+  }, [clearTimer, dispatch, state.phase, state.timedOver, state.timedWordDone, state.timedLevel, state.timedMode, timedTimerCycle]);
+
+  useEffect(() => {
     const actionType = state.phase === "arcade"
       ? "ARCADE_CLEAR"
+      : state.phase === "timed"
+        ? "TIMED_CLEAR"
       : state.phase === "story"
         ? "STORY_CLEAR"
         : state.phase === "song"
@@ -263,7 +321,7 @@ export function useNoteSpellerState() {
             : "CLEAR_WRONG";
     const wrongEntry = Object.entries(state.highlights).find(([, v]) => v === "wrong");
     if (!wrongEntry) return;
-    const t = setTimeout(() => dispatch({ type: actionType, index: Number(wrongEntry[0]) }), state.phase === "arcade" ? 300 : 500);
+    const t = setTimeout(() => dispatch({ type: actionType, index: Number(wrongEntry[0]) }), state.phase === "arcade" || state.phase === "timed" ? 300 : 500);
     return () => clearTimeout(t);
   }, [dispatch, state.highlights, state.phase]);
 
@@ -301,6 +359,14 @@ export function useNoteSpellerState() {
   }, [dispatch, state.arcadeWordDone]);
 
   useEffect(() => {
+    if (state.phase !== "timed" || !state.timedWordDone || state.timedOver) return;
+    if (state.timedUnlockedMode) return;
+    if (state.timedBadgeUnlockedClef) return;
+    const t = setTimeout(() => dispatch({ type: "TIMED_ADVANCE" }), 450);
+    return () => clearTimeout(t);
+  }, [dispatch, state.phase, state.timedWordDone, state.timedOver, state.timedUnlockedMode, state.timedBadgeUnlockedClef]);
+
+  useEffect(() => {
     if (state.phase !== "weak" || !state.isDone) return;
     const t = setTimeout(() => dispatch({ type: "WEAK_NEXT" }), 1800);
     return () => clearTimeout(t);
@@ -312,6 +378,7 @@ export function useNoteSpellerState() {
     const isSongMode = state.phase === "song";
     if (state.phase === "game") extended = STAGES[state.stageIndex]?.id === 3;
     else if (state.phase === "arcade") extended = state.word && state.word.w.length >= 5;
+    else if (state.phase === "timed") extended = state.timedMode !== "normal" || TIMED_LEVELS[state.timedLevel]?.stageIndex === 2;
 
     Object.entries(state.highlights).forEach(([idx, val]) => {
       if (prev[idx] !== val) {
@@ -453,6 +520,7 @@ export function useNoteSpellerState() {
       butterflyDisplayRemaining,
       butterflyToken,
       fullArcadeUnlocked,
+      timedSpecialModes: TIMED_SPECIAL_MODES,
       leaderboard,
       midiDevice,
       midiStatus,
@@ -463,6 +531,8 @@ export function useNoteSpellerState() {
       speakWords,
       streakLB,
       timeLeft,
+      currentTimedClefProgress,
+      timedLevelConfig: TIMED_LEVELS[state.timedLevel] || TIMED_LEVELS[0],
     },
   };
 }

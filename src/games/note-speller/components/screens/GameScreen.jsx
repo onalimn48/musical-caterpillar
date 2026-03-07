@@ -68,6 +68,12 @@ export default function GameScreen({
             <h2 style={{ color: state.popup.color, margin: "0 0 6px", fontSize: 22 }}>Stage {state.popup.id} Unlocked!</h2>
             <div style={{ fontSize: 18, fontWeight: 600, color: "#374151", marginBottom: 4 }}>{state.popup.name}</div>
             <div style={{ fontSize: 14, color: "#6b7280", marginBottom: 20 }}>{state.popup.desc}</div>
+            {state.popup.id === 3 && (
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 18 }}>
+                <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 999, padding: "6px 10px", fontSize: 12, fontWeight: 700 }}>⏱️ Timed Mode unlocked</span>
+                <span style={{ background: "#dcfce7", color: "#166534", borderRadius: 999, padding: "6px 10px", fontSize: 12, fontWeight: 700 }}>🏆 Arcade unlocked</span>
+              </div>
+            )}
             <button onClick={() => dispatch({ type: "DISMISS" })} style={{ padding: "10px 28px", borderRadius: 12, border: "none", background: `linear-gradient(135deg,${state.popup.color},${state.popup.color}cc)`, color: "white", fontSize: 16, fontWeight: 600, fontFamily: ff, cursor: "pointer" }}>Let's Go!</button>
           </div>
         </div>

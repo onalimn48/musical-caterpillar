@@ -14,14 +14,21 @@ export default function MenuScreen({
   actions,
   derived,
 }) {
-  const { leaderboard, streakLB, midiStatus, fullArcadeUnlocked } = derived;
+  const { leaderboard, streakLB, midiStatus, fullArcadeUnlocked, timedSpecialModes, currentTimedClefProgress } = derived;
   const { addStreakLeaderboardScore, getStreakLeaderboard, saveStreakLeaderboard, setClef, setStreakLB } = actions;
   const startWithClef = (type, clef, extra = {}) => {
     setClef(clef);
     dispatch({ type, clef, ...extra });
   };
   return (
-    <GameLayout background={bgGradient} fontFamily={ff} padding="24px 16px env(safe-area-inset-bottom, 24px)" justify="center" styleContent={css}>
+    <GameLayout
+      background={bgGradient}
+      fontFamily={ff}
+      padding="24px 16px env(safe-area-inset-bottom, 24px)"
+      justify="flex-start"
+      style={{ overflowY: "auto" }}
+      styleContent={css}
+    >
       {state.showLeaderboard && <LBOverlay leaderboard={leaderboard} onClose={() => dispatch({ type: "HIDE_LB" })} fontFamily={ff} />}
       {state.showStreakLB && <StreakLBOverlay state={state} dispatch={dispatch} streakLB={streakLB} addStreakScore={addStreakLeaderboardScore} saveStreakLB={saveStreakLeaderboard} getStreakLB={getStreakLeaderboard} setStreakLB={setStreakLB} fontFamily={ff} />}
       {state.showStats && <StatsPanel stats={state.stats} onClose={() => dispatch({ type: "HIDE_STATS" })} fontFamily={ff} />}
@@ -97,6 +104,39 @@ export default function MenuScreen({
           </button>
           );
         })}
+      </div>
+
+      <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />
+      <div style={{ width: "100%", maxWidth: 640, background: "linear-gradient(180deg,#f8fbff,#eef4ff)", border: "2px solid #bfdbfe", borderRadius: 24, padding: "18px 16px", marginBottom: 20, boxShadow: "0 10px 30px rgba(37,99,235,.08)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 16, fontWeight: 700, color: fullArcadeUnlocked ? "#2563eb" : "#9ca3af" }}>⌛ Timed Mode</span>
+        {!fullArcadeUnlocked && <span style={{ fontSize: 11, color: "#d1d5db", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>🔒 Unlock Stage 3</span>}
+      </div>
+      <p style={{ color: "#64748b", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 420, marginInline: "auto", lineHeight: 1.5 }}>
+        Climb the timed ladder inside one mode: Level 1 gives you 10 seconds per word, Level 2 gives 7, and Level 3 gives 5. Clear enough Level 3 words to unlock Diamond and Legendary.
+      </p>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
+        <span style={{ background: "#ecfdf5", color: "#166534", borderRadius: 999, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>Level 1 · 10s</span>
+        <span style={{ background: "#eff6ff", color: "#1d4ed8", borderRadius: 999, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>Level 2 · 7s</span>
+        <span style={{ background: "#fffbeb", color: "#92400e", borderRadius: 999, padding: "4px 10px", fontSize: 11, fontWeight: 700 }}>Level 3 · 5s</span>
+      </div>
+      <div style={{ color: "#475569", fontSize: 12, fontWeight: 600, textAlign: "center", marginBottom: 14 }}>
+        {getClefMeta(state.clef).modeLabel} Level 3 clears: {currentTimedClefProgress.level3Clears}
+      </div>
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 18, opacity: fullArcadeUnlocked ? 1 : 0.4 }}>
+        {CLEFS.map((clef) => (
+          <button
+            key={`timed-${clef}`}
+            onClick={() => { if (fullArcadeUnlocked) startWithClef("TIMED_START", clef, { mode: "normal" }); }}
+            disabled={!fullArcadeUnlocked}
+            style={{ padding: "12px 22px", borderRadius: 14, border: "3px solid #2563eb", background: "linear-gradient(135deg,#eff6ff,#dbeafe)", cursor: fullArcadeUnlocked ? "pointer" : "not-allowed", fontSize: 14, fontWeight: 600, fontFamily: ff, color: "#1d4ed8", boxShadow: fullArcadeUnlocked ? "0 4px 16px rgba(37,99,235,.15)" : "none", transition: "all .2s ease" }}
+            onMouseEnter={(e) => { if (fullArcadeUnlocked) e.currentTarget.style.transform = "scale(1.05) translateY(-2px)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = ""; }}
+          >
+            <span style={{ fontSize: 24, display: "block", marginBottom: 2 }}>{getClefMeta(clef).symbol}</span>Timed {getClefMeta(clef).modeLabel}
+          </button>
+        ))}
+      </div>
       </div>
 
       <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />

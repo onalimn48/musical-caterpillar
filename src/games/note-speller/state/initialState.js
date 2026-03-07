@@ -1,4 +1,9 @@
 export const INIT_POWERUPS = { reveal: 0, double: 0, shield: 0 };
+export const INIT_TIMED_CLEF_PROGRESS = {
+  treble: { level3Clears: 0, diamondUnlocked: false, legendaryUnlocked: false },
+  alto: { level3Clears: 0, diamondUnlocked: false, legendaryUnlocked: false },
+  bass: { level3Clears: 0, diamondUnlocked: false, legendaryUnlocked: false },
+};
 
 export const INITIAL_STATE = {
   phase: "menu", clef: "treble",
@@ -14,6 +19,10 @@ export const INITIAL_STATE = {
   arcadeWordDone: false,
   showLeaderboard: false, enteringName: false, arcadeInitials: "",
   arcadePool: null, arcadePractice: false,
+  timedScore: 0, timedOver: false, timedWordDone: false,
+  timedLevel: 0, timedLevelCorrect: 0,
+  timedClefProgress: { ...INIT_TIMED_CLEF_PROGRESS },
+  timedMode: "normal", timedUnlockedMode: null, timedBadgeUnlockedClef: null,
   transitioning: false,
   powerups: { ...INIT_POWERUPS },
   doubleActive: false,
@@ -21,6 +30,7 @@ export const INITIAL_STATE = {
   stats: {
     wordsCompleted: 0, correctGuesses: 0, totalGuesses: 0,
     bestStreak: 0, butterflies: 0, xp: 0, noteAttempts: {}, noteCorrect: {},
+    legendaryBadges: { treble: false, alto: false, bass: false },
   },
   showStats: false,
   storyChapter: 0,

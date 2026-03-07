@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import * as d3 from "d3";
+import { axisBottom, axisLeft } from "d3-axis";
+import { scaleBand, scaleLinear } from "d3-scale";
+import { select } from "d3-selection";
 
 // ─── Note/Music Data ────────────────────────────────────────────────
 const NOTE_NAMES = ["C", "D", "E", "F", "G", "A", "B"];
@@ -20,6 +22,18 @@ const NOTE_FREQ = {
   C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.0,B5:987.77,
   C6:1046.5,D6:1174.7,E6:1318.5,F6:1396.9,G6:1568.0,A6:1760.0,B6:1975.5,
 };
+
+function buildLinePath(data, x, y) {
+  return data.map((d, index) => `${index === 0 ? "M" : "L"}${x(d.group)},${y(d.accuracy)}`).join(" ");
+}
+
+function buildAreaPath(data, x, y, height) {
+  if (!data.length) return "";
+  const linePath = buildLinePath(data, x, y);
+  const first = data[0];
+  const last = data[data.length - 1];
+  return `${linePath} L${x(last.group)},${height} L${x(first.group)},${height} Z`;
+}
 function playNote(name, duration = 0.45) {
   const ctx = getAudioCtx(); if (!ctx) return;
   const freq = NOTE_FREQ[name]; if (!freq) return;
@@ -823,7 +837,7 @@ function ResultsScreen({ stats, clef, onRestart }) {
   useEffect(() => {
     if (!stats || !chartRef.current) return;
 
-    const svg = d3.select(chartRef.current);
+    const svg = select(chartRef.current);
     svg.selectAll("*").remove();
 
     const margin = { top: 20, right: 20, bottom: 40, left: 50 };
@@ -839,41 +853,30 @@ function ResultsScreen({ stats, clef, onRestart }) {
       return;
     }
 
-    const x = d3.scaleLinear().domain([1, stats.rolling.length]).range([0, width]);
-    const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+    const x = scaleLinear().domain([1, stats.rolling.length]).range([0, width]);
+    const y = scaleLinear().domain([0, 100]).range([height, 0]);
 
     g.append("g").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(stats.rolling.length).tickFormat(d => `${d}`))
+      .call(axisBottom(x).ticks(stats.rolling.length).tickFormat(d => `${d}`))
       .selectAll("text").attr("fill", "rgba(255,255,255,0.4)").attr("font-size", 11);
     g.selectAll(".domain, .tick line").attr("stroke", "rgba(255,255,255,0.1)");
 
     g.append("g")
-      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${d}%`))
+      .call(axisLeft(y).ticks(5).tickFormat(d => `${d}%`))
       .selectAll("text").attr("fill", "rgba(255,255,255,0.4)").attr("font-size", 11);
     g.selectAll(".domain, .tick line").attr("stroke", "rgba(255,255,255,0.1)");
 
     // Area
-    const area = d3.area()
-      .x(d => x(d.group))
-      .y0(height)
-      .y1(d => y(d.accuracy))
-      .curve(d3.curveMonotoneX);
-
     g.append("path").datum(stats.rolling)
       .attr("fill", "rgba(99,102,241,0.15)")
-      .attr("d", area);
+      .attr("d", buildAreaPath(stats.rolling, x, y, height));
 
     // Line
-    const line = d3.line()
-      .x(d => x(d.group))
-      .y(d => y(d.accuracy))
-      .curve(d3.curveMonotoneX);
-
     g.append("path").datum(stats.rolling)
       .attr("fill", "none")
       .attr("stroke", "#818cf8")
       .attr("stroke-width", 2.5)
-      .attr("d", line);
+      .attr("d", buildLinePath(stats.rolling, x, y));
 
     // Dots
     g.selectAll(".dot").data(stats.rolling).enter().append("circle")
@@ -898,7 +901,7 @@ function ResultsScreen({ stats, clef, onRestart }) {
   useEffect(() => {
     if (!stats || !barChartRef.current) return;
 
-    const svg = d3.select(barChartRef.current);
+    const svg = select(barChartRef.current);
     svg.selectAll("*").remove();
 
     const margin = { top: 20, right: 20, bottom: 40, left: 50 };
@@ -913,16 +916,16 @@ function ResultsScreen({ stats, clef, onRestart }) {
       total: stats.noteStats[n].total,
     })).filter(d => d.total > 0);
 
-    const x = d3.scaleBand().domain(data.map(d => d.note)).range([0, width]).padding(0.3);
-    const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+    const x = scaleBand().domain(data.map(d => d.note)).range([0, width]).padding(0.3);
+    const y = scaleLinear().domain([0, 100]).range([height, 0]);
 
     g.append("g").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x))
+      .call(axisBottom(x))
       .selectAll("text").attr("fill", "rgba(255,255,255,0.5)").attr("font-size", 13).attr("font-weight", 600);
     g.selectAll(".domain, .tick line").attr("stroke", "rgba(255,255,255,0.1)");
 
     g.append("g")
-      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${d}%`))
+      .call(axisLeft(y).ticks(5).tickFormat(d => `${d}%`))
       .selectAll("text").attr("fill", "rgba(255,255,255,0.4)").attr("font-size", 11);
     g.selectAll(".domain, .tick line").attr("stroke", "rgba(255,255,255,0.1)");
 

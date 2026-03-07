@@ -44,6 +44,11 @@ export default function LevelBadgeDark({ stats, style }) {
   const titleInfo = getLevelTitle(level);
   const next = getNextTitle(level);
   const progress = xpInfo.pct;
+  const badges = [
+    stats.legendaryBadges?.treble ? { label: "👑 T", color: "#facc15", background: "rgba(250,204,21,.14)", border: "rgba(250,204,21,.35)" } : null,
+    stats.legendaryBadges?.alto ? { label: "🎖️ A", color: "#5eead4", background: "rgba(45,212,191,.14)", border: "rgba(45,212,191,.35)" } : null,
+    stats.legendaryBadges?.bass ? { label: "🏅 B", color: "#f9a8d4", background: "rgba(236,72,153,.14)", border: "rgba(236,72,153,.35)" } : null,
+  ].filter(Boolean);
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 6,
@@ -59,6 +64,15 @@ export default function LevelBadgeDark({ stats, style }) {
           <span style={{ fontWeight: 700, color: titleInfo.color, fontSize: 11 }}>Lv.{level}</span>
           <span style={{ fontWeight: 600, color: "#d1d5db", fontSize: 10 }}>{titleInfo.title}</span>
         </div>
+        {badges.length ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            {badges.map((badge) => (
+              <span key={badge.label} style={{ fontWeight: 800, color: badge.color, fontSize: 9, background: badge.background, border: `1px solid ${badge.border}`, borderRadius: 999, padding: "1px 6px" }}>
+                {badge.label}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <div style={{ width: 60, height: 3, borderRadius: 2, background: "#2a1f3a", overflow: "hidden" }}>
             <div style={{ height: "100%", borderRadius: 2, background: titleInfo.color, width: `${progress}%`, transition: "width .3s ease" }} />

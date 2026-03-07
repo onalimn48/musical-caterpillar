@@ -11,9 +11,36 @@ import {
   pickWeakWord,
   pickWord,
 } from "./gameLogic.js";
-import { INITIAL_STATE, INIT_POWERUPS } from "./initialState.js";
+import { INITIAL_STATE, INIT_POWERUPS, INIT_TIMED_CLEF_PROGRESS } from "./initialState.js";
+import { TIMED_LEVELS, TIMED_SPECIAL_MODES, TIMED_SPECIAL_MODE_MAP } from "../data/timed.js";
 
 export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY_CHAPTERS, SONGS }) {
+  const legendaryTimedWords = STAGES.flatMap((stage) => stage.words);
+  const normalizeTimedClefProgress = (progress = {}, legacy = {}) => ({
+    treble: {
+      ...INIT_TIMED_CLEF_PROGRESS.treble,
+      ...(progress.treble || {}),
+      level3Clears: progress.treble?.level3Clears ?? legacy.timedDiamondProgress ?? 0,
+      diamondUnlocked: progress.treble?.diamondUnlocked ?? !!legacy.diamondUnlocked,
+      legendaryUnlocked: progress.treble?.legendaryUnlocked ?? !!legacy.legendaryUnlocked,
+    },
+    alto: {
+      ...INIT_TIMED_CLEF_PROGRESS.alto,
+      ...(progress.alto || {}),
+    },
+    bass: {
+      ...INIT_TIMED_CLEF_PROGRESS.bass,
+      ...(progress.bass || {}),
+    },
+  });
+  const getTimedWord = (levelIndex, usedWords = [], modeId = "normal") => {
+    if (modeId === "legendary") {
+      return pickWord(legendaryTimedWords, usedWords);
+    }
+    const level = TIMED_LEVELS[levelIndex] || TIMED_LEVELS[0];
+    return pickWord(STAGES[level.stageIndex].words, usedWords);
+  };
+
   function reducer(state, action) {
     switch (action.type) {
       case "START": {
@@ -25,10 +52,19 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           stageIndex: startStage, score: state.score,
           word, slots: getSlots(word), message: `Hint: "${word.h}"`,
           stats: state.stats, powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
         };
       }
       case "MENU":
-        return { ...INITIAL_STATE, unlockedStages: state.unlockedStages, stageIndex: state.stageIndex, score: state.score, stats: state.stats, powerups: state.powerups };
+        return {
+          ...INITIAL_STATE,
+          unlockedStages: state.unlockedStages,
+          stageIndex: state.stageIndex,
+          score: state.score,
+          stats: state.stats,
+          powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
+        };
 
       case "LOAD_STATS":
         return { ...state, stats: action.stats };
@@ -41,7 +77,13 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         if (unlocked.length === 0) unlocked.push(0);
         const stageIdx = Math.min(action.stageIndex ?? 0, STAGES.length - 1);
         const savedScore = action.score ?? 0;
-        return { ...state, unlockedStages: unlocked, stageIndex: stageIdx, score: savedScore };
+        return {
+          ...state,
+          unlockedStages: unlocked,
+          stageIndex: stageIdx,
+          score: savedScore,
+          timedClefProgress: normalizeTimedClefProgress(action.timedClefProgress, action),
+        };
       }
 
       case "BUY_POWERUP": {
@@ -258,6 +300,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           ...INITIAL_STATE,
           phase: "arcade", clef: action.clef, arcadeClef: action.clef,
           unlockedStages: state.unlockedStages, stats: state.stats, powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
           word, slots: getSlots(word), message: "Name the notes!",
           arcadeScore: 0, arcadeOver: false, arcadeWordDone: false,
           arcadePool: action.pool || null, arcadePractice: action.practice || false,
@@ -307,6 +350,167 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
       case "ARCADE_END":
         return { ...state, arcadeOver: true, enteringName: !state.arcadePractice, arcadeInitials: "" };
 
+      case "TIMED_START": {
+        const modeId = action.mode || "normal";
+        const specialMode = TIMED_SPECIAL_MODE_MAP[modeId] || null;
+        const levelIndex = specialMode ? TIMED_LEVELS.length - 1 : 0;
+        const word = getTimedWord(levelIndex, [], modeId);
+        const clefTimedProgress = state.timedClefProgress[action.clef] || INIT_TIMED_CLEF_PROGRESS[action.clef];
+        return {
+          ...INITIAL_STATE,
+          phase: "timed",
+          clef: action.clef,
+          unlockedStages: state.unlockedStages,
+          stats: state.stats,
+          powerups: state.powerups,
+          score: state.score,
+          timedClefProgress: state.timedClefProgress,
+          timedMode: modeId,
+          timedLevel: levelIndex,
+          timedLevelCorrect: 0,
+          timedScore: 0,
+          timedOver: false,
+          timedWordDone: false,
+          word,
+          slots: getSlots(word),
+          message: specialMode
+            ? `${specialMode.icon} ${specialMode.label} Mode! ${specialMode.seconds} second${specialMode.seconds === 1 ? "" : "s"} per ${specialMode.perNote ? "note" : "word"}.`
+            : `⏱️ ${TIMED_LEVELS[levelIndex].title} - ${TIMED_LEVELS[levelIndex].seconds} seconds per word.`,
+        };
+      }
+
+      case "TIMED_PICK": {
+        if (state.timedOver || state.timedWordDone || !state.word || !state.slots.length) return state;
+        const targetIdx = state.slots[state.slotIndex];
+        const expected = state.word.w[targetIdx];
+        const newStats = { ...state.stats };
+        newStats.totalGuesses = (newStats.totalGuesses || 0) + 1;
+        newStats.noteAttempts = { ...newStats.noteAttempts };
+        newStats.noteAttempts[expected] = (newStats.noteAttempts[expected] || 0) + 1;
+
+        if (action.note !== expected) {
+          return {
+            ...state,
+            highlights: { ...state.highlights, [state.slotIndex]: "wrong" },
+            message: state.timedMode !== "normal" ? "No time to hesitate - lock in the right note!" : "Try again before the timer runs out!",
+            stats: newStats,
+          };
+        }
+
+        newStats.correctGuesses = (newStats.correctGuesses || 0) + 1;
+        newStats.noteCorrect = { ...newStats.noteCorrect };
+        newStats.noteCorrect[expected] = (newStats.noteCorrect[expected] || 0) + 1;
+        const newGuessed = { ...state.guessed, [state.slotIndex]: action.note };
+        const newHL = { ...state.highlights, [state.slotIndex]: "correct" };
+
+        if (state.slotIndex + 1 < state.slots.length) {
+          return {
+            ...state,
+            guessed: newGuessed,
+            highlights: newHL,
+            slotIndex: state.slotIndex + 1,
+            message: `Nice! Keep going.`,
+            stats: newStats,
+          };
+        }
+
+        const level = TIMED_LEVELS[state.timedLevel] || TIMED_LEVELS[0];
+        const nextTimedScore = state.timedScore + 1;
+        const nextLevelCorrect = state.timedLevelCorrect + 1;
+        const currentClefProgress = state.timedClefProgress[state.clef] || INIT_TIMED_CLEF_PROGRESS[state.clef];
+        const countsTowardSpecialUnlocks =
+          (state.timedMode === "normal" && state.timedLevel === TIMED_LEVELS.length - 1) ||
+          state.timedMode === "diamond";
+        const nextDiamondProgress = countsTowardSpecialUnlocks
+          ? currentClefProgress.level3Clears + 1
+          : currentClefProgress.level3Clears;
+        const unlockedMode = TIMED_SPECIAL_MODES.find((mode) => {
+          if (nextDiamondProgress < mode.unlockGoal) return false;
+          if (mode.id === "diamond") return !currentClefProgress.diamondUnlocked;
+          if (mode.id === "legendary") return !currentClefProgress.legendaryUnlocked;
+          return false;
+        });
+        const canLevelUp = state.timedMode === "normal" && state.timedLevel < TIMED_LEVELS.length - 1 && nextLevelCorrect >= level.target;
+        newStats.wordsCompleted = (newStats.wordsCompleted || 0) + 1;
+        const currentLegendaryBadges = {
+          treble: false,
+          alto: false,
+          bass: false,
+          ...(newStats.legendaryBadges || {}),
+        };
+        const unlockedLegendaryBadge = state.timedMode === "legendary" && nextTimedScore >= 15 && !currentLegendaryBadges[state.clef];
+        if (unlockedLegendaryBadge) {
+          newStats.legendaryBadges = {
+            ...currentLegendaryBadges,
+            [state.clef]: true,
+          };
+        }
+
+        const nextClefTimedProgress = {
+          ...state.timedClefProgress,
+          [state.clef]: {
+            level3Clears: nextDiamondProgress,
+            diamondUnlocked: currentClefProgress.diamondUnlocked || nextDiamondProgress >= (TIMED_SPECIAL_MODE_MAP.diamond?.unlockGoal || Infinity),
+            legendaryUnlocked: currentClefProgress.legendaryUnlocked || nextDiamondProgress >= (TIMED_SPECIAL_MODE_MAP.legendary?.unlockGoal || Infinity),
+          },
+        };
+
+        return {
+          ...state,
+          guessed: newGuessed,
+          highlights: newHL,
+          timedScore: nextTimedScore,
+          timedWordDone: true,
+          timedLevelCorrect: canLevelUp ? 0 : nextLevelCorrect,
+          timedLevel: canLevelUp ? state.timedLevel + 1 : state.timedLevel,
+          timedClefProgress: nextClefTimedProgress,
+          timedUnlockedMode: unlockedMode?.id || null,
+          timedBadgeUnlockedClef: unlockedLegendaryBadge ? state.clef : null,
+          showConfetti: unlockedLegendaryBadge,
+          message: unlockedMode
+            ? `${unlockedMode.icon} ${unlockedMode.label} Mode unlocked!`
+            : unlockedLegendaryBadge
+              ? `👑 ${state.clef[0].toUpperCase()}${state.clef.slice(1)} Legendary Badge earned!`
+            : canLevelUp
+              ? `⚡ ${TIMED_LEVELS[state.timedLevel + 1].title} unlocked! ${TIMED_LEVELS[state.timedLevel + 1].seconds}s starts next.`
+              : state.timedMode !== "normal"
+                ? `${TIMED_SPECIAL_MODE_MAP[state.timedMode]?.icon || "⚡"} "${state.word.w}"!`
+                : `⏱️ "${state.word.w}" cleared!`,
+          stats: newStats,
+        };
+      }
+
+      case "TIMED_ADVANCE": {
+        const word = getTimedWord(state.timedLevel, [...state.usedWords, state.word?.w].filter(Boolean), state.timedMode);
+        const level = TIMED_LEVELS[state.timedLevel] || TIMED_LEVELS[0];
+        const specialMode = TIMED_SPECIAL_MODE_MAP[state.timedMode] || null;
+        return {
+          ...state,
+          word,
+          slots: getSlots(word),
+          slotIndex: 0,
+          guessed: {},
+          highlights: {},
+          usedWords: [...state.usedWords, state.word?.w].filter(Boolean),
+          timedWordDone: false,
+          timedUnlockedMode: null,
+          timedBadgeUnlockedClef: null,
+          showConfetti: false,
+          message: specialMode
+            ? `${specialMode.icon} ${specialMode.seconds} second${specialMode.seconds === 1 ? "" : "s"} per ${specialMode.perNote ? "note" : "word"}. Stay sharp!`
+            : `⏱️ ${level.title} - ${level.seconds} seconds per word.`,
+        };
+      }
+
+      case "TIMED_CLEAR": {
+        const newHL = { ...state.highlights };
+        delete newHL[action.index];
+        return { ...state, highlights: newHL };
+      }
+
+      case "TIMED_END":
+        return { ...state, timedOver: true, timedWordDone: false };
+
       case "SET_INIT": return { ...state, arcadeInitials: action.value.toUpperCase().slice(0, 3) };
       case "SUBMIT": return { ...state, enteringName: false, showLeaderboard: true };
       case "SHOW_LB": return { ...state, showLeaderboard: true };
@@ -325,6 +529,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           ...INITIAL_STATE,
           phase: "story", clef: action.clef,
           unlockedStages: state.unlockedStages, stats: state.stats, powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
           word, slots: getSlots(word), message: `Hint: "${word.h}"`,
           storyChapter: 0, storyComplete: false, storyWordDone: false,
         };
@@ -389,6 +594,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           ...INITIAL_STATE,
           phase: "song", clef: action.clef,
           unlockedStages: state.unlockedStages, stats: state.stats, powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
           songIndex: idx, songNoteIndex: 0, songNotes: song.notes,
           songDone: false, songCorrect: 0, songNoteWrongCount: 0,
           message: `🎵 ${song.title} — Name each note!`,
@@ -437,6 +643,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         return {
           ...INITIAL_STATE, phase: "weak", clef: action.clef,
           unlockedStages: state.unlockedStages, stats: state.stats, powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
           weakNotes, word, slots: getSlots(word), slotIndex: 0,
           guessed: {}, highlights: {}, weakScore: 0, weakTotal: 0,
           message: `Focus on: ${weakNotes.join(", ")}`,
@@ -516,6 +723,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           phase: "scramble", clef: action.clef,
           unlockedStages: state.unlockedStages, stats: state.stats, powerups: state.powerups,
           score: state.score,
+          timedClefProgress: state.timedClefProgress,
           scrambleWord: word,
           scrambleNotes: scrambled,
           scrambleGuessed: {},

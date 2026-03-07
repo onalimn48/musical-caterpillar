@@ -8,6 +8,7 @@ import MenuScreen from "./components/screens/MenuScreen.jsx";
 import SongScreen from "./components/screens/SongScreen.jsx";
 import StoryScreen from "./components/screens/StoryScreen.jsx";
 import ScrambleScreen from "./components/screens/ScrambleScreen.jsx";
+import TimedScreen from "./components/screens/TimedScreen.jsx";
 import WeakNotesScreen from "./components/screens/WeakNotesScreen.jsx";
 
 // ═══════════════════════════════════════════════════════════
@@ -74,6 +75,19 @@ export default function App() {
   if (state.phase === "arcade") {
     return (
       <ArcadeScreen
+        state={state}
+        dispatch={dispatch}
+        ff={ff}
+        css={css}
+        actions={actions}
+        derived={derived}
+      />
+    );
+  }
+
+  if (state.phase === "timed") {
+    return (
+      <TimedScreen
         state={state}
         dispatch={dispatch}
         ff={ff}
