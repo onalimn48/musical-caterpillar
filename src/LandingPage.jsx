@@ -37,6 +37,12 @@ const games = [
 ];
 
 const pills = ['🎧 Ear Training', '🎼 Note Reading', '⛄ Build Chords', '📱 Works on Phone', '🏆 Achievements', '🆓 100% Free'];
+const teacherLinks = [
+  { path: '/music-theory-games-for-kids', label: 'Music Theory Games for Kids' },
+  { path: '/music-classroom-games', label: 'Music Classroom Games' },
+  { path: '/how-to-teach-note-reading', label: 'How to Teach Note Reading' },
+  { path: '/music-warmups', label: 'Music Warmups' },
+];
 
 export default function LandingPage() {
   return (
@@ -136,6 +142,29 @@ export default function LandingPage() {
           >
             About
           </Link>
+        </div>
+        <div style={{
+          marginTop:28,padding:'20px 22px',borderRadius:20,
+          background:'linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03))',
+          border:'1px solid rgba(255,255,255,.1)',textAlign:'center',
+        }}>
+          <div style={{fontFamily:"'Fredoka',sans-serif",fontSize:22,color:'#fde68a',marginBottom:8}}>
+            For Teachers
+          </div>
+          <p style={{color:'#94a3b8',fontSize:14,lineHeight:1.6,maxWidth:620,margin:'0 auto 16px'}}>
+            Explore classroom ideas, warmups, and note-reading resources built to support music teachers.
+          </p>
+          <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',gap:10}}>
+            {teacherLinks.map(link => (
+              <Link key={link.path} to={link.path} style={{
+                textDecoration:'none',padding:'10px 14px',borderRadius:12,
+                color:'#e2e8f0',background:'rgba(15,23,42,.28)',
+                border:'1px solid rgba(255,255,255,.08)',fontWeight:700,fontSize:14,
+              }}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
