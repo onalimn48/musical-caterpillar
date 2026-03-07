@@ -20,6 +20,14 @@ export default function MenuScreen({
     setClef(clef);
     dispatch({ type, clef, ...extra });
   };
+  const sectionCardStyle = {
+    width: "100%",
+    maxWidth: 640,
+    borderRadius: 24,
+    padding: "18px 16px",
+    marginBottom: 20,
+    boxShadow: "0 10px 30px rgba(15,23,42,.06)",
+  };
   return (
     <GameLayout
       background={bgGradient}
@@ -139,12 +147,11 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fff5f5,#fff1f2)", border: "2px solid #fecaca", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#dc2626" }}>📖 Story Mode</span>
-        <span style={{ fontSize: 11, color: "#9ca3af", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>NEW</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340 }}>A fantasy adventure! Spell words to advance through the story.</p>
+      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>A fantasy adventure! Spell words to advance through the story.</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -158,13 +165,13 @@ export default function MenuScreen({
           </button>
         ))}
       </div>
-
-      <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "#f59e0b" }}>🎵 Song Mode</span>
-        <span style={{ fontSize: 11, color: "#9ca3af", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>NEW</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340 }}>Play along with famous melodies! See notes on staff and name them.</p>
+
+      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fffaf0,#fffbeb)", border: "2px solid #fde68a", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "#f59e0b" }}>🎵 Song Mode</span>
+      </div>
+      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>Play along with famous melodies! See notes on staff and name them.</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -178,13 +185,13 @@ export default function MenuScreen({
           </button>
         ))}
       </div>
-
-      <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "#8b5cf6" }}>🔀 Scramble Mode</span>
-        <span style={{ fontSize: 11, color: "#9ca3af", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>NEW</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340 }}>Notes are scrambled! Read them all, figure out the word, then spell it in order.</p>
+
+      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#faf5ff,#f5f3ff)", border: "2px solid #ddd6fe", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "#8b5cf6" }}>🔀 Scramble Mode</span>
+      </div>
+      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>Notes are scrambled! Read them all, figure out the word, then spell it in order.</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -198,13 +205,13 @@ export default function MenuScreen({
           </button>
         ))}
       </div>
-
-      <div style={{ width: "100%", maxWidth: 380, height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "#dc2626" }}>🎯 Practice Weak Notes</span>
-        <span style={{ fontSize: 11, color: "#9ca3af", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>NEW</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340 }}>
+
+      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fff5f5,#fef2f2)", border: "2px solid #fecaca", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "#dc2626" }}>🎯 Practice Weak Notes</span>
+      </div>
+      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 340, marginInline: "auto" }}>
         {(state.stats.totalGuesses || 0) < 10 ? "Play some rounds first so we can find your weak spots!" : "Auto-targets the notes you struggle with most!"}
       </p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
@@ -221,11 +228,13 @@ export default function MenuScreen({
           </button>
         ))}
       </div>
+      </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#f3fff5,#f0fdf4)", border: "2px solid #bbf7d0", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: "#22c55e" }}>🎮 Practice Arcade</span>
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 320 }}>60 seconds, Stage 1 words only. No leaderboard!</p>
+      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 12, textAlign: "center", maxWidth: 320, marginInline: "auto" }}>60 seconds, Stage 1 words only. No leaderboard!</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20 }}>
         {CLEFS.map((clef) => (
           <button
@@ -239,12 +248,14 @@ export default function MenuScreen({
           </button>
         ))}
       </div>
+      </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+      <div style={{ ...sectionCardStyle, background: "linear-gradient(180deg,#fffaf0,#fffbeb)", border: "2px solid #fde68a", textAlign: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: fullArcadeUnlocked ? "#f59e0b" : "#9ca3af" }}>⏱️ Full Arcade</span>
         {!fullArcadeUnlocked && <span style={{ fontSize: 11, color: "#d1d5db", background: "#f3f4f6", borderRadius: 6, padding: "2px 8px" }}>🔒 Unlock Stage 3</span>}
       </div>
-      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 14, textAlign: "center", maxWidth: 320 }}>60 seconds, all words, leaderboard enabled!</p>
+      <p style={{ color: "#9ca3af", fontSize: 12, marginBottom: 14, textAlign: "center", maxWidth: 320, marginInline: "auto" }}>60 seconds, all words, leaderboard enabled!</p>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginBottom: 20, opacity: fullArcadeUnlocked ? 1 : 0.4 }}>
         {CLEFS.map((clef) => (
           <button
@@ -258,6 +269,7 @@ export default function MenuScreen({
             <span style={{ fontSize: 26, display: "block", marginBottom: 2 }}>{getClefMeta(clef).symbol}</span>Arcade {getClefMeta(clef).modeLabel}
           </button>
         ))}
+      </div>
       </div>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
