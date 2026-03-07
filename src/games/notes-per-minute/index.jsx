@@ -60,8 +60,6 @@ export default function NotesPerMinute() {
       overflow: "hidden",
       position: "relative",
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
-
       <div style={{
         position: "fixed", top: "-30%", left: "-10%", width: "60%", height: "60%",
         background: "radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, transparent 70%)",
