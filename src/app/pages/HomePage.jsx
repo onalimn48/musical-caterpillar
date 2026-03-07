@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import caterpillarSingingGif from '../../../assets/caterpillar_singing_notes_v5.gif';
 
 const games = [
   {
@@ -88,12 +89,18 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section style={{position:'relative',zIndex:1,textAlign:'center',padding:'clamp(40px,8vh,72px) 20px 12px'}}>
-        <img src="/logo.png" alt="Musical Caterpillar"
+        <img
+          src={caterpillarSingingGif}
+          alt="Animated green caterpillar in a top hat singing musical notes."
           style={{
-            width:'clamp(140px,30vw,220px)',
+            width:'clamp(150px,30vw,230px)',
+            height:'auto',
+            display:'block',
+            margin:'0 auto',
             animation:'catBounce 2s ease-in-out infinite',
             filter:'drop-shadow(0 8px 24px rgba(74,222,128,.3))',
-          }}/>
+          }}
+        />
         <h1 style={{
           fontFamily:"'Fredoka',sans-serif",fontSize:'clamp(32px,7vw,56px)',fontWeight:700,
           background:'linear-gradient(135deg,#4ade80,#22d3ee,#a78bfa)',
