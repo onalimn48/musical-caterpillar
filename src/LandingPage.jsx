@@ -156,13 +156,13 @@ export default function LandingPage() {
           </p>
           <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',gap:10}}>
             {teacherLinks.map(link => (
-              <Link key={link.path} to={link.path} style={{
+              <a key={link.path} href={link.path} style={{
                 textDecoration:'none',padding:'10px 14px',borderRadius:12,
                 color:'#e2e8f0',background:'rgba(15,23,42,.28)',
                 border:'1px solid rgba(255,255,255,.08)',fontWeight:700,fontSize:14,
               }}>
                 {link.label}
-              </Link>
+              </a>
             ))}
           </div>
         </div>
