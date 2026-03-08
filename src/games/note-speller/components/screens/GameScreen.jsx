@@ -117,14 +117,6 @@ export default function GameScreen({
           center={
             <>
               <LevelBadge stats={state.stats} />
-              <ScorePanel
-                label="Stage"
-                value={stage.id}
-                tone="mint"
-                style={{ background: `${stage.color}18`, color: stage.color, boxShadow: "none", border: `2px solid ${stage.color}44` }}
-                valueStyle={{ fontSize: 11, fontWeight: 700 }}
-                labelStyle={{ fontSize: 9, color: stage.color, opacity: 0.8 }}
-              />
             </>
           }
           right={
@@ -139,36 +131,42 @@ export default function GameScreen({
         </div>
       </GameContainer>
 
-      <div style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>{clefMeta.symbol} {clefMeta.name} · Word #{state.completed + 1}</div>
-      <GameContainer maxWidth={420} style={{ display: "flex", justifyContent: "center" }}>
-        <StreakMeter label="Streak" value={state.streak ?? 0} accent="#7c3aed" style={{ margin: "28px 0 6px" }}>
-          <MusicalCaterpillarMeter
-            streak={state.streak ?? 0}
-            streakMilestone={state.streakMilestone}
-            progress={(state.streak ?? 0) % 10}
-            butterflyRemaining={butterflyDisplayRemaining}
-            triggerButterfly={butterflyToken}
-            milestoneScopeKey={`${state.phase}:${state.clef}`}
+      <div className="note-speller-status-row" style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>{clefMeta.symbol} {clefMeta.name} · Word #{state.completed + 1}</div>
+      <div className="note-speller-streak-powerups-cluster">
+        <GameContainer maxWidth={420} style={{ display: "flex", justifyContent: "center", width: "auto" }}>
+          <div className="note-speller-streak-wrap">
+            <StreakMeter label="Streak" value={state.streak ?? 0} accent="#7c3aed" style={{ margin: "28px 0 6px" }}>
+              <MusicalCaterpillarMeter
+                streak={state.streak ?? 0}
+                streakMilestone={state.streakMilestone}
+                progress={(state.streak ?? 0) % 10}
+                butterflyRemaining={butterflyDisplayRemaining}
+                triggerButterfly={butterflyToken}
+                milestoneScopeKey={`${state.phase}:${state.clef}`}
+              />
+            </StreakMeter>
+          </div>
+        </GameContainer>
+
+        <div className="note-speller-powerups-wrap">
+          <PowerupsBar
+            powerups={state.powerups}
+            score={state.score}
+            isDone={state.isDone}
+            onBuy={handleBuyPowerup}
+            onUse={handleUsePowerup}
           />
-        </StreakMeter>
-      </GameContainer>
+        </div>
+      </div>
 
       {(state.doubleActive || state.shieldActive) && (
-        <div style={{ display: "flex", gap: 6, marginBottom: 4 }}>
+        <div className="note-speller-active-effects-row" style={{ display: "flex", gap: 6, marginBottom: 4 }}>
           {state.doubleActive && <span style={{ fontSize: 11, color: "#f59e0b", background: "#fef3c7", borderRadius: 6, padding: "2px 8px", fontWeight: 600, animation: "pulse 1.5s ease-in-out infinite" }}>✨ 2× Active</span>}
           {state.shieldActive && <span style={{ fontSize: 11, color: "#3b82f6", background: "#dbeafe", borderRadius: 6, padding: "2px 8px", fontWeight: 600, animation: "pulse 1.5s ease-in-out infinite" }}>🛡️ Shield Active</span>}
         </div>
       )}
 
-      <PowerupsBar
-        powerups={state.powerups}
-        score={state.score}
-        isDone={state.isDone}
-        onBuy={handleBuyPowerup}
-        onUse={handleUsePowerup}
-      />
-
-      <div style={{ background: colors.panel, border: colors.panelBorder, borderRadius: 12, padding: "7px 18px", marginBottom: 8, boxShadow: colors.cardShadow, fontSize: 13, color: colors.message, fontWeight: 500, maxWidth: 460, textAlign: "center", lineHeight: 1.4, animation: state.transitioning ? "fadeSlideOut 0.3s ease forwards" : "fadeSlideIn 0.3s ease" }}>{state.message}</div>
+      <div className="note-speller-message-card" style={{ background: colors.panel, border: colors.panelBorder, borderRadius: 12, padding: "7px 18px", marginBottom: 8, boxShadow: colors.cardShadow, fontSize: 13, color: colors.message, fontWeight: 500, maxWidth: 460, textAlign: "center", lineHeight: 1.4, animation: state.transitioning ? "fadeSlideOut 0.3s ease forwards" : "fadeSlideIn 0.3s ease" }}>{state.message}</div>
 
       <div className="staffRow" style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 0, background: colors.panel, border: colors.panelBorder, borderRadius: 16, padding: "6px 8px", boxShadow: colors.cardShadow, marginBottom: 6, maxWidth: 600, width: "100%", overflowX: "auto", transform: noteScale < 1 ? `scale(${noteScale})` : undefined, transformOrigin: "center top", animation: state.transitioning ? "fadeSlideOut 0.3s ease forwards" : "fadeSlideIn 0.3s ease" }}>
         {letters.map((ch, wi) => {

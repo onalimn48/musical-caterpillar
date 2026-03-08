@@ -5,17 +5,17 @@ export default function PowerupBtn({ powerup, count, score, onBuy, onUse, disabl
   const canBuy = score >= powerup.cost;
   const hasOne = count > 0;
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, position: "relative" }}
+    <div className="note-speller-powerup-item" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, position: "relative", flex: "0 0 auto" }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       {hovered && !disabled && (
-        <div style={{
+        <div className="note-speller-powerup-tooltip" style={{
           position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
           background: "#1f2937", color: "#fff", fontSize: 11, fontWeight: 500, fontFamily: "'Fredoka',sans-serif",
           padding: "5px 9px", borderRadius: 8, whiteSpace: "nowrap", zIndex: 20,
           boxShadow: "0 2px 8px rgba(0,0,0,.25)", pointerEvents: "none",
         }}>
           {powerup.desc}
-          <div style={{
+          <div className="note-speller-powerup-tooltip-arrow" style={{
             position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
             width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent",
             borderTop: "5px solid #1f2937",
@@ -23,6 +23,7 @@ export default function PowerupBtn({ powerup, count, score, onBuy, onUse, disabl
         </div>
       )}
       <button
+        className="note-speller-powerup-button"
         onClick={() => { if (hasOne && !disabled) onUse(powerup.id); else if (canBuy && !disabled) onBuy(powerup.id); }}
         disabled={disabled || (!hasOne && !canBuy)}
         style={{
@@ -41,8 +42,31 @@ export default function PowerupBtn({ powerup, count, score, onBuy, onUse, disabl
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "'Fredoka',sans-serif",
         }}>{count}</span>}
+        {!hasOne && (
+          <span
+            className="note-speller-powerup-cost-badge"
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: -7,
+              transform: "translateX(-50%)",
+              background: canBuy ? "#7c3aed" : "#64748b",
+              color: "white",
+              borderRadius: 999,
+              padding: "1px 5px",
+              fontSize: 8,
+              fontWeight: 700,
+              lineHeight: 1.2,
+              fontFamily: "'Fredoka',sans-serif",
+              whiteSpace: "nowrap",
+              boxShadow: "0 2px 6px rgba(15,23,42,.18)",
+            }}
+          >
+            ⭐{powerup.cost}
+          </span>
+        )}
       </button>
-      <div style={{ fontSize: 9, color: hasOne ? "#f59e0b" : "#9ca3af", fontWeight: 600, fontFamily: "'Fredoka',sans-serif", textAlign: "center" }}>
+      <div className={`note-speller-powerup-label ${hasOne ? "is-owned" : "is-priced"}`} style={{ fontSize: 9, color: hasOne ? "#f59e0b" : "#9ca3af", fontWeight: 600, fontFamily: "'Fredoka',sans-serif", textAlign: "center" }}>
         {hasOne ? "Use" : `⭐${powerup.cost}`}
       </div>
     </div>

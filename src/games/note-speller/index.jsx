@@ -75,6 +75,7 @@ export default function App() {
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     button{touch-action:manipulation}
     html,body{overscroll-behavior:none}
+    .note-speller-powerup-cost-badge{display:none}
     @media(max-width:480px){
       .noteGrid{gap:6px !important}
     }
@@ -95,6 +96,96 @@ export default function App() {
       }
       .note-speller-game-hud{
         padding-right:56px;
+      }
+      .note-speller-status-row{
+        margin-bottom:3px !important;
+      }
+      .note-speller-streak-powerups-cluster{
+        display:flex;
+        align-items:flex-start;
+        justify-content:center;
+        gap:0;
+        width:auto;
+        max-width:100%;
+        position:relative;
+      }
+      .note-speller-streak-wrap{
+        flex:0 1 auto;
+        transform:scale(.88);
+        transform-origin:center top;
+        margin-top:-10px;
+        margin-bottom:-22px;
+        position:relative;
+        z-index:1;
+      }
+      .note-speller-active-effects-row{
+        gap:4px !important;
+        margin-bottom:2px !important;
+      }
+      .note-speller-powerups-wrap{
+        width:auto;
+        max-width:none;
+        margin-bottom:0;
+        flex:0 0 auto;
+        margin-left:-48px;
+        margin-top:68px;
+        position:relative;
+        z-index:4;
+      }
+      .note-speller-powerups-bar{
+        flex-direction:column;
+        gap:5px !important;
+        justify-content:flex-start !important;
+        align-items:center !important;
+        padding:6px 6px !important;
+        margin-bottom:4px !important;
+        border-radius:12px !important;
+      }
+      .note-speller-powerup-button{
+        width:38px !important;
+        height:38px !important;
+        border-radius:10px !important;
+        font-size:17px !important;
+      }
+      .note-speller-powerup-cost-badge{
+        display:flex !important;
+      }
+      .note-speller-powerup-label{
+        display:block;
+        font-size:8px !important;
+        margin-top:1px;
+        min-height:10px;
+      }
+      .note-speller-powerup-label.is-priced{
+        display:none;
+      }
+      .note-speller-powerup-label.is-owned{
+        display:block;
+      }
+      .note-speller-powerup-tooltip{
+        left:auto !important;
+        right:calc(100% + 8px) !important;
+        bottom:50% !important;
+        transform:translateY(50%) !important;
+        max-width:120px;
+        white-space:normal !important;
+        text-align:center;
+      }
+      .note-speller-powerup-tooltip-arrow{
+        top:50% !important;
+        left:100% !important;
+        transform:translateY(-50%) !important;
+        border-top:5px solid transparent !important;
+        border-bottom:5px solid transparent !important;
+        border-left:5px solid #1f2937 !important;
+        border-right:none !important;
+      }
+      .note-speller-message-card{
+        padding:6px 12px !important;
+        margin-bottom:5px !important;
+        font-size:12px !important;
+        line-height:1.32 !important;
+        max-width:420px !important;
       }
     }
     .staffRow{display:flex;justify-content:center;flex-wrap:nowrap;border-radius:16px;padding:6px 4px;margin-bottom:6px;max-width:600px;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}

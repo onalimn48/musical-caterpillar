@@ -4,7 +4,7 @@ import PowerupButton from "./PowerupButton.jsx";
 
 export function PowerupsBar({ powerups, score, isDone, onBuy, onUse }) {
   return (
-    <div style={{
+    <div className="note-speller-powerups-bar" style={{
       display: "flex", gap: 8, justifyContent: "center", alignItems: "flex-start",
       padding: "8px 12px", borderRadius: 14,
       background: "#f5f3ff66",
