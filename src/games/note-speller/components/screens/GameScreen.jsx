@@ -110,7 +110,8 @@ export default function GameScreen({
         </div>
       )}
 
-      <GameContainer maxWidth={560}>
+      <GameContainer maxWidth={560} style={{ width: "100%" }}>
+        <div className="note-speller-game-hud">
         <GameHUD
           left={<button onClick={() => { clearTimer(); dispatch({ type: "MENU" }); }} style={{ background: "none", border: "none", fontSize: 13, color: colors.accent, cursor: "pointer", fontFamily: ff, fontWeight: 500 }}>← Back</button>}
           center={
@@ -135,6 +136,7 @@ export default function GameScreen({
             </>
           }
         />
+        </div>
       </GameContainer>
 
       <div style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>{clefMeta.symbol} {clefMeta.name} · Word #{state.completed + 1}</div>

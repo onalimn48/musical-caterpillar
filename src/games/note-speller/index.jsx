@@ -14,6 +14,7 @@ import WeakNotesScreen from "./components/screens/WeakNotesScreen.jsx";
 function ThemeToggle({ darkMode, onToggle, fontFamily }) {
   return (
     <button
+      className="note-speller-theme-toggle"
       onClick={onToggle}
       title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
       style={{
@@ -34,7 +35,10 @@ function ThemeToggle({ darkMode, onToggle, fontFamily }) {
         backdropFilter: "blur(10px)",
       }}
     >
-      {darkMode ? "☀️ Light" : "🌙 Dark"}
+      <span aria-hidden="true">{darkMode ? "☀️" : "🌙"}</span>
+      <span className="note-speller-theme-toggle-label" style={{ marginLeft: 6 }}>
+        {darkMode ? "Light" : "Dark"}
+      </span>
     </button>
   );
 }
@@ -76,6 +80,22 @@ export default function App() {
     }
     @media(max-width:380px){
       svg{max-width:100%}
+    }
+    @media(max-width:520px){
+      .note-speller-theme-toggle{
+        top:max(8px, calc(env(safe-area-inset-top, 0px) + 8px)) !important;
+        right:8px !important;
+        padding:8px 10px !important;
+        min-width:40px;
+        min-height:40px;
+        font-size:12px !important;
+      }
+      .note-speller-theme-toggle-label{
+        display:none;
+      }
+      .note-speller-game-hud{
+        padding-right:56px;
+      }
     }
     .staffRow{display:flex;justify-content:center;flex-wrap:nowrap;border-radius:16px;padding:6px 4px;margin-bottom:6px;max-width:600px;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
     @media(max-width:500px){.staffRow{transform:scale(0.82);transform-origin:center top;margin-bottom:-12px}}
