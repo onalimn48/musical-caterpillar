@@ -61,7 +61,7 @@ export default function MenuScreen({
     <GameLayout
       background={bgGradient}
       fontFamily={ff}
-      padding="24px 16px env(safe-area-inset-bottom, 24px)"
+      padding="24px 16px calc(env(safe-area-inset-bottom, 0px) + 56px)"
       justify="flex-start"
       style={{ overflowY: "auto" }}
       styleContent={css}
@@ -301,9 +301,9 @@ export default function MenuScreen({
       </div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-        {leaderboard.length > 0 && <button onClick={() => dispatch({ type: "SHOW_LB" })} style={{ background: "none", border: "2px solid #f59e0b44", borderRadius: 10, padding: "6px 18px", color: "#f59e0b", fontSize: 13, fontWeight: 600, fontFamily: ff, cursor: "pointer" }}>🏆 Arcade LB</button>}
-        <button onClick={() => dispatch({ type: "SHOW_STATS" })} style={{ background: "none", border: "2px solid #7c3aed44", borderRadius: 10, padding: "6px 18px", color: "#7c3aed", fontSize: 13, fontWeight: 600, fontFamily: ff, cursor: "pointer" }}>📊 Stats</button>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", width: "100%", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }}>
+        {leaderboard.length > 0 && <button onClick={() => dispatch({ type: "SHOW_LB" })} style={{ background: "none", border: "2px solid #f59e0b44", borderRadius: 12, padding: "10px 18px", minHeight: 44, color: "#f59e0b", fontSize: 13, fontWeight: 600, fontFamily: ff, cursor: "pointer" }}>🏆 Arcade LB</button>}
+        <button onClick={() => dispatch({ type: "SHOW_STATS" })} style={{ background: "none", border: "2px solid #7c3aed44", borderRadius: 12, padding: "10px 18px", minHeight: 44, color: "#7c3aed", fontSize: 13, fontWeight: 600, fontFamily: ff, cursor: "pointer" }}>📊 Stats</button>
       </div>
     </GameLayout>
   );
