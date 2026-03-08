@@ -203,7 +203,7 @@ export default function GameScreen({
         ))}
       </div>
       <div style={{ color: colors.hint, fontSize: 11, marginTop: 8, display: "flex", alignItems: "center", gap: 10, justifyContent: "center" }}>
-        <span>💡 Press A–G on your keyboard!</span>
+        <span className="note-speller-keyboard-hint">💡 Press A–G on your keyboard!</span>
         <button onClick={() => setShowStaffHint(true)} style={{ background: "none", border: darkMode ? "1.5px solid rgba(196,181,253,.3)" : "1.5px solid #c084fc44", borderRadius: 8, padding: "3px 10px", color: colors.accent, fontSize: 11, fontWeight: 600, fontFamily: ff, cursor: "pointer" }}>📏 Staff Hint</button>
       </div>
       {showStaffHint && <StaffHint clef={state.clef} onClose={() => setShowStaffHint(false)} />}

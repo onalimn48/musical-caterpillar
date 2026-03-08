@@ -187,6 +187,9 @@ export default function App() {
         line-height:1.32 !important;
         max-width:420px !important;
       }
+      .note-speller-keyboard-hint{
+        display:none;
+      }
     }
     .staffRow{display:flex;justify-content:center;flex-wrap:nowrap;border-radius:16px;padding:6px 4px;margin-bottom:6px;max-width:600px;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
     @media(max-width:500px){.staffRow{transform:scale(0.82);transform-origin:center top;margin-bottom:-12px}}
