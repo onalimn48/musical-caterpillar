@@ -192,19 +192,6 @@ export default function WhyMusicalCaterpillar() {
           <li>No account required — share a link and students are playing in seconds</li>
         </ul>
 
-        <blockquote style={{
-          borderLeft: "4px solid #93c5fd",
-          margin: "0 0 32px",
-          padding: "8px 0 8px 20px",
-          color: "#1e293b",
-          fontStyle: "italic",
-        }}>
-          <p style={{ margin: "0 0 8px" }}>
-            &quot;I recommend this to all my students as between-lesson practice. It&apos;s the only app that actually reinforces what I&apos;m teaching instead of replacing it with colored tiles.&quot;
-          </p>
-          <footer>— Piano teacher</footer>
-        </blockquote>
-
         <h2 style={{ fontSize: "1.75rem", margin: "40px 0 16px" }}>Frequently Asked Questions</h2>
 
         <h3 style={{ fontSize: "1.25rem", margin: "24px 0 12px" }}>Is Musical Caterpillar really free?</h3>
