@@ -187,7 +187,21 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer style={{position:'relative',zIndex:1,textAlign:'center',padding:'24px 20px 40px',borderTop:'1px solid rgba(255,255,255,.06)'}}>
-        <p style={{color:'#475569',fontSize:12}}>Made with 🎵 for young musicians everywhere</p>
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8}}>
+          <Link
+            to="/why-musical-caterpillar"
+            style={{
+              color:'#94a3b8',
+              fontSize:13,
+              textDecoration:'none',
+              borderBottom:'1px solid rgba(148,163,184,.35)',
+              paddingBottom:2,
+            }}
+          >
+            Why Musical Caterpillar
+          </Link>
+          <p style={{color:'#475569',fontSize:12}}>Made with 🎵 for young musicians everywhere</p>
+        </div>
       </footer>
     </div>
   );
