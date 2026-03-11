@@ -34,6 +34,7 @@ import {
   playChordSequence,
   playBuzz,
   playChime,
+  warmPianoSamples,
 } from "../hooks/audio.js";
 import { useMidiInput } from "../hooks/midi.js";
 
@@ -150,6 +151,10 @@ export function useChordSnowmanState() {
       if (loaded.achievements) setUnlockedAch(loaded.achievements);
       setStorageLoaded(true);
     })();
+  }, []);
+
+  useEffect(() => {
+    warmPianoSamples();
   }, []);
 
   useEffect(() => {

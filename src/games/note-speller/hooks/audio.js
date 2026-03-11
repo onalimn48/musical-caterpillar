@@ -1,17 +1,8 @@
 import { getRenderedNoteName } from "../data/staff.js";
-
-const AudioCtxClass = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
-let sharedCtx = null;
+import { getSharedAudioContext, playSampledPianoNote, warmPianoSamples } from "../../shared/audio/pianoSampler.js";
 
 function getAudioCtx() {
-  if (!AudioCtxClass) return null;
-  if (!sharedCtx || sharedCtx.state === "closed") {
-    sharedCtx = new AudioCtxClass();
-  }
-  if (sharedCtx.state === "suspended") {
-    sharedCtx.resume().catch(() => {});
-  }
-  return sharedCtx;
+  return getSharedAudioContext();
 }
 
 const FREQ_TABLE = {
@@ -31,6 +22,19 @@ export function getFrequency(note, clef, extended, songMode) {
 export function playNoteSound(freq, type = "correct") {
   const ctx = getAudioCtx();
   if (!ctx) return;
+  if (type === "correct") {
+    const midi = Math.round(69 + 12 * Math.log2(freq / 440));
+    playSampledPianoNote({
+      midi,
+      duration: 0.45,
+      onFallback: () => playSynthNote(ctx, freq, type),
+    });
+    return;
+  }
+  playSynthNote(ctx, freq, type);
+}
+
+function playSynthNote(ctx, freq, type) {
   try {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -44,6 +48,8 @@ export function playNoteSound(freq, type = "correct") {
     osc.stop(ctx.currentTime + (type === "correct" ? 0.45 : 0.2));
   } catch (e) {}
 }
+
+export { warmPianoSamples };
 
 export function playSuccessChime() {
   const ctx = getAudioCtx();
@@ -74,26 +80,40 @@ export function playSongMelody(notes, clef, onStart, onEnd, rhythm) {
     let t = ctx.currentTime + 0.05;
     notes.forEach((raw, i) => {
       const name = getRenderedNoteName(raw, clef, { songMode: true });
-      const freq = FREQ_TABLE[name] || 440;
       const beats = rhythm && rhythm[i] ? rhythm[i] : 1;
       const dur = beats * beatDur;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "triangle";
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.16, t + 0.02);
-      gain.gain.setValueAtTime(0.16, t + dur * 0.75);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.95);
-      osc.start(t);
-      osc.stop(t + dur);
+      const noteMatch = /^([A-G])(\d)$/.exec(name);
+      if (noteMatch) {
+        playSampledPianoNote({
+          name: noteMatch[1],
+          octave: Number(noteMatch[2]),
+          duration: dur * 0.95,
+          delay: t - ctx.currentTime,
+          onFallback: () => playSynthScheduled(ctx, FREQ_TABLE[name] || 440, t, dur),
+        });
+      } else {
+        playSynthScheduled(ctx, FREQ_TABLE[name] || 440, t, dur);
+      }
       t += dur;
     });
     const totalTime = (t - ctx.currentTime) * 1000 + 300;
     setTimeout(() => { if (onEnd) onEnd(); }, totalTime);
   } catch (e) { if (onEnd) onEnd(); }
+}
+
+function playSynthScheduled(ctx, freq, time, duration) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = "triangle";
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(0.16, time + 0.02);
+  gain.gain.setValueAtTime(0.16, time + duration * 0.75);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + duration * 0.95);
+  osc.start(time);
+  osc.stop(time + duration);
 }
 
 export function playPowerupSound() {

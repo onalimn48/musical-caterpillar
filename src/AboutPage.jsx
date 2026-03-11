@@ -46,6 +46,32 @@ export default function AboutPage() {
             The site is designed for classrooms, home practice, and young musicians who learn best when curiosity and repetition work together. Every game is meant to make core music skills feel less intimidating and more inviting.
           </p>
 
+          <div style={{
+            marginTop:20,padding:'14px 16px',borderRadius:16,
+            background:'rgba(15,23,42,.24)',border:'1px solid rgba(255,255,255,.08)',
+          }}>
+            <p style={{fontSize:14,color:'#cbd5e1',lineHeight:1.65,margin:0}}>
+              Piano samples used in Chord Snowman are based on{' '}
+              <a
+                href="https://archive.org/details/SalamanderGrandPianoV3"
+                target="_blank"
+                rel="noreferrer"
+                style={{color:'#93c5fd'}}
+              >
+                Salamander Grand Piano
+              </a>{' '}
+              by Alexander Holm and are licensed under{' '}
+              <a
+                href="https://creativecommons.org/licenses/by/3.0/"
+                target="_blank"
+                rel="noreferrer"
+                style={{color:'#93c5fd'}}
+              >
+                CC BY 3.0
+              </a>.
+            </p>
+          </div>
+
           <div style={{display:'flex',justifyContent:'center',gap:12,flexWrap:'wrap',marginTop:24}}>
             <Link
               to="/"

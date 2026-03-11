@@ -19,6 +19,18 @@ function detectPlatform() {
   return { isIos, isSafari };
 }
 
+function subscribeToDisplayModeChange(callback) {
+  const mediaQuery = window.matchMedia('(display-mode: standalone)');
+
+  if (typeof mediaQuery.addEventListener === 'function') {
+    mediaQuery.addEventListener('change', callback);
+    return () => mediaQuery.removeEventListener('change', callback);
+  }
+
+  mediaQuery.addListener(callback);
+  return () => mediaQuery.removeListener(callback);
+}
+
 export default function InstallAppCard() {
   const [{ deferredPrompt, installed, showIosHelp }, setState] = useState({
     deferredPrompt: null,
@@ -43,14 +55,15 @@ export default function InstallAppCard() {
       }
     }
 
+    const unsubscribe = subscribeToDisplayModeChange(onDisplayModeChange);
+
     window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
     window.addEventListener('appinstalled', onInstalled);
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', onDisplayModeChange);
 
     return () => {
+      unsubscribe();
       window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
       window.removeEventListener('appinstalled', onInstalled);
-      window.matchMedia('(display-mode: standalone)').removeEventListener('change', onDisplayModeChange);
     };
   }, []);
 

@@ -5,7 +5,7 @@ import { STAGES } from "../data/stages.js";
 import { STORY_CHAPTERS } from "../data/story.js";
 import { TIMED_LEVELS, TIMED_SPECIAL_MODES, TIMED_SPECIAL_MODE_MAP } from "../data/timed.js";
 import { ARCADE_WORDS, MUSIC_NOTES } from "../data/words.js";
-import { getFrequency, playNoteSound, playPowerupSound, playSongMelody, playSuccessChime } from "../hooks/audio.js";
+import { getFrequency, playNoteSound, playPowerupSound, playSongMelody, playSuccessChime, warmPianoSamples } from "../hooks/audio.js";
 import {
   getButterflyDisplayRemaining,
 } from "./gameLogic.js";
@@ -89,6 +89,10 @@ export function useNoteSpellerState() {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+  }, []);
+
+  useEffect(() => {
+    warmPianoSamples();
   }, []);
 
   const handleUsePowerup = useCallback((id) => {

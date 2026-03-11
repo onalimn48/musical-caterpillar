@@ -1,17 +1,14 @@
 import { INTERVAL_DB, SONG_SNIPPETS } from "../data/intervals.js";
-import { getFreq } from "../state/gameLogic.js";
+import { getFreq, noteToMidi } from "../state/gameLogic.js";
+import { getSharedAudioContext, playSampledPianoNote, warmPianoSamples } from "../../shared/audio/pianoSampler.js";
 
-const AudioCtxClass = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
-let sharedCtx = null;
+export { warmPianoSamples };
 
 function getCtx() {
-  if (!AudioCtxClass) return null;
-  if (!sharedCtx || sharedCtx.state === "closed") sharedCtx = new AudioCtxClass();
-  if (sharedCtx.state === "suspended") sharedCtx.resume().catch(() => {});
-  return sharedCtx;
+  return getSharedAudioContext();
 }
 
-export function playNote(name, octave, duration = 0.5, delay = 0, type = "triangle") {
+function playOscillatorNote(name, octave, duration = 0.5, delay = 0, type = "triangle") {
   const ctx = getCtx();
   if (!ctx) return;
   try {
@@ -30,6 +27,41 @@ export function playNote(name, octave, duration = 0.5, delay = 0, type = "triang
     osc.start(t);
     osc.stop(t + duration);
   } catch (e) {}
+}
+
+function playBufferedPianoNote(ctx, sample, midi, duration, delay) {
+  const source = ctx.createBufferSource();
+  const gain = ctx.createGain();
+  source.buffer = sample.buffer;
+  source.playbackRate.value = 2 ** ((midi - sample.midi) / 12);
+  source.connect(gain);
+  gain.connect(ctx.destination);
+
+  const t = ctx.currentTime + delay;
+  const releaseStart = t + Math.max(0.08, duration * 0.82);
+  const stopTime = t + duration + 0.14;
+
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.linearRampToValueAtTime(0.32, t + 0.01);
+  gain.gain.setValueAtTime(0.32, releaseStart);
+  gain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+
+  source.start(t);
+  source.stop(stopTime + 0.02);
+}
+
+export function playNote(name, octave, duration = 0.5, delay = 0, type = "triangle") {
+  const ctx = getCtx();
+  if (!ctx) return;
+
+  playSampledPianoNote({
+    name,
+    octave,
+    midi: noteToMidi(name, octave),
+    duration,
+    delay,
+    onFallback: () => playOscillatorNote(name, octave, duration, delay, type),
+  });
 }
 
 export function playTwoNotes(n1, o1, n2, o2, cb) {
