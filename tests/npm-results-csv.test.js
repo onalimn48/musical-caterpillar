@@ -80,6 +80,9 @@ test("csv export record maps the completed benchmark session fields exactly", ()
     max_excess_delay_ms: 810,
     top_delayed_note: "G3",
     top_delayed_note_group: "Bass clef line notes",
+    below_threshold_diagnosis: "",
+    below_threshold_analysis: "",
+    below_threshold_teacher_move: "",
     teacher_rating: "4",
   });
 });
@@ -89,6 +92,7 @@ test("csv export row escapes values and leaves nullish fields blank", () => {
     completedAt: "not-a-date",
     presetId: null,
     officialBenchmark: false,
+    runType: "benchmark",
     summary: {
       attemptedNotes: 18,
       correctNotes: 15,
@@ -108,6 +112,9 @@ test("csv export row escapes values and leaves nullish fields blank", () => {
       maxExcessDelayMs: null,
       topDelayedNotes: [],
       topDelayedNoteGroups: [],
+      weakNotes: [{ note: "F" }],
+      qualificationAccuracy: 85,
+      rolling: [],
     },
   });
 
@@ -142,6 +149,9 @@ test("csv export row escapes values and leaves nullish fields blank", () => {
       "",
       "",
       "",
+      "narrow_note_problem",
+      "Instructional read: This looks like a narrow note-recognition problem rather than a broad fluency collapse.",
+      "Teacher move: Isolate F in short accuracy-first sets, then rerun the benchmark.",
       "",
     ].join("\t"),
   );

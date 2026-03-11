@@ -104,8 +104,11 @@ function BenchmarkCard({ preset, history, onStart }) {
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>
             Benchmark
           </div>
-          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 34, fontWeight: 900, letterSpacing: -1.5 }}>
-            {preset.id}
+          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 900, letterSpacing: -1.2, lineHeight: 1.1 }}>
+            {preset.displayTitle || preset.id}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.32)", letterSpacing: 1.2, textTransform: "uppercase", marginTop: 8 }}>
+            Code: {preset.id}
           </div>
         </div>
         <div style={{
@@ -124,7 +127,7 @@ function BenchmarkCard({ preset, history, onStart }) {
       </div>
 
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.55, marginBottom: 16 }}>
-        {preset.clef} clef · {preset.shortDescription}
+        {preset.displaySubtitle || preset.shortDescription}
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16, marginBottom: 18 }}>

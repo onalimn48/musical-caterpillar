@@ -27,11 +27,14 @@ function buildPreset({ id, clef, allowLedgerLines }) {
   const safeClef = isSupportedClef(clef) ? clef : "Treble";
   const safeAllowLedgerLines = Boolean(allowLedgerLines);
   const range = resolveRange(safeClef, safeAllowLedgerLines);
+  const level = safeAllowLedgerLines ? 2 : 1;
 
   return {
     id,
     clef: safeClef,
     label: id,
+    displayTitle: `${safeClef} Clef Benchmark ${level}`,
+    displaySubtitle: safeAllowLedgerLines ? "Staff notes + ledger lines" : "Staff notes only",
     description: `${safeClef} clef · ${safeAllowLedgerLines ? "ledger lines included" : "inside the staff"} · naturals only`,
     shortDescription: safeAllowLedgerLines ? "Naturals with ledger lines" : "Naturals inside the staff",
     runType: "benchmark",

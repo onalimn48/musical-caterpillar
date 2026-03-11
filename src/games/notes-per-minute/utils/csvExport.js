@@ -1,3 +1,5 @@
+import { buildBelowThresholdAnalysis, getBelowThresholdDiagnosis } from "./benchmarkInsights.js";
+
 export const BENCHMARK_RESULTS_CSV_COLUMNS = [
   "run_at",
   "student_label",
@@ -21,6 +23,9 @@ export const BENCHMARK_RESULTS_CSV_COLUMNS = [
   "max_excess_delay_ms",
   "top_delayed_note",
   "top_delayed_note_group",
+  "below_threshold_diagnosis",
+  "below_threshold_analysis",
+  "below_threshold_teacher_move",
   "teacher_rating",
 ];
 
@@ -44,6 +49,8 @@ function toIsoString(value) {
 
 export function buildBenchmarkResultsCsvRecord({ session, studentLabel, teacherRating }) {
   const summary = session?.summary || {};
+  const diagnosis = getBelowThresholdDiagnosis(summary);
+  const analysis = buildBelowThresholdAnalysis(session, summary);
   return {
     run_at: toIsoString(session?.completedAt),
     student_label: studentLabel,
@@ -67,6 +74,9 @@ export function buildBenchmarkResultsCsvRecord({ session, studentLabel, teacherR
     max_excess_delay_ms: summary.maxExcessDelayMs,
     top_delayed_note: summary.topDelayedNotes?.[0]?.label ?? "",
     top_delayed_note_group: summary.topDelayedNoteGroups?.[0]?.label ?? "",
+    below_threshold_diagnosis: diagnosis?.code ?? "",
+    below_threshold_analysis: analysis?.lines?.find((line) => line.startsWith("Instructional read:")) ?? "",
+    below_threshold_teacher_move: analysis?.lines?.find((line) => line.startsWith("Teacher move:")) ?? "",
     teacher_rating: teacherRating,
   };
 }

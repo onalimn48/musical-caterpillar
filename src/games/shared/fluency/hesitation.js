@@ -282,6 +282,59 @@ function joinLabels(entries, limit = 2) {
   return entries.slice(0, limit).map((entry) => entry.label).join(" and ");
 }
 
+function formatDelaySummary(entry) {
+  return `${entry.label} (${entry.hesitationCount} hesitation spikes, avg ${entry.averageExcessDelayMs} ms)`;
+}
+
+function dedupeTopGroups(entries = []) {
+  const selected = [];
+
+  for (const entry of entries) {
+    const isBroadInsideStaff = entry.category === "ledger" && entry.id === "ledger:staff";
+    const isBroadLedger = entry.category === "ledger" && entry.id === "ledger:ledger";
+    const isBroadLine = entry.category === "line-space" && entry.id === "placement:line";
+    const isBroadSpace = entry.category === "line-space" && entry.id === "placement:space";
+
+    const hasSpecificInsideStaff = selected.some((item) => item.category === "clef-ledger" && item.id.endsWith("-staff"));
+    const hasSpecificLedger = selected.some((item) => item.category === "clef-ledger" && item.id.endsWith("-ledger"));
+    const hasSpecificLine = selected.some((item) => item.category === "clef-placement" && item.id.endsWith("-line"));
+    const hasSpecificSpace = selected.some((item) => item.category === "clef-placement" && item.id.endsWith("-space"));
+
+    if ((isBroadInsideStaff && hasSpecificInsideStaff)
+      || (isBroadLedger && hasSpecificLedger)
+      || (isBroadLine && hasSpecificLine)
+      || (isBroadSpace && hasSpecificSpace)) {
+      continue;
+    }
+
+    const wouldShadowBroadGroup = (
+      (entry.category === "clef-ledger" && entry.id.endsWith("-staff") && selected.some((item) => item.id === "ledger:staff"))
+      || (entry.category === "clef-ledger" && entry.id.endsWith("-ledger") && selected.some((item) => item.id === "ledger:ledger"))
+      || (entry.category === "clef-placement" && entry.id.endsWith("-line") && selected.some((item) => item.id === "placement:line"))
+      || (entry.category === "clef-placement" && entry.id.endsWith("-space") && selected.some((item) => item.id === "placement:space"))
+    );
+
+    if (wouldShadowBroadGroup) {
+      for (let index = selected.length - 1; index >= 0; index -= 1) {
+        const item = selected[index];
+        if (
+          (entry.category === "clef-ledger" && entry.id.endsWith("-staff") && item.id === "ledger:staff")
+          || (entry.category === "clef-ledger" && entry.id.endsWith("-ledger") && item.id === "ledger:ledger")
+          || (entry.category === "clef-placement" && entry.id.endsWith("-line") && item.id === "placement:line")
+          || (entry.category === "clef-placement" && entry.id.endsWith("-space") && item.id === "placement:space")
+        ) {
+          selected.splice(index, 1);
+        }
+      }
+    }
+
+    selected.push(entry);
+    if (selected.length >= 3) break;
+  }
+
+  return selected;
+}
+
 export function getHesitationFeedback({
   hesitationStats,
   weakNotes = [],
@@ -289,9 +342,10 @@ export function getHesitationFeedback({
   runType = "practice",
 }) {
   const topNotes = hesitationStats.hesitationCountsByNote.slice(0, 3);
-  const topGroups = hesitationStats.hesitationCountsByNoteGroup
-    .filter((entry) => !["note-name", "full-note"].includes(entry.category))
-    .slice(0, 3);
+  const topGroups = dedupeTopGroups(
+    hesitationStats.hesitationCountsByNoteGroup
+      .filter((entry) => !["note-name", "full-note"].includes(entry.category)),
+  );
   const weakAccuracyNotes = weakNotes.slice(0, 3);
   const studentMessages = [];
 
@@ -334,12 +388,12 @@ export function getHesitationFeedback({
   const teacherMessages = [];
   if (topNotes.length > 0) {
     teacherMessages.push(
-      `Top delayed notes: ${topNotes.map((entry) => `${entry.label} (${entry.hesitationCount}, ${entry.totalExcessDelayMs} ms)`).join(", ")}.`,
+      `Top delayed notes: ${topNotes.map((entry) => formatDelaySummary(entry)).join(", ")}.`,
     );
   }
   if (topGroups.length > 0) {
     teacherMessages.push(
-      `Top delayed note groups: ${topGroups.map((entry) => `${entry.label} (${entry.hesitationCount}, ${entry.totalExcessDelayMs} ms)`).join(", ")}.`,
+      `Top delayed note groups: ${topGroups.map((entry) => formatDelaySummary(entry)).join(", ")}.`,
     );
   }
   if (weakAccuracyNotes.length > 0 && topNotes.length > 0) {
@@ -352,7 +406,7 @@ export function getHesitationFeedback({
   } else if (topNotes.length > 0) {
     teacherMessages.push(
       accuracyPct >= 85
-        ? "Student is accurate overall; hesitation is the main constraint."
+        ? "Student is accurate overall; hesitation is the clearest remaining growth area."
         : "Both accuracy and hesitation should be monitored.",
     );
   }

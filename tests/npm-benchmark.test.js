@@ -448,7 +448,7 @@ test("hesitation feedback surfaces the actual delayed notes and note groups", ()
   assert.equal(hesitationStats.hesitationCount, 3);
   assert.equal(hesitationStats.topDelayedNotes?.[0], undefined);
   assert.equal(feedback.topDelayedNotes[0].label, "G4");
-  assert.ok(feedback.topDelayedNoteGroups.some((entry) => entry.label === "line notes"));
+  assert.ok(feedback.topDelayedNoteGroups.some((entry) => entry.label === "Treble clef line notes"));
   assert.ok(feedback.studentMessages.some((message) => /G4/.test(message)));
   assert.ok(feedback.teacherMessages.some((message) => /Top delayed notes/.test(message)));
 });
