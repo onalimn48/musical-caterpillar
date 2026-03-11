@@ -5,24 +5,12 @@ import HomeButton from '../shell/HomeButton.jsx';
 import { gameRegistry } from './gameRegistry.js';
 import AboutPage from '../../AboutPage.jsx';
 import WhyMusicalCaterpillar from '../../pages/WhyMusicalCaterpillar.jsx';
-
-const STATIC_CONTENT_REDIRECTS = [
-  '/music-theory-games-for-kids',
-  '/music-classroom-games',
-  '/how-to-teach-note-reading',
-  '/music-warmups',
-  '/music-theory-centers',
-  '/note-reading-game',
-  '/interval-training-game',
-  '/chord-ear-training-game',
-  '/treble-clef-practice',
-  '/bass-clef-practice',
-  '/notes-per-minute-fluency',
-];
+import Seo from '../seo/Seo.jsx';
+import { STATIC_CONTENT_PATHS } from '../seo/siteMetadata.js';
 
 function StaticPageRedirect({ path }) {
   if (typeof window !== 'undefined') {
-    window.location.replace(`${path}.html`);
+    window.location.replace(`${path}/`);
   }
 
   return (
@@ -37,7 +25,7 @@ function StaticPageRedirect({ path }) {
       padding:'24px',
       textAlign:'center',
     }}>
-      <a href={`${path}.html`} style={{ color:'#c7d2fe' }}>
+      <a href={`${path}/`} style={{ color:'#c7d2fe' }}>
         Continue to page
       </a>
     </div>
@@ -57,9 +45,10 @@ function Loading() {
   );
 }
 
-function GameWrapper({ children }) {
+function GameWrapper({ children, path }) {
   return (
     <Suspense fallback={<Loading/>}>
+      <Seo path={path}/>
       <HomeButton/>
       {children}
     </Suspense>
@@ -72,7 +61,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage/>}/>
       <Route path="/about" element={<AboutPage/>}/>
       <Route path="/why-musical-caterpillar" element={<WhyMusicalCaterpillar/>}/>
-      {STATIC_CONTENT_REDIRECTS.map((path) => (
+      {STATIC_CONTENT_PATHS.map((path) => (
         <Route
           key={path}
           path={path}
@@ -85,7 +74,13 @@ export default function AppRoutes() {
           <Route
             key={game.path}
             path={game.path}
-            element={<GameWrapper><GameComponent/></GameWrapper>}
+            element={
+              <GameWrapper
+                path={game.path}
+              >
+                <GameComponent/>
+              </GameWrapper>
+            }
           />
         );
       })}

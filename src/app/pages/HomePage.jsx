@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import caterpillarSingingGif from '../../../assets/caterpillar_singing_notes_v5.gif';
+import Seo from '../seo/Seo.jsx';
 
 const games = [
   {
@@ -39,11 +40,11 @@ const games = [
 
 const pills = ['🎧 Ear Training', '🎼 Note Reading', '⛄ Build Chords', '📱 Works on Phone', '🏆 Achievements', '🆓 100% Free'];
 const teacherLinks = [
-  { path: '/music-theory-games-for-kids.html', label: 'Music Theory Games for Kids' },
-  { path: '/music-classroom-games.html', label: 'Music Classroom Games' },
-  { path: '/how-to-teach-note-reading.html', label: 'How to Teach Note Reading' },
-  { path: '/music-warmups.html', label: 'Music Warmups' },
-  { path: '/notes-per-minute-fluency.html', label: 'Note Reading Fluency Benchmark' },
+  { path: '/music-theory-games-for-kids', label: 'Music Theory Games for Kids' },
+  { path: '/music-classroom-games', label: 'Music Classroom Games' },
+  { path: '/how-to-teach-note-reading', label: 'How to Teach Note Reading' },
+  { path: '/music-warmups', label: 'Music Warmups' },
+  { path: '/notes-per-minute-fluency', label: 'Note Reading Fluency Benchmark' },
 ];
 
 export default function LandingPage() {
@@ -52,6 +53,7 @@ export default function LandingPage() {
       minHeight:'100vh',fontFamily:"'Quicksand',sans-serif",color:'white',overflowX:'hidden',
       background:'linear-gradient(180deg,#0c1445 0%,#162055 40%,#1a3a5c 80%,#1e4d6b 100%)',
     }}>
+      <Seo path="/"/>
       <style>{`
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}

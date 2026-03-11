@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Seo from './app/seo/Seo.jsx';
 
 export default function AboutPage() {
   return (
@@ -7,6 +8,7 @@ export default function AboutPage() {
       background:'linear-gradient(180deg,#0c1445 0%,#162055 40%,#1a3a5c 80%,#1e4d6b 100%)',
       padding:'40px 20px 56px',
     }}>
+      <Seo path="/about"/>
       <style>{`
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         @keyframes catBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}

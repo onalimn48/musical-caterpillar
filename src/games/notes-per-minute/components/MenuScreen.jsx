@@ -235,7 +235,7 @@ export default function MenuScreen({
           </p>
           <div style={{ marginTop: 14 }}>
             <a
-              href="/notes-per-minute-fluency.html"
+              href="/notes-per-minute-fluency"
               style={{
                 color: "#c7d2fe",
                 fontSize: 14,

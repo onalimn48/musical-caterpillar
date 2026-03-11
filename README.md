@@ -70,7 +70,7 @@ It will build and give you a `*.pages.dev` URL. Test it!
 1. In Cloudflare Pages, go to your project → **Custom domains**
 2. Click **Set up a custom domain**
 3. Enter `musicalcaterpillar.com`
-4. Also add `www.musicalcaterpillar.com`
+4. Add `www.musicalcaterpillar.com` only as a redirect alias to the apex domain
 5. Cloudflare handles SSL automatically — your site will be HTTPS
 
 ### Done! 🎉

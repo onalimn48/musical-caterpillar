@@ -1,3 +1,5 @@
+import Seo from "../app/seo/Seo.jsx";
+
 export default function WhyMusicalCaterpillar() {
   return (
     <main style={{
@@ -7,7 +9,7 @@ export default function WhyMusicalCaterpillar() {
       padding: "48px 20px 80px",
       fontFamily: "'DM Sans', sans-serif",
     }}>
-      {/* Add Helmet here for the title and meta description if head management is introduced later. */}
+      <Seo path="/why-musical-caterpillar"/>
       <div style={{
         maxWidth: "900px",
         margin: "0 auto",
