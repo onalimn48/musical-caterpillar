@@ -1,5 +1,14 @@
 import { useEffect } from "react";
-import { DEFAULT_OG_IMAGE, FAVICON_DATA_URL, PAGE_SEO, SITE_NAME, toCanonicalUrl } from "./siteMetadata.js";
+import {
+  APPLE_TOUCH_ICON_PATH,
+  DEFAULT_OG_IMAGE,
+  FAVICON_DATA_URL,
+  PAGE_SEO,
+  SITE_NAME,
+  THEME_COLOR,
+  WEB_MANIFEST_PATH,
+  toCanonicalUrl,
+} from "./siteMetadata.js";
 
 function upsertMeta({ name, property, content }) {
   const selector = name ? `meta[name="${name}"]` : `meta[property="${property}"]`;
@@ -73,8 +82,15 @@ export default function Seo({ path, title, description, schemaType }) {
     document.title = resolvedTitle;
     upsertLink({ rel: "canonical", href: canonicalUrl });
     upsertLink({ rel: "icon", href: FAVICON_DATA_URL });
+    upsertLink({ rel: "manifest", href: WEB_MANIFEST_PATH });
+    upsertLink({ rel: "apple-touch-icon", href: APPLE_TOUCH_ICON_PATH });
     upsertMeta({ name: "description", content: resolvedDescription });
     upsertMeta({ name: "robots", content: "index,follow" });
+    upsertMeta({ name: "theme-color", content: THEME_COLOR });
+    upsertMeta({ name: "mobile-web-app-capable", content: "yes" });
+    upsertMeta({ name: "apple-mobile-web-app-capable", content: "yes" });
+    upsertMeta({ name: "apple-mobile-web-app-status-bar-style", content: "default" });
+    upsertMeta({ name: "apple-mobile-web-app-title", content: SITE_NAME });
     upsertMeta({ property: "og:site_name", content: SITE_NAME });
     upsertMeta({ property: "og:type", content: resolvedSchemaType === "Article" ? "article" : "website" });
     upsertMeta({ property: "og:title", content: resolvedTitle });

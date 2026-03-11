@@ -2,12 +2,15 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  APPLE_TOUCH_ICON_PATH,
   DEFAULT_OG_IMAGE,
   FAVICON_DATA_URL,
   INDEXABLE_PATHS,
   SITE_NAME,
   SITE_URL,
   STATIC_CONTENT_PATHS,
+  THEME_COLOR,
+  WEB_MANIFEST_PATH,
   toCanonicalUrl,
 } from "../src/app/seo/siteMetadata.js";
 
@@ -108,6 +111,13 @@ function normalizeStaticHtml(filePath) {
   head = upsertMetaTag(head, "name", "robots", "index,follow");
   head = upsertLinkTag(head, "canonical", canonicalUrl);
   head = upsertLinkTag(head, "icon", FAVICON_DATA_URL);
+  head = upsertLinkTag(head, "manifest", WEB_MANIFEST_PATH);
+  head = upsertLinkTag(head, "apple-touch-icon", APPLE_TOUCH_ICON_PATH);
+  head = upsertMetaTag(head, "name", "theme-color", THEME_COLOR);
+  head = upsertMetaTag(head, "name", "mobile-web-app-capable", "yes");
+  head = upsertMetaTag(head, "name", "apple-mobile-web-app-capable", "yes");
+  head = upsertMetaTag(head, "name", "apple-mobile-web-app-status-bar-style", "default");
+  head = upsertMetaTag(head, "name", "apple-mobile-web-app-title", SITE_NAME);
   head = upsertMetaTag(head, "property", "og:site_name", SITE_NAME);
   head = upsertMetaTag(head, "property", "og:type", ogType);
   head = upsertMetaTag(head, "property", "og:title", title);

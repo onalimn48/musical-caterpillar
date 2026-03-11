@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import caterpillarSingingGif from '../../../assets/caterpillar_singing_notes_v5.gif';
 import Seo from '../seo/Seo.jsx';
+import InstallAppCard from '../pwa/InstallAppCard.jsx';
 
 const games = [
   {
@@ -153,6 +154,7 @@ export default function LandingPage() {
             About
           </Link>
         </div>
+        <InstallAppCard/>
         <div style={{
           marginTop:28,padding:'20px 22px',borderRadius:20,
           background:'linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03))',
