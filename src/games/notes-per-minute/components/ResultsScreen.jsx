@@ -363,6 +363,21 @@ export default function ResultsScreen({ session, onRestart }) {
       <div style={{ maxWidth: 640, textAlign: "center", fontSize: 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginBottom: 28 }}>
         {statusMeta.description}
         {summary.standardizationNote ? ` ${summary.standardizationNote}` : ""}
+        <div style={{ marginTop: 14 }}>
+          <a
+            href="/notes-per-minute-fluency"
+            style={{
+              color: "#c7d2fe",
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "none",
+              borderBottom: "1px solid rgba(199,210,254,0.45)",
+              paddingBottom: 2,
+            }}
+          >
+            How the benchmark works
+          </a>
+        </div>
       </div>
 
       {summary.scoreThresholdNote ? (

@@ -233,6 +233,21 @@ export default function MenuScreen({
           }}>
             Notes Per Minute stays focused on single-note reading fluency. Benchmarks are locked and comparable over time. Practice stays flexible.
           </p>
+          <div style={{ marginTop: 14 }}>
+            <a
+              href="/notes-per-minute-fluency"
+              style={{
+                color: "#c7d2fe",
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                borderBottom: "1px solid rgba(199,210,254,0.45)",
+                paddingBottom: 2,
+              }}
+            >
+              How the benchmark works
+            </a>
+          </div>
         </div>
 
         <div style={{
