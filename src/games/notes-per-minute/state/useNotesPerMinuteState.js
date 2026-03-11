@@ -49,6 +49,9 @@ function createAttemptsPayload(results) {
     answered: attempt.answered,
     fullName: attempt.fullName,
     time: attempt.time,
+    noteStartedAtMs: attempt.noteStartedAtMs,
+    answeredAtMs: attempt.answeredAtMs,
+    elapsedSeconds: attempt.elapsedSeconds,
     index: attempt.index,
     position: attempt.position,
     clef: attempt.clef,
@@ -146,6 +149,7 @@ export function useNotesPerMinuteState() {
   const resultsRef = useRef(results);
   const lastAnswerTimeRef = useRef(lastAnswerTime);
   const runStartedAtRef = useRef(runStartedAt);
+  const currentNoteStartedAtRef = useRef(null);
 
   const { midiDevice, midiStatus } = useMidiSetup();
 
@@ -227,6 +231,7 @@ export function useNotesPerMinuteState() {
     resultsRef.current = [];
     lastAnswerTimeRef.current = null;
     runStartedAtRef.current = null;
+    currentNoteStartedAtRef.current = null;
     setScreen("menu");
   }, [clearTransientEffects, practiceConfig.durationSeconds]);
 
@@ -261,6 +266,7 @@ export function useNotesPerMinuteState() {
     resultsRef.current = [];
     lastAnswerTimeRef.current = null;
     runStartedAtRef.current = null;
+    currentNoteStartedAtRef.current = null;
     setScreen("playing");
     gameActiveRef.current = false;
     finishRunRef.current = false;
@@ -275,6 +281,7 @@ export function useNotesPerMinuteState() {
     setLastAnswerTime(startedAt);
     runStartedAtRef.current = startedAt;
     lastAnswerTimeRef.current = startedAt;
+    currentNoteStartedAtRef.current = startedAt;
     gameActiveRef.current = true;
     return true;
   }, [hasRunStarted]);
@@ -370,11 +377,16 @@ export function useNotesPerMinuteState() {
       displayAnswer = input.toUpperCase();
     }
 
-    const previousAnswerAt = lastAnswerTimeRef.current || runStartedAtRef.current || now;
-    const responseTime = Math.max(0, (now - previousAnswerAt) / 1000);
+    const noteStartedAt = currentNoteStartedAtRef.current || runStartedAtRef.current || now;
+    const responseTime = Math.max(0, (now - noteStartedAt) / 1000);
+    const runStartedAt = runStartedAtRef.current || now;
+    const elapsedSeconds = Math.max(0, (now - runStartedAt) / 1000);
     const nextAttempt = {
       correct,
       time: responseTime,
+      noteStartedAtMs: noteStartedAt,
+      answeredAtMs: now,
+      elapsedSeconds,
       note: currentNote.name,
       answered: displayAnswer,
       fullName: currentNote.fullName,
@@ -400,6 +412,7 @@ export function useNotesPerMinuteState() {
 
     setLastAnswerTime(now);
     lastAnswerTimeRef.current = now;
+    currentNoteStartedAtRef.current = now;
 
     const nextIndex = currentIndexRef.current + 1;
     setCurrentIndex(nextIndex);

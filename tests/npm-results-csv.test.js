@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   BENCHMARK_RESULTS_CSV_COLUMNS,
+  BENCHMARK_RESULTS_CSV_HEADER_LABELS,
   buildBenchmarkResultsCsvHeader,
   buildBenchmarkResultsCsvRecord,
   buildBenchmarkResultsCsvRow,
@@ -33,6 +34,15 @@ function createSession(overrides = {}) {
       maxExcessDelayMs: 810,
       topDelayedNotes: [{ label: "G3" }],
       topDelayedNoteGroups: [{ label: "Bass clef line notes" }],
+      noteStats: {
+        C: { correct: 20, total: 20 },
+        D: { correct: 18, total: 20 },
+        E: { correct: 17, total: 20 },
+      },
+      hesitationCountsByNote: [
+        { label: "G3", hesitationCount: 4, averageExcessDelayMs: 280 },
+        { label: "E3", hesitationCount: 2, averageExcessDelayMs: 190 },
+      ],
     },
     ...overrides,
   };
@@ -41,7 +51,9 @@ function createSession(overrides = {}) {
 test("csv header matches the requested benchmark export columns", () => {
   assert.equal(
     buildBenchmarkResultsCsvHeader(),
-    BENCHMARK_RESULTS_CSV_COLUMNS.join("\t"),
+    BENCHMARK_RESULTS_CSV_COLUMNS
+      .map((column) => BENCHMARK_RESULTS_CSV_HEADER_LABELS[column] || column)
+      .join("\t"),
   );
   assert.equal(
     CSV_HEADER_SESSION_STORAGE_KEY,
@@ -80,6 +92,8 @@ test("csv export record maps the completed benchmark session fields exactly", ()
     max_excess_delay_ms: 810,
     top_delayed_note: "G3",
     top_delayed_note_group: "Bass clef line notes",
+    per_note_accuracy_summary: "E 85% (17/20); D 90% (18/20); C 100% (20/20)",
+    recurring_hesitation_notes: "G3 (4 spikes, avg 280 ms); E3 (2 spikes, avg 190 ms)",
     below_threshold_diagnosis: "",
     below_threshold_analysis: "",
     below_threshold_teacher_move: "",
@@ -112,6 +126,11 @@ test("csv export row escapes values and leaves nullish fields blank", () => {
       maxExcessDelayMs: null,
       topDelayedNotes: [],
       topDelayedNoteGroups: [],
+      noteStats: {
+        F: { correct: 2, total: 5 },
+        G: { correct: 13, total: 13 },
+      },
+      hesitationCountsByNote: [{ label: "F4", hesitationCount: 2, averageExcessDelayMs: 420 }],
       weakNotes: [{ note: "F" }],
       qualificationAccuracy: 85,
       rolling: [],
@@ -149,6 +168,8 @@ test("csv export row escapes values and leaves nullish fields blank", () => {
       "",
       "",
       "",
+      "F 40% (2/5); G 100% (13/13)",
+      "F4 (2 spikes, avg 420 ms)",
       "narrow_note_problem",
       "Instructional read: This looks like a narrow note-recognition problem rather than a broad fluency collapse.",
       "Teacher move: Isolate F in short accuracy-first sets, then rerun the benchmark.",

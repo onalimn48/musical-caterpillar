@@ -207,10 +207,11 @@ export default function NotesPerMinute() {
               {isBenchmarkRun ? activeRun?.id : "Practice"}
             </div>
             <div style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(36px, 5vw, 54px)",
-              fontWeight: 900,
-              letterSpacing: -1.5,
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "clamp(34px, 4.5vw, 48px)",
+              fontWeight: 700,
+              letterSpacing: -0.4,
+              lineHeight: 1.15,
               marginBottom: 14,
             }}>
               Start When Ready

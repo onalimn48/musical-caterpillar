@@ -73,6 +73,7 @@ function buildEventRecord(event, classification, { baselineSeconds, thresholdSec
     note: event.note,
     fullName: event.fullName,
     correct: Boolean(event.correct),
+    elapsedSeconds: Number.isFinite(event.elapsedSeconds) ? round(event.elapsedSeconds, 3) : null,
     responseTimeSeconds: round(event.time, 3),
     responseTimeMs: Math.round(event.time * 1000),
     baselineSeconds: round(baselineSeconds, 3),

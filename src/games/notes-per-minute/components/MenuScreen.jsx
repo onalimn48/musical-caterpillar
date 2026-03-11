@@ -104,7 +104,14 @@ function BenchmarkCard({ preset, history, onStart }) {
           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>
             Benchmark
           </div>
-          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 900, letterSpacing: -1.2, lineHeight: 1.1 }}>
+          <div style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 24,
+            fontWeight: 700,
+            letterSpacing: -0.2,
+            lineHeight: 1.24,
+            maxWidth: 260,
+          }}>
             {preset.displayTitle || preset.id}
           </div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.32)", letterSpacing: 1.2, textTransform: "uppercase", marginTop: 8 }}>

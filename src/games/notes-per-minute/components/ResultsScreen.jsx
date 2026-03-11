@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { axisBottom, axisLeft } from "d3-axis";
 import { scaleBand, scaleLinear } from "d3-scale";
-import { select } from "d3-selection";
+import { pointer, select } from "d3-selection";
 import {
   buildBenchmarkResultsCsvHeader,
   buildBenchmarkResultsCsvRow,
@@ -22,6 +22,87 @@ function buildAreaPath(data, x, y, height) {
   const first = data[0];
   const last = data[data.length - 1];
   return `${linePath} L${x(last.group)},${height} L${x(first.group)},${height} Z`;
+}
+
+function buildTimedLinePath(data, x, y, getValue) {
+  if (!data.length) return "";
+
+  return data.reduce((path, point, index) => {
+    const command = index === 0 ? "M" : "L";
+    return `${path}${command}${x(point.elapsedSeconds)},${y(getValue(point))}`;
+  }, "");
+}
+
+function ChartCardHeader({ title, info }) {
+  const [hovered, setHovered] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const open = hovered || pinned;
+
+  return (
+    <div style={{ position: "relative", marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase" }}>
+          {title}
+        </div>
+        {info ? (
+          <div
+            style={{ position: "relative", display: "inline-flex" }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            <button
+              type="button"
+              onClick={() => setPinned((current) => !current)}
+              onFocus={() => setHovered(true)}
+              onBlur={() => setHovered(false)}
+              aria-label={`More info about ${title}`}
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.14)",
+                background: open ? "rgba(129,140,248,0.18)" : "rgba(255,255,255,0.04)",
+                color: open ? "#c7d2fe" : "rgba(255,255,255,0.55)",
+                fontSize: 12,
+                fontWeight: 700,
+                lineHeight: 1,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              ?
+            </button>
+            {open ? (
+              <div style={{
+                position: "absolute",
+                top: "50%",
+                left: 28,
+                transform: "translateY(-50%)",
+                zIndex: 2,
+                width: 320,
+                maxWidth: "min(320px, calc(100vw - 80px))",
+                background: "rgba(15,23,42,0.98)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 12,
+                padding: "10px 12px",
+                boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+                fontSize: 12,
+                color: "rgba(226,232,240,0.82)",
+                lineHeight: 1.5,
+                whiteSpace: "normal",
+              }}>
+                {info}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 function getStatusMeta(session) {
@@ -160,6 +241,8 @@ export default function ResultsScreen({ session, onRestart }) {
   const [teacherRating, setTeacherRating] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
   const [thresholdTooltip, setThresholdTooltip] = useState(null);
+  const [notesPerSecondTooltip, setNotesPerSecondTooltip] = useState(null);
+  const [chartBarTooltip, setChartBarTooltip] = useState(null);
 
   const summary = session?.summary || null;
   const statusMeta = getStatusMeta(session);
@@ -199,20 +282,97 @@ export default function ResultsScreen({ session, onRestart }) {
     return summary.hesitationCountsByNote.filter((entry) => entry.hesitationCount > 0);
   }, [summary]);
 
+  const accuracyOverTimeData = useMemo(() => {
+    const attempts = Array.isArray(session?.attempts) ? session.attempts : [];
+    const sessionStartedAt = Number(session?.startedAt) || null;
+    let fallbackElapsedSeconds = 0;
+    let correctCount = 0;
+
+    return attempts
+      .filter((attempt) => Number.isFinite(attempt?.time) && attempt.time >= 0)
+      .map((attempt, index) => {
+        fallbackElapsedSeconds += attempt.time;
+        if (attempt.correct) correctCount += 1;
+
+        const elapsedFromTimestamp = (
+          sessionStartedAt != null
+          && Number.isFinite(attempt?.answeredAtMs)
+          && attempt.answeredAtMs >= sessionStartedAt
+        )
+          ? (attempt.answeredAtMs - sessionStartedAt) / 1000
+          : null;
+        const elapsedSeconds = Number.isFinite(elapsedFromTimestamp)
+          ? elapsedFromTimestamp
+          : Number.isFinite(attempt?.elapsedSeconds)
+            ? attempt.elapsedSeconds
+            : fallbackElapsedSeconds;
+
+        return {
+          attempt: index + 1,
+          elapsedSeconds: Number(elapsedSeconds.toFixed(2)),
+          accuracy: ((correctCount / (index + 1)) * 100),
+          correct: correctCount,
+          total: index + 1,
+        };
+      });
+  }, [session?.attempts, session?.startedAt]);
+
   const thresholdChartData = useMemo(() => {
     if (!summary?.hesitationTimeline) return [];
+    const attempts = Array.isArray(session?.attempts) ? session.attempts : [];
+    const sessionStartedAt = Number(session?.startedAt) || null;
+    let elapsedSeconds = 0;
+
     return summary.hesitationTimeline
       .filter((entry) => Number.isFinite(entry?.thresholdMs) && Number.isFinite(entry?.responseTimeMs))
-      .map((entry, index) => ({
-        attempt: index + 1,
-        noteLabel: entry.fullName || entry.note || "Unknown note",
-        thresholdMs: entry.thresholdMs,
-        baselineMs: entry.baselineMs,
-        responseTimeMs: entry.responseTimeMs,
-        hesitant: entry.hesitant,
-        calibration: entry.calibration,
-      }));
-  }, [summary]);
+      .map((entry, index) => {
+        const attempt = attempts[index];
+        const responseSeconds = Number.isFinite(attempt?.time)
+          ? attempt.time
+          : Number.isFinite(entry?.responseTimeSeconds)
+            ? entry.responseTimeSeconds
+            : entry.responseTimeMs / 1000;
+        const safeResponseSeconds = Math.max(0, responseSeconds || 0);
+        elapsedSeconds += safeResponseSeconds;
+        const noteStartedAtMs = Number(attempt?.noteStartedAtMs);
+        const absoluteAnsweredAtMs = Number(attempt?.answeredAtMs);
+        const elapsedFromNoteStart = (
+          sessionStartedAt != null
+          && Number.isFinite(noteStartedAtMs)
+          && noteStartedAtMs >= sessionStartedAt
+        )
+          ? (noteStartedAtMs - sessionStartedAt) / 1000
+          : null;
+        const elapsedFromTimestamp = (
+          sessionStartedAt != null
+          && Number.isFinite(absoluteAnsweredAtMs)
+          && absoluteAnsweredAtMs >= sessionStartedAt
+        )
+          ? (absoluteAnsweredAtMs - sessionStartedAt) / 1000
+          : null;
+        const absoluteElapsedSeconds = Number.isFinite(elapsedFromNoteStart)
+          ? elapsedFromNoteStart
+          : Number.isFinite(attempt?.elapsedSeconds)
+            ? attempt.elapsedSeconds
+            : Number.isFinite(entry?.elapsedSeconds)
+              ? entry.elapsedSeconds
+              : elapsedSeconds;
+        return {
+          attempt: index + 1,
+          elapsedSeconds: Number(absoluteElapsedSeconds.toFixed(2)),
+          elapsedGapSeconds: Number(safeResponseSeconds.toFixed(2)),
+          answeredElapsedSeconds: Number.isFinite(elapsedFromTimestamp)
+            ? Number(elapsedFromTimestamp.toFixed(2))
+            : null,
+          noteLabel: entry.fullName || entry.note || "Unknown note",
+          thresholdMs: entry.thresholdMs,
+          baselineMs: entry.baselineMs,
+          responseTimeMs: entry.responseTimeMs,
+          hesitant: entry.hesitant,
+          calibration: entry.calibration,
+        };
+      });
+  }, [session?.attempts, session?.startedAt, summary]);
 
   const fastestNotesChartData = useMemo(() => {
     const attempts = Array.isArray(session?.attempts) ? session.attempts : [];
@@ -243,17 +403,32 @@ export default function ResultsScreen({ session, onRestart }) {
   const thresholdChartViewBoxHeight = 220;
   const fastestNotesChartViewBoxHeight = Math.max(180, 70 + (fastestNotesChartData.length * 34));
   const notesPerSecondData = useMemo(() => {
-    const durationSeconds = Math.max(1, Math.round(summary?.sessionDurationSeconds || 60));
+    const durationSeconds = session?.runType === "benchmark"
+      ? 60
+      : Math.max(1, Math.round(summary?.sessionDurationSeconds || 60));
     const attempts = Array.isArray(session?.attempts) ? session.attempts : [];
+    const sessionStartedAt = Number(session?.startedAt) || null;
     const buckets = Array.from({ length: durationSeconds }, (_, index) => ({
       second: index + 1,
       count: 0,
     }));
 
-    let elapsedSeconds = 0;
+    let fallbackElapsedSeconds = 0;
     for (const attempt of attempts) {
       if (!Number.isFinite(attempt?.time) || attempt.time < 0) continue;
-      elapsedSeconds += attempt.time;
+      fallbackElapsedSeconds += attempt.time;
+      const elapsedFromTimestamp = (
+        sessionStartedAt != null
+        && Number.isFinite(attempt?.answeredAtMs)
+        && attempt.answeredAtMs >= sessionStartedAt
+      )
+        ? (attempt.answeredAtMs - sessionStartedAt) / 1000
+        : null;
+      const elapsedSeconds = Number.isFinite(elapsedFromTimestamp)
+        ? elapsedFromTimestamp
+        : Number.isFinite(attempt?.elapsedSeconds)
+          ? attempt.elapsedSeconds
+          : fallbackElapsedSeconds;
       const bucketIndex = Math.min(durationSeconds - 1, Math.max(0, Math.floor(elapsedSeconds)));
       buckets[bucketIndex].count += 1;
     }
@@ -273,7 +448,7 @@ export default function ResultsScreen({ session, onRestart }) {
 
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    if (summary.rolling.length < 2) {
+    if (accuracyOverTimeData.length < 2) {
       g.append("text")
         .attr("x", width / 2)
         .attr("y", height / 2)
@@ -284,12 +459,15 @@ export default function ResultsScreen({ session, onRestart }) {
       return;
     }
 
-    const x = scaleLinear().domain([1, summary.rolling.length]).range([0, width]);
+    const sessionDurationSeconds = session?.runType === "benchmark"
+      ? 60
+      : Math.max(1, Number(summary?.sessionDurationSeconds) || Number(session?.config?.durationSeconds) || 60);
+    const x = scaleLinear().domain([0, sessionDurationSeconds]).range([0, width]);
     const y = scaleLinear().domain([0, 100]).range([height, 0]);
 
     g.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(axisBottom(x).ticks(summary.rolling.length).tickFormat((value) => `${value}`))
+      .call(axisBottom(x).ticks(Math.min(8, sessionDurationSeconds)).tickFormat((value) => `${value}s`))
       .selectAll("text")
       .attr("fill", "rgba(255,255,255,0.4)")
       .attr("font-size", 11);
@@ -302,29 +480,86 @@ export default function ResultsScreen({ session, onRestart }) {
       .attr("font-size", 11);
     g.selectAll(".domain, .tick line").attr("stroke", "rgba(255,255,255,0.1)");
 
-    g.append("path")
-      .datum(summary.rolling)
-      .attr("fill", "rgba(99,102,241,0.15)")
-      .attr("d", buildAreaPath(summary.rolling, x, y, height));
+    const lineData = accuracyOverTimeData.map((point) => ({
+      group: point.elapsedSeconds,
+      accuracy: point.accuracy,
+    }));
+    const lastPoint = accuracyOverTimeData[accuracyOverTimeData.length - 1];
+    const hasInactiveTail = lastPoint && (sessionDurationSeconds - lastPoint.elapsedSeconds) >= 10;
+    const extendedLineData = hasInactiveTail
+      ? [...lineData, { group: sessionDurationSeconds, accuracy: lastPoint.accuracy }]
+      : lineData;
 
     g.append("path")
-      .datum(summary.rolling)
+      .datum(extendedLineData)
+      .attr("fill", "rgba(99,102,241,0.15)")
+      .attr("d", buildAreaPath(extendedLineData, x, y, height));
+
+    g.append("path")
+      .datum(lineData)
       .attr("fill", "none")
       .attr("stroke", "#818cf8")
       .attr("stroke-width", 2.5)
-      .attr("d", buildLinePath(summary.rolling, x, y));
+      .attr("d", buildLinePath(lineData, x, y));
+
+    if (hasInactiveTail) {
+      g.append("path")
+        .datum([
+          { group: lastPoint.elapsedSeconds, accuracy: lastPoint.accuracy },
+          { group: sessionDurationSeconds, accuracy: lastPoint.accuracy },
+        ])
+        .attr("fill", "none")
+        .attr("stroke", "rgba(129,140,248,0.5)")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "6 6")
+        .attr("d", buildLinePath([
+          { group: lastPoint.elapsedSeconds, accuracy: lastPoint.accuracy },
+          { group: sessionDurationSeconds, accuracy: lastPoint.accuracy },
+        ], x, y));
+
+      g.append("text")
+        .attr("x", Math.min(width - 56, x(lastPoint.elapsedSeconds) + 10))
+        .attr("y", Math.max(14, y(lastPoint.accuracy) - 12))
+        .attr("fill", "rgba(255,255,255,0.38)")
+        .attr("font-size", 10)
+        .text("No further attempts");
+    }
 
     g.selectAll(".dot")
-      .data(summary.rolling)
+      .data(accuracyOverTimeData)
       .enter()
       .append("circle")
-      .attr("cx", (point) => x(point.group))
+      .attr("cx", (point) => x(point.elapsedSeconds))
       .attr("cy", (point) => y(point.accuracy))
       .attr("r", 4)
       .attr("fill", "#818cf8")
       .attr("stroke", "#0a0a0f")
       .attr("stroke-width", 2);
-  }, [summary]);
+
+    g.selectAll(".dot-hit-area")
+      .data(accuracyOverTimeData)
+      .enter()
+      .append("circle")
+      .attr("cx", (point) => x(point.elapsedSeconds))
+      .attr("cy", (point) => y(point.accuracy))
+      .attr("r", 10)
+      .attr("fill", "transparent")
+      .style("cursor", "pointer")
+      .on("mouseenter mousemove", (event, point) => {
+        setChartBarTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          title: `${point.elapsedSeconds.toFixed(1)}s`,
+          lines: [
+            `Accuracy: ${Math.round(point.accuracy)}%`,
+            `Attempts: ${point.correct}/${point.total}`,
+          ],
+        });
+      })
+      .on("mouseleave", () => {
+        setChartBarTooltip(null);
+      });
+  }, [accuracyOverTimeData, session?.config?.durationSeconds, session?.runType, summary]);
 
   useEffect(() => {
     if (!summary || !speedChartRef.current) return;
@@ -376,7 +611,19 @@ export default function ResultsScreen({ session, onRestart }) {
       .attr("width", Math.max(4, width / notesPerSecondData.length - 1))
       .attr("height", (point) => height - y(point.count))
       .attr("rx", 2)
-      .attr("fill", "rgba(52,211,153,0.72)");
+      .attr("fill", "rgba(52,211,153,0.72)")
+      .style("cursor", "pointer")
+      .on("mouseenter mousemove", (event, point) => {
+        setNotesPerSecondTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          title: `Second ${point.second}`,
+          lines: [`${point.count} note${point.count === 1 ? "" : "s"} entered`],
+        });
+      })
+      .on("mouseleave", () => {
+        setNotesPerSecondTooltip(null);
+      });
   }, [notesPerSecondData, summary]);
 
   useEffect(() => {
@@ -420,7 +667,22 @@ export default function ResultsScreen({ session, onRestart }) {
       .attr("rx", 4)
       .attr("fill", (entry) => (
         entry.accuracy >= 85 ? "rgba(52,211,153,0.6)" : entry.accuracy >= 65 ? "rgba(251,191,36,0.6)" : "rgba(248,113,113,0.6)"
-      ));
+      ))
+      .style("cursor", "pointer")
+      .on("mouseenter mousemove", (event, entry) => {
+        setChartBarTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          title: entry.note,
+          lines: [
+            `Accuracy: ${Math.round(entry.accuracy)}%`,
+            `Attempts: ${entry.total}`,
+          ],
+        });
+      })
+      .on("mouseleave", () => {
+        setChartBarTooltip(null);
+      });
   }, [noteChartData, summary]);
 
   useEffect(() => {
@@ -512,33 +774,54 @@ export default function ResultsScreen({ session, onRestart }) {
       return;
     }
 
-    const maxValue = Math.max(
-      ...thresholdChartData.map((entry) => Math.max(entry.thresholdMs, entry.responseTimeMs, entry.baselineMs || 0)),
-      1,
+    const plottedValues = thresholdChartData
+      .flatMap((entry) => [entry.thresholdMs, entry.responseTimeMs, entry.baselineMs || 0])
+      .filter((value) => Number.isFinite(value) && value >= 0)
+      .sort((a, b) => a - b);
+    const rawMaxValue = plottedValues[plottedValues.length - 1] || 1;
+    const percentileIndex = Math.min(
+      plottedValues.length - 1,
+      Math.max(0, Math.floor(plottedValues.length * 0.95)),
     );
-    const x = scaleLinear().domain([1, thresholdChartData.length]).range([0, width]);
+    const percentileValue = plottedValues[percentileIndex] || rawMaxValue;
+    const maxValue = rawMaxValue > percentileValue * 1.75
+      ? Math.max(600, Math.ceil((percentileValue * 1.15) / 100) * 100)
+      : Math.max(600, Math.ceil((rawMaxValue * 1.05) / 100) * 100);
+    const sessionDurationSeconds = session?.runType === "benchmark"
+      ? 60
+      : Math.max(1, Number(summary?.sessionDurationSeconds) || Number(session?.config?.durationSeconds) || 60);
+    const x = scaleLinear().domain([0, sessionDurationSeconds]).range([0, width]);
     const y = scaleLinear().domain([0, maxValue]).nice().range([height, 0]);
 
-    const thresholdPath = thresholdChartData
-      .map((entry, index) => `${index === 0 ? "M" : "L"}${x(entry.attempt)},${y(entry.thresholdMs)}`)
-      .join(" ");
-    const responsePath = thresholdChartData
-      .map((entry, index) => `${index === 0 ? "M" : "L"}${x(entry.attempt)},${y(entry.responseTimeMs)}`)
-      .join(" ");
-    const calibrationAttempts = thresholdChartData.filter((entry) => entry.calibration).length;
+    const thresholdPath = buildTimedLinePath(
+      thresholdChartData,
+      x,
+      y,
+      (entry) => Math.min(entry.thresholdMs, maxValue),
+    );
+    const responsePath = buildTimedLinePath(
+      thresholdChartData,
+      x,
+      y,
+      (entry) => Math.min(entry.responseTimeMs, maxValue),
+    );
+    const calibrationPoints = thresholdChartData.filter((entry) => entry.calibration);
+    const calibrationMaxElapsed = calibrationPoints.length > 0
+      ? calibrationPoints[calibrationPoints.length - 1].elapsedSeconds
+      : 0;
 
-    if (calibrationAttempts > 0) {
+    if (calibrationMaxElapsed > 0) {
       g.append("rect")
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", x(calibrationAttempts) - x(1) + 8)
+        .attr("width", x(calibrationMaxElapsed))
         .attr("height", height)
         .attr("fill", "rgba(255,255,255,0.03)");
     }
 
     g.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(axisBottom(x).ticks(Math.min(8, thresholdChartData.length)).tickFormat((value) => `${value}`))
+      .call(axisBottom(x).ticks(Math.min(8, sessionDurationSeconds)).tickFormat((value) => `${value}s`))
       .selectAll("text")
       .attr("fill", "rgba(255,255,255,0.4)")
       .attr("font-size", 11);
@@ -567,19 +850,51 @@ export default function ResultsScreen({ session, onRestart }) {
       .data(thresholdChartData)
       .enter()
       .append("circle")
-      .attr("cx", (entry) => x(entry.attempt))
-      .attr("cy", (entry) => y(entry.responseTimeMs))
+      .attr("cx", (entry) => x(entry.elapsedSeconds))
+      .attr("cy", (entry) => y(Math.min(entry.responseTimeMs, maxValue)))
       .attr("r", 3.5)
       .attr("fill", (entry) => (entry.hesitant ? "#f87171" : "#34d399"))
       .attr("stroke", "#0a0a0f")
       .attr("stroke-width", 1.5);
 
+    g.append("path")
+      .attr("fill", "none")
+      .attr("stroke", "transparent")
+      .attr("stroke-width", 16)
+      .attr("d", thresholdPath)
+      .style("pointer-events", "stroke")
+      .style("cursor", "pointer")
+      .on("mouseenter mousemove", (event) => {
+        const [mouseX] = pointer(event, g.node());
+        const nearestEntry = thresholdChartData.reduce((closest, entry) => {
+          if (!closest) return entry;
+          const currentDistance = Math.abs(x(entry.elapsedSeconds) - mouseX);
+          const closestDistance = Math.abs(x(closest.elapsedSeconds) - mouseX);
+          return currentDistance < closestDistance ? entry : closest;
+        }, null);
+
+        if (!nearestEntry) return;
+
+        setThresholdTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          title: `${nearestEntry.elapsedSeconds.toFixed(1)}s`,
+          lines: [
+            `Threshold: ${nearestEntry.thresholdMs} ms`,
+            `Baseline: ${nearestEntry.baselineMs} ms`,
+          ],
+        });
+      })
+      .on("mouseleave", () => {
+        setThresholdTooltip(null);
+      });
+
     g.selectAll(".response-hit-area")
       .data(thresholdChartData)
       .enter()
       .append("circle")
-      .attr("cx", (entry) => x(entry.attempt))
-      .attr("cy", (entry) => y(entry.responseTimeMs))
+      .attr("cx", (entry) => x(entry.elapsedSeconds))
+      .attr("cy", (entry) => y(Math.min(entry.responseTimeMs, maxValue)))
       .attr("r", 11)
       .attr("fill", "transparent")
       .style("cursor", "pointer")
@@ -587,20 +902,22 @@ export default function ResultsScreen({ session, onRestart }) {
         setThresholdTooltip({
           x: event.clientX,
           y: event.clientY,
-          title: `Attempt ${entry.attempt} · ${entry.noteLabel}`,
+          title: `${entry.elapsedSeconds.toFixed(1)}s · Attempt ${entry.attempt} · ${entry.noteLabel}`,
           lines: [
             entry.calibration ? "Calibration note" : "Live run note",
             entry.hesitant ? "Hesitation spike" : "Below threshold",
+            entry.answeredElapsedSeconds != null ? `Answered at: ${entry.answeredElapsedSeconds.toFixed(1)}s` : null,
             `Response: ${entry.responseTimeMs} ms`,
             `Threshold: ${entry.thresholdMs} ms`,
             `Baseline: ${entry.baselineMs} ms`,
-          ],
+            entry.responseTimeMs > maxValue ? `Chart capped near ${maxValue} ms for readability` : null,
+          ].filter(Boolean),
         });
       })
       .on("mouseleave", () => {
         setThresholdTooltip(null);
       });
-  }, [thresholdChartData, thresholdChartViewBoxHeight]);
+  }, [summary?.sessionDurationSeconds, thresholdChartData, thresholdChartViewBoxHeight]);
 
   useEffect(() => {
     if (!fastestNotesChartRef.current) return;
@@ -654,7 +971,22 @@ export default function ResultsScreen({ session, onRestart }) {
       .attr("width", (entry) => x(entry.averageMs))
       .attr("height", y.bandwidth())
       .attr("rx", 5)
-      .attr("fill", "rgba(52,211,153,0.68)");
+      .attr("fill", "rgba(52,211,153,0.68)")
+      .style("cursor", "pointer")
+      .on("mouseenter mousemove", (event, entry) => {
+        setChartBarTooltip({
+          x: event.clientX,
+          y: event.clientY,
+          title: entry.note,
+          lines: [
+            `Average response: ${entry.averageMs} ms`,
+            `${entry.attempts} attempt${entry.attempts === 1 ? "" : "s"}`,
+          ],
+        });
+      })
+      .on("mouseleave", () => {
+        setChartBarTooltip(null);
+      });
 
     g.selectAll(".bar-label")
       .data(fastestNotesChartData)
@@ -682,6 +1014,8 @@ export default function ResultsScreen({ session, onRestart }) {
 
   useEffect(() => {
     setThresholdTooltip(null);
+    setNotesPerSecondTooltip(null);
+    setChartBarTooltip(null);
   }, [session?.id, session?.completedAt]);
 
   async function handleCopyResultsRow() {
@@ -790,6 +1124,62 @@ export default function ResultsScreen({ session, onRestart }) {
         </div>
       ) : null}
 
+      {notesPerSecondTooltip ? (
+        <div style={{
+          position: "fixed",
+          left: Math.min(notesPerSecondTooltip.x + 16, window.innerWidth - 236),
+          top: Math.max(18, notesPerSecondTooltip.y - 14),
+          transform: "translateY(-100%)",
+          zIndex: 60,
+          maxWidth: 220,
+          pointerEvents: "none",
+          background: "rgba(15,23,42,0.96)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: 12,
+          padding: "10px 12px",
+          boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc", marginBottom: 6 }}>
+            {notesPerSecondTooltip.title}
+          </div>
+          <div style={{ display: "grid", gap: 4 }}>
+            {notesPerSecondTooltip.lines.map((line) => (
+              <div key={line} style={{ fontSize: 12, color: "rgba(226,232,240,0.82)", lineHeight: 1.4 }}>
+                {line}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {chartBarTooltip ? (
+        <div style={{
+          position: "fixed",
+          left: Math.min(chartBarTooltip.x + 16, window.innerWidth - 236),
+          top: Math.max(18, chartBarTooltip.y - 14),
+          transform: "translateY(-100%)",
+          zIndex: 60,
+          maxWidth: 220,
+          pointerEvents: "none",
+          background: "rgba(15,23,42,0.96)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: 12,
+          padding: "10px 12px",
+          boxShadow: "0 16px 40px rgba(0,0,0,0.35)",
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc", marginBottom: 6 }}>
+            {chartBarTooltip.title}
+          </div>
+          <div style={{ display: "grid", gap: 4 }}>
+            {chartBarTooltip.lines.map((line) => (
+              <div key={line} style={{ fontSize: 12, color: "rgba(226,232,240,0.82)", lineHeight: 1.4 }}>
+                {line}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div style={{
         padding: "8px 14px",
         borderRadius: 999,
@@ -828,15 +1218,16 @@ export default function ResultsScreen({ session, onRestart }) {
       {showStandardizedScore ? (
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
           <div style={{
-            padding: "8px 12px",
+            padding: "6px 10px",
             borderRadius: 999,
             background: "rgba(129,140,248,0.12)",
             border: "1px solid rgba(129,140,248,0.22)",
             color: "#c7d2fe",
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 700,
-            letterSpacing: 1.2,
-            textTransform: "uppercase",
+            letterSpacing: 0.3,
+            lineHeight: 1.1,
+            whiteSpace: "nowrap",
           }}>
             {summary.fluencyBand}
           </div>
@@ -1278,9 +1669,10 @@ export default function ResultsScreen({ session, onRestart }) {
           borderRadius: 14,
           padding: 24,
         }}>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>
-            Accuracy Over Time
-          </div>
+          <ChartCardHeader
+            title="Running Accuracy Over Time"
+            info="Shows cumulative accuracy as the minute progresses."
+          />
           <svg ref={chartRef} width="100%" viewBox="0 0 500 200" />
         </div>
 
@@ -1302,12 +1694,10 @@ export default function ResultsScreen({ session, onRestart }) {
           borderRadius: 14,
           padding: 24,
         }}>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>
-            Notes Entered Per Second
-          </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, marginBottom: 16 }}>
-            Number of notes entered during each second of the run.
-          </div>
+          <ChartCardHeader
+            title="Notes Entered Per Second"
+            info="Shows how many notes the student answered in each second of the run."
+          />
           <svg ref={speedChartRef} width="100%" viewBox="0 0 500 200" />
         </div>
 
@@ -1317,12 +1707,10 @@ export default function ResultsScreen({ session, onRestart }) {
           borderRadius: 14,
           padding: 24,
         }}>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>
-            Hesitation Threshold Over Time
-          </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, marginBottom: 16 }}>
-            Gold line = hesitation threshold. Purple line = actual response time. Red dots crossed the threshold.
-          </div>
+          <ChartCardHeader
+            title="Response Time vs Hesitation Threshold"
+            info="Purple shows actual response time. Gold shows the hesitation cutoff at each moment."
+          />
           <svg ref={thresholdChartRef} width="100%" viewBox={`0 0 500 ${thresholdChartViewBoxHeight}`} />
         </div>
 
