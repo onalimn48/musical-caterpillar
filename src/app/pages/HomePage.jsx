@@ -43,6 +43,7 @@ const teacherLinks = [
   { path: '/music-classroom-games', label: 'Music Classroom Games' },
   { path: '/how-to-teach-note-reading', label: 'How to Teach Note Reading' },
   { path: '/music-warmups', label: 'Music Warmups' },
+  { path: '/notes-per-minute-fluency', label: 'Note Reading Fluency Benchmark' },
 ];
 
 export default function LandingPage() {
