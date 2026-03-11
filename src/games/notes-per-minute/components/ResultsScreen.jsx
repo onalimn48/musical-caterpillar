@@ -743,10 +743,24 @@ export default function ResultsScreen({ session, onRestart }) {
       .data(hesitationChartData)
       .enter()
       .append("text")
-      .attr("x", (entry) => x(entry.hesitationCount) + 8)
+      .attr("x", (entry) => {
+        const label = `${entry.hesitationCount} spikes · avg ${entry.averageExcessDelayMs} ms`;
+        const estimatedWidth = label.length * 6.2;
+        const barWidth = x(entry.hesitationCount);
+        return barWidth + estimatedWidth + 8 > width ? Math.max(8, barWidth - 8) : barWidth + 8;
+      })
       .attr("y", (entry) => (y(entry.label) || 0) + (y.bandwidth() / 2))
       .attr("dominant-baseline", "middle")
-      .attr("fill", "rgba(255,255,255,0.6)")
+      .attr("text-anchor", (entry) => {
+        const label = `${entry.hesitationCount} spikes · avg ${entry.averageExcessDelayMs} ms`;
+        const estimatedWidth = label.length * 6.2;
+        return x(entry.hesitationCount) + estimatedWidth + 8 > width ? "end" : "start";
+      })
+      .attr("fill", (entry) => (
+        x(entry.hesitationCount) + (`${entry.hesitationCount} spikes · avg ${entry.averageExcessDelayMs} ms`.length * 6.2) + 8 > width
+          ? "rgba(10,10,15,0.88)"
+          : "rgba(255,255,255,0.6)"
+      ))
       .attr("font-size", 11)
       .text((entry) => `${entry.hesitationCount} spikes · avg ${entry.averageExcessDelayMs} ms`);
   }, [hesitationChartData, hesitationChartViewBoxHeight]);

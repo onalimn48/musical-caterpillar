@@ -14,7 +14,7 @@ import {
   validateRunConfig,
 } from "../data/benchmarks.js";
 import { midiToNoteName } from "../data/midi.js";
-import { playNote } from "../data/music.js";
+import { playNote, warmPianoSamples } from "../data/music.js";
 import { buildNoteGroups } from "../data/noteGroups.js";
 import { buildPositionPool, generateNote } from "../data/staff.js";
 import { useMidiSetup } from "../hooks/useMidiSetup.js";
@@ -191,6 +191,10 @@ export function useNotesPerMinuteState() {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    warmPianoSamples();
   }, []);
 
   const practiceConfig = useMemo(

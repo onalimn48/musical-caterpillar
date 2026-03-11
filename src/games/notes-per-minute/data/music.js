@@ -1,11 +1,7 @@
-const AudioCtxClass = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
-let sharedAudioCtx = null;
+import { getSharedAudioContext, playSampledPianoNote, warmPianoSamples as warmSharedPianoSamples } from "../../shared/audio/pianoSampler.js";
 
 function getAudioCtx() {
-  if (!AudioCtxClass) return null;
-  if (!sharedAudioCtx || sharedAudioCtx.state === "closed") sharedAudioCtx = new AudioCtxClass();
-  if (sharedAudioCtx.state === "suspended") sharedAudioCtx.resume().catch(() => {});
-  return sharedAudioCtx;
+  return getSharedAudioContext();
 }
 
 const NOTE_FREQ = {
@@ -27,6 +23,21 @@ export function playNote(name, duration = 0.45) {
   const freq = NOTE_FREQ[name];
   if (!freq) return;
 
+  const match = /^([A-G](?:#)?)(\d)$/.exec(name);
+  if (match) {
+    playSampledPianoNote({
+      name: match[1],
+      octave: Number(match[2]),
+      duration,
+      onFallback: () => playSynthNote(ctx, freq, duration),
+    });
+    return;
+  }
+
+  playSynthNote(ctx, freq, duration);
+}
+
+function playSynthNote(ctx, freq, duration) {
   try {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -44,4 +55,8 @@ export function playNote(name, duration = 0.45) {
   } catch (e) {
     // Ignore audio errors in unsupported/locked contexts.
   }
+}
+
+export function warmPianoSamples() {
+  warmSharedPianoSamples();
 }

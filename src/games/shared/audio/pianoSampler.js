@@ -158,8 +158,8 @@ export function playSampledPianoNote({ name, octave, midi, duration = 0.5, delay
       gain.connect(ctx.destination);
 
       const t = ctx.currentTime + delay;
-      const releaseStart = t + Math.max(0.08, duration * 0.82);
-      const stopTime = t + duration + 0.14;
+      const releaseStart = t + Math.max(0.12, duration * 0.92);
+      const stopTime = t + duration + 0.26;
 
       gain.gain.setValueAtTime(0.0001, t);
       gain.gain.linearRampToValueAtTime(0.32, t + 0.01);
