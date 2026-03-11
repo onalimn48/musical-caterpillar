@@ -1,10 +1,9 @@
-import { CLEF_RANGES, NOTE_SPACING, STAFF_LEFT } from "../data/constants.js";
+import { NOTE_SPACING, STAFF_LEFT } from "../data/constants.js";
 import { getStaffLines, needsLedgerLines, posToY } from "../data/staff.js";
 import ClefGlyph from "./ClefGlyph.jsx";
 
 export default function StaffView({ notes, currentIndex, clef }) {
   const staffLines = getStaffLines(clef);
-  const clefInfo = CLEF_RANGES[clef];
   const svgWidth = 800;
   const svgHeight = 300;
 

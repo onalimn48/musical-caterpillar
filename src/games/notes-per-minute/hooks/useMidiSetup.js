@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 export function useMidiSetup() {
-  const [midiAccess, setMidiAccess] = useState(null);
   const [midiDevice, setMidiDevice] = useState(null);
   const [midiStatus, setMidiStatus] = useState("disconnected");
 
@@ -12,8 +11,6 @@ export function useMidiSetup() {
     }
 
     navigator.requestMIDIAccess().then((access) => {
-      setMidiAccess(access);
-
       const updateDevices = () => {
         const inputs = Array.from(access.inputs.values());
         if (inputs.length > 0) {
@@ -32,5 +29,5 @@ export function useMidiSetup() {
     });
   }, []);
 
-  return { midiAccess, midiDevice, midiStatus };
+  return { midiDevice, midiStatus };
 }

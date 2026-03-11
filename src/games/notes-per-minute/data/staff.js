@@ -1,4 +1,4 @@
-import { CLEF_RANGES, NOTE_NAMES } from "./constants.js";
+import { FULL_CLEF_POSITION_RANGES, INSIDE_STAFF_POSITION_RANGES, NOTE_NAMES } from "./constants.js";
 
 function positionToNoteName(pos) {
   const idx = ((pos % 7) + 7) % 7;
@@ -39,9 +39,19 @@ function getAccidentalNote(pos) {
 }
 
 export function generateNote(clef, options = {}) {
-  const { includeAccidentals = false } = options;
-  const range = CLEF_RANGES[clef];
-  const pos = Math.floor(Math.random() * (range.high - range.low + 1)) + range.low;
+  const {
+    includeAccidentals = false,
+    positionPool,
+    rangeOverride,
+    allowLedgerLines = true,
+  } = options;
+  const fallbackRange = allowLedgerLines
+    ? FULL_CLEF_POSITION_RANGES[clef]
+    : INSIDE_STAFF_POSITION_RANGES[clef];
+  const positions = Array.isArray(positionPool) && positionPool.length > 0
+    ? positionPool
+    : buildPositionPool(rangeOverride || fallbackRange);
+  const pos = positions[Math.floor(Math.random() * positions.length)];
   const natural = {
     position: pos,
     name: positionToNoteName(pos),
@@ -62,6 +72,14 @@ export function generateNote(clef, options = {}) {
     displayName: accidentalNote.displayName,
     accidental: accidentalNote.accidental,
   };
+}
+
+export function buildPositionPool(range) {
+  const positions = [];
+  for (let pos = range.low; pos <= range.high; pos += 1) {
+    positions.push(pos);
+  }
+  return positions;
 }
 
 export function getStaffLines(clef) {

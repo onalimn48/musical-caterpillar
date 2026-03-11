@@ -1,7 +1,5 @@
-import { GAME_DURATION } from "../data/constants.js";
-
-export default function TimerDisplay({ timeLeft }) {
-  const pct = timeLeft / GAME_DURATION;
+export default function TimerDisplay({ timeLeft, durationSeconds }) {
+  const pct = durationSeconds > 0 ? timeLeft / durationSeconds : 0;
   const color = pct > 0.5 ? "rgba(99,102,241,0.8)" : pct > 0.2 ? "rgba(251,191,36,0.8)" : "rgba(248,113,113,0.8)";
 
   return (
