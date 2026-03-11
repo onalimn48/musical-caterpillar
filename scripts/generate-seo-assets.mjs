@@ -3,6 +3,7 @@ import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   DEFAULT_OG_IMAGE,
+  FAVICON_DATA_URL,
   INDEXABLE_PATHS,
   SITE_NAME,
   SITE_URL,
@@ -106,7 +107,7 @@ function normalizeStaticHtml(filePath) {
   let head = headMatch[1];
   head = upsertMetaTag(head, "name", "robots", "index,follow");
   head = upsertLinkTag(head, "canonical", canonicalUrl);
-  head = upsertLinkTag(head, "icon", DEFAULT_OG_IMAGE);
+  head = upsertLinkTag(head, "icon", FAVICON_DATA_URL);
   head = upsertMetaTag(head, "property", "og:site_name", SITE_NAME);
   head = upsertMetaTag(head, "property", "og:type", ogType);
   head = upsertMetaTag(head, "property", "og:title", title);

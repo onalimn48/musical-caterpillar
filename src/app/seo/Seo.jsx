@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { DEFAULT_OG_IMAGE, PAGE_SEO, SITE_NAME, toCanonicalUrl } from "./siteMetadata.js";
+import { DEFAULT_OG_IMAGE, FAVICON_DATA_URL, PAGE_SEO, SITE_NAME, toCanonicalUrl } from "./siteMetadata.js";
 
 function upsertMeta({ name, property, content }) {
   const selector = name ? `meta[name="${name}"]` : `meta[property="${property}"]`;
@@ -72,7 +72,7 @@ export default function Seo({ path, title, description, schemaType }) {
 
     document.title = resolvedTitle;
     upsertLink({ rel: "canonical", href: canonicalUrl });
-    upsertLink({ rel: "icon", href: DEFAULT_OG_IMAGE });
+    upsertLink({ rel: "icon", href: FAVICON_DATA_URL });
     upsertMeta({ name: "description", content: resolvedDescription });
     upsertMeta({ name: "robots", content: "index,follow" });
     upsertMeta({ property: "og:site_name", content: SITE_NAME });

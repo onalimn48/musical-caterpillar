@@ -1,6 +1,9 @@
 export const SITE_URL = "https://musicalcaterpillar.com";
 export const SITE_NAME = "Musical Caterpillar";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
+export const FAVICON_DATA_URL = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="0.9em" font-size="90" text-anchor="middle">&#x1F41B;</text></svg>',
+)}`;
 
 export const STATIC_CONTENT_PATHS = [
   "/music-theory-games-for-kids",
