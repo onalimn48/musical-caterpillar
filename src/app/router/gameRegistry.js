@@ -2,6 +2,16 @@ import { lazy } from 'react';
 
 export const gameRegistry = [
   {
+    path: '/synth-lab',
+    title: 'Synth Lab',
+    component: lazy(() => import('../../games/synth-lab/index.jsx')),
+  },
+  {
+    path: '/caterpillar-sequencer',
+    title: 'Caterpillar Sequencer',
+    component: lazy(() => import('../../games/caterpillar-sequencer/index.jsx')),
+  },
+  {
     path: '/note-speller',
     title: 'Note Speller',
     component: lazy(() => import('../../games/note-speller/index.jsx')),

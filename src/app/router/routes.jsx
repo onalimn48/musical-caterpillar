@@ -5,6 +5,7 @@ import HomeButton from '../shell/HomeButton.jsx';
 import { gameRegistry } from './gameRegistry.js';
 import AboutPage from '../../AboutPage.jsx';
 import WhyMusicalCaterpillar from '../../pages/WhyMusicalCaterpillar.jsx';
+import CaterpillarStudioPage from '../pages/CaterpillarStudioPage.jsx';
 import Seo from '../seo/Seo.jsx';
 import { STATIC_CONTENT_PATHS } from '../seo/siteMetadata.js';
 
@@ -61,6 +62,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage/>}/>
       <Route path="/about" element={<AboutPage/>}/>
       <Route path="/why-musical-caterpillar" element={<WhyMusicalCaterpillar/>}/>
+      <Route path="/caterpillar-studio" element={<CaterpillarStudioPage/>}/>
       {STATIC_CONTENT_PATHS.map((path) => (
         <Route
           key={path}

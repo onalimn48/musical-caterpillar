@@ -26,6 +26,9 @@ export const INDEXABLE_PATHS = [
   "/",
   "/about",
   "/why-musical-caterpillar",
+  "/caterpillar-studio",
+  "/synth-lab",
+  "/caterpillar-sequencer",
   "/note-speller",
   "/notes-per-minute",
   "/chord-snowman",
@@ -50,6 +53,24 @@ export const PAGE_SEO = {
     description:
       "See how Musical Caterpillar helps students build real note-reading skills instead of relying on simplified music app shortcuts.",
     schemaType: "Article",
+  },
+  "/caterpillar-studio": {
+    title: "Caterpillar Studio | Create Sounds and Loops",
+    description:
+      "Open Caterpillar Studio to design sounds in Sound Garden and build musical loops in Loop Trail.",
+    schemaType: "CollectionPage",
+  },
+  "/synth-lab": {
+    title: "Sound Garden | Simple Synth Game for Kids",
+    description:
+      "Explore oscillator shapes, brightness, and note tails in Sound Garden, Musical Caterpillar's beginner-friendly virtual synth lab.",
+    schemaType: "WebPage",
+  },
+  "/caterpillar-sequencer": {
+    title: "Loop Trail | Sequencer Game for Kids",
+    description:
+      "Build beats on an eight-step path in Loop Trail, Musical Caterpillar's beginner-friendly sequencer game for rhythm and pattern skills.",
+    schemaType: "WebPage",
   },
   "/note-speller": {
     title: "Note Speller | Free Note Reading Game for Kids",

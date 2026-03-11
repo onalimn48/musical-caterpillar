@@ -39,7 +39,17 @@ const games = [
   },
 ];
 
-const pills = ['🎧 Ear Training', '🎼 Note Reading', '⛄ Build Chords', '📱 Works on Phone', '🏆 Achievements', '🆓 100% Free'];
+const studioCard = {
+  path: '/caterpillar-studio',
+  icon: '🐛🎛️',
+  title: 'Caterpillar Studio',
+  desc: 'Open the music-making suite with Sound Garden and Loop Trail.',
+  tag: 'CREATE MUSIC',
+  accent: '#f472b6',
+  tagBg: 'rgba(244,114,182,.12)',
+};
+
+const pills = ['🎛️ Sound Design', '🥁 Sequencing', '🎧 Ear Training', '🎼 Note Reading', '📱 Works on Phone', '🆓 100% Free'];
 const teacherLinks = [
   { path: '/music-theory-games-for-kids', label: 'Music Theory Games for Kids' },
   { path: '/music-classroom-games', label: 'Music Classroom Games' },
@@ -140,6 +150,51 @@ export default function LandingPage() {
             </Link>
           ))}
         </div>
+        <Link
+          to={studioCard.path}
+          className="game-card"
+          style={{
+            position:'relative',
+            display:'block',
+            textDecoration:'none',
+            color:'white',
+            marginTop:22,
+            borderRadius:28,
+            padding:'24px 28px',
+            background:'linear-gradient(135deg,rgba(244,114,182,.12),rgba(103,232,249,.06),rgba(255,255,255,.04))',
+            border:'2px solid rgba(255,255,255,.08)',
+            boxShadow:'0 18px 36px rgba(15,23,42,.18)',
+          }}
+        >
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:20,flexWrap:'wrap'}}>
+            <div style={{display:'flex',alignItems:'center',gap:18,minWidth:0}}>
+              <div style={{fontSize:54,flex:'0 0 auto'}}>{studioCard.icon}</div>
+              <div style={{minWidth:0}}>
+                <div style={{fontFamily:"'Fredoka',sans-serif",fontSize:'clamp(24px,4vw,30px)',fontWeight:700,marginBottom:6}}>
+                  {studioCard.title}
+                </div>
+                <div style={{fontSize:15,color:'#cbd5e1',lineHeight:1.6,maxWidth:620}}>
+                  {studioCard.desc}
+                </div>
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+              <div style={{
+                display:'inline-block',
+                padding:'5px 12px',
+                borderRadius:10,
+                fontSize:11,
+                fontWeight:700,
+                letterSpacing:'.5px',
+                background:studioCard.tagBg,
+                color:studioCard.accent,
+              }}>
+                {studioCard.tag}
+              </div>
+              <div style={{fontSize:22,color:'#fce7f3'}}>→</div>
+            </div>
+          </div>
+        </Link>
         <div style={{display:'flex',justifyContent:'center',marginTop:22}}>
           <Link
             to="/about"
