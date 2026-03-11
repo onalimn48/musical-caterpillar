@@ -106,6 +106,7 @@ function normalizeStaticHtml(filePath) {
   let head = headMatch[1];
   head = upsertMetaTag(head, "name", "robots", "index,follow");
   head = upsertLinkTag(head, "canonical", canonicalUrl);
+  head = upsertLinkTag(head, "icon", DEFAULT_OG_IMAGE);
   head = upsertMetaTag(head, "property", "og:site_name", SITE_NAME);
   head = upsertMetaTag(head, "property", "og:type", ogType);
   head = upsertMetaTag(head, "property", "og:title", title);

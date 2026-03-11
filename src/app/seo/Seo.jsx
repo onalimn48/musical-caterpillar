@@ -72,6 +72,7 @@ export default function Seo({ path, title, description, schemaType }) {
 
     document.title = resolvedTitle;
     upsertLink({ rel: "canonical", href: canonicalUrl });
+    upsertLink({ rel: "icon", href: DEFAULT_OG_IMAGE });
     upsertMeta({ name: "description", content: resolvedDescription });
     upsertMeta({ name: "robots", content: "index,follow" });
     upsertMeta({ property: "og:site_name", content: SITE_NAME });
