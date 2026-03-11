@@ -365,7 +365,7 @@ export default function ResultsScreen({ session, onRestart }) {
         {summary.standardizationNote ? ` ${summary.standardizationNote}` : ""}
         <div style={{ marginTop: 14 }}>
           <a
-            href="/notes-per-minute-fluency"
+            href="/notes-per-minute-fluency.html"
             style={{
               color: "#c7d2fe",
               fontSize: 14,

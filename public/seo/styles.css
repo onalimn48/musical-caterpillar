@@ -1,14 +1,87 @@
 :root {
-  --bg: #f7fbff;
-  --panel: #ffffff;
-  --text: #183153;
-  --muted: #516074;
-  --line: #d8e4f2;
-  --green: #2fbf71;
-  --blue: #2d7ff9;
-  --gold: #f4b942;
-  --purple: #7a5cff;
-  --shadow: 0 14px 34px rgba(24, 49, 83, 0.08);
+  --bg: #eef3f9;
+  --panel: #fcfdff;
+  --panel-soft: #f5f8fc;
+  --text: #223043;
+  --heading: #182433;
+  --muted: #5e6b7c;
+  --line: #d4dce7;
+  --line-strong: #c3cedc;
+  --green: #2f9d68;
+  --blue: #527fc7;
+  --gold: #c7953b;
+  --purple: #6f63c8;
+  --shadow: 0 16px 36px rgba(18, 31, 49, 0.08);
+  --bg-glow-a: rgba(82, 127, 199, 0.1);
+  --bg-glow-b: rgba(47, 157, 104, 0.08);
+  --eyebrow-bg: rgba(47, 157, 104, 0.12);
+  --eyebrow-text: #23734d;
+  --button-primary-start: #2f9d68;
+  --button-primary-end: #58b688;
+  --button-secondary-bg: #edf3fb;
+  --button-secondary-text: #385f9f;
+  --button-secondary-border: #c9d6e8;
+  --table-head-bg: #e7eef7;
+  --table-head-text: var(--heading);
+  --table-row-alt: #f4f7fb;
+  --callout-blue-bg: #edf4fb;
+  --callout-green-bg: #eef8f2;
+  --callout-gold-bg: #faf4e8;
+  --profile-card-bg: #f6f8fc;
+  --band-excellent-bg: #d9ecdf;
+  --band-excellent-text: #1f5f3f;
+  --band-strong-bg: #dbe8f4;
+  --band-strong-text: #214d70;
+  --band-secure-bg: #f5e9c8;
+  --band-secure-text: #7a5b18;
+  --band-developing-bg: #f4dccb;
+  --band-developing-text: #7a4523;
+  --band-emerging-bg: #efd7dc;
+  --band-emerging-text: #7b3341;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1722;
+    --panel: #121b29;
+    --panel-soft: #162131;
+    --text: #e6edf7;
+    --heading: #f3f7fc;
+    --muted: #a8b5c6;
+    --line: #2b384b;
+    --line-strong: #3a4960;
+    --green: #57c38b;
+    --blue: #7eabff;
+    --gold: #d7aa57;
+    --purple: #9a8cff;
+    --shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+    --bg-glow-a: rgba(126, 171, 255, 0.14);
+    --bg-glow-b: rgba(87, 195, 139, 0.1);
+    --eyebrow-bg: rgba(87, 195, 139, 0.16);
+    --eyebrow-text: #8fe0b5;
+    --button-primary-start: #3aa56f;
+    --button-primary-end: #4f8fd8;
+    --button-secondary-bg: #182233;
+    --button-secondary-text: #c8d8ff;
+    --button-secondary-border: #33455f;
+    --table-head-bg: #192334;
+    --table-head-text: #eef4ff;
+    --table-row-alt: #131d2c;
+    --callout-blue-bg: #142334;
+    --callout-green-bg: #13291f;
+    --callout-gold-bg: #2b2417;
+    --profile-card-bg: #141f2f;
+    --band-excellent-bg: #153325;
+    --band-excellent-text: #9ce0ba;
+    --band-strong-bg: #162b3f;
+    --band-strong-text: #9fd0ff;
+    --band-secure-bg: #342b15;
+    --band-secure-text: #f0d58c;
+    --band-developing-bg: #382114;
+    --band-developing-text: #f3b08b;
+    --band-emerging-bg: #371922;
+    --band-emerging-text: #f0a7b5;
+  }
 }
 
 * {
@@ -19,9 +92,11 @@ body {
   margin: 0;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   color: var(--text);
+  background-color: var(--bg);
   background:
-    radial-gradient(circle at top right, rgba(45, 127, 249, 0.08), transparent 30%),
-    linear-gradient(180deg, #fefefe 0%, var(--bg) 100%);
+    radial-gradient(circle at top right, var(--bg-glow-a), transparent 30%),
+    radial-gradient(circle at top left, var(--bg-glow-b), transparent 24%),
+    linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%);
   line-height: 1.6;
 }
 
@@ -38,6 +113,7 @@ a {
 .hero,
 .content,
 .related {
+  color: var(--text);
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -53,8 +129,8 @@ a {
   display: inline-block;
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(47, 191, 113, 0.12);
-  color: #198754;
+  background: var(--eyebrow-bg);
+  color: var(--eyebrow-text);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -65,11 +141,13 @@ h1 {
   margin: 14px 0 10px;
   font-size: clamp(32px, 5vw, 48px);
   line-height: 1.1;
+  color: var(--heading);
 }
 
 h2 {
   margin-top: 28px;
   font-size: 24px;
+  color: var(--heading);
 }
 
 .lede {
@@ -94,14 +172,14 @@ h2 {
 }
 
 .button.primary {
-  background: linear-gradient(135deg, var(--green), #69d69b);
+  background: linear-gradient(135deg, var(--button-primary-start), var(--button-primary-end));
   color: white;
 }
 
 .button.secondary {
-  background: #eff6ff;
-  color: var(--blue);
-  border: 1px solid #cfe0ff;
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--button-secondary-border);
 }
 
 .content {

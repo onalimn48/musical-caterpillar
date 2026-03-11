@@ -6,6 +6,44 @@ import { gameRegistry } from './gameRegistry.js';
 import AboutPage from '../../AboutPage.jsx';
 import WhyMusicalCaterpillar from '../../pages/WhyMusicalCaterpillar.jsx';
 
+const STATIC_CONTENT_REDIRECTS = [
+  '/music-theory-games-for-kids',
+  '/music-classroom-games',
+  '/how-to-teach-note-reading',
+  '/music-warmups',
+  '/music-theory-centers',
+  '/note-reading-game',
+  '/interval-training-game',
+  '/chord-ear-training-game',
+  '/treble-clef-practice',
+  '/bass-clef-practice',
+  '/notes-per-minute-fluency',
+];
+
+function StaticPageRedirect({ path }) {
+  if (typeof window !== 'undefined') {
+    window.location.replace(`${path}.html`);
+  }
+
+  return (
+    <div style={{
+      minHeight:'100vh',
+      display:'flex',
+      alignItems:'center',
+      justifyContent:'center',
+      background:'linear-gradient(180deg,#0c1445,#162055)',
+      fontFamily:"'Fredoka',sans-serif",
+      color:'#cbd5e1',
+      padding:'24px',
+      textAlign:'center',
+    }}>
+      <a href={`${path}.html`} style={{ color:'#c7d2fe' }}>
+        Continue to page
+      </a>
+    </div>
+  );
+}
+
 function Loading() {
   return (
     <div style={{
@@ -34,6 +72,13 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage/>}/>
       <Route path="/about" element={<AboutPage/>}/>
       <Route path="/why-musical-caterpillar" element={<WhyMusicalCaterpillar/>}/>
+      {STATIC_CONTENT_REDIRECTS.map((path) => (
+        <Route
+          key={path}
+          path={path}
+          element={<StaticPageRedirect path={path}/>}
+        />
+      ))}
       {gameRegistry.map((game) => {
         const GameComponent = game.component;
         return (

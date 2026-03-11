@@ -39,11 +39,11 @@ const games = [
 
 const pills = ['🎧 Ear Training', '🎼 Note Reading', '⛄ Build Chords', '📱 Works on Phone', '🏆 Achievements', '🆓 100% Free'];
 const teacherLinks = [
-  { path: '/music-theory-games-for-kids', label: 'Music Theory Games for Kids' },
-  { path: '/music-classroom-games', label: 'Music Classroom Games' },
-  { path: '/how-to-teach-note-reading', label: 'How to Teach Note Reading' },
-  { path: '/music-warmups', label: 'Music Warmups' },
-  { path: '/notes-per-minute-fluency', label: 'Note Reading Fluency Benchmark' },
+  { path: '/music-theory-games-for-kids.html', label: 'Music Theory Games for Kids' },
+  { path: '/music-classroom-games.html', label: 'Music Classroom Games' },
+  { path: '/how-to-teach-note-reading.html', label: 'How to Teach Note Reading' },
+  { path: '/music-warmups.html', label: 'Music Warmups' },
+  { path: '/notes-per-minute-fluency.html', label: 'Note Reading Fluency Benchmark' },
 ];
 
 export default function LandingPage() {
