@@ -40,6 +40,27 @@ export default function CaterpillarStudioPage() {
       `}</style>
 
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
+        <div style={{ marginBottom: 20 }}>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              textDecoration: 'none',
+              borderRadius: 999,
+              padding: '10px 14px',
+              border: '1px solid rgba(255,255,255,.14)',
+              background: 'rgba(15,23,42,.22)',
+              color: '#e2e8f0',
+              fontSize: 14,
+              fontWeight: 700,
+            }}
+          >
+            Back
+          </Link>
+        </div>
+
         <div style={{ textAlign: 'center', marginBottom: 30 }}>
           <div style={{
             display: 'inline-block',
