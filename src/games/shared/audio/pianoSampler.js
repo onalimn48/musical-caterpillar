@@ -1,5 +1,5 @@
-const AudioCtxClass = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
-let sharedCtx = null;
+import { getAudioContext, getMasterOutputNode, resumeAudioContext } from "./audioContext.js";
+
 const pianoBufferPromises = new Map();
 
 const SEMITONES = {
@@ -79,10 +79,12 @@ const PIANO_SAMPLE_URLS = SAMPLE_FILES.map(([sampleKey, file]) => {
 });
 
 export function getSharedAudioContext() {
-  if (!AudioCtxClass) return null;
-  if (!sharedCtx || sharedCtx.state === "closed") sharedCtx = new AudioCtxClass();
-  if (sharedCtx.state === "suspended") sharedCtx.resume().catch(() => {});
-  return sharedCtx;
+  const ctx = getAudioContext();
+  if (!ctx) return null;
+  if (ctx.state === "suspended") {
+    resumeAudioContext().catch(() => {});
+  }
+  return ctx;
 }
 
 function getNearestSample(midi) {
@@ -152,10 +154,15 @@ export function playSampledPianoNote({ name, octave, midi, duration = 0.5, delay
 
       const source = ctx.createBufferSource();
       const gain = ctx.createGain();
+      const output = getMasterOutputNode();
+      if (!output) {
+        onFallback?.();
+        return;
+      }
       source.buffer = sample.buffer;
       source.playbackRate.value = 2 ** ((resolvedMidi - sample.midi) / 12);
       source.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(output);
 
       const t = ctx.currentTime + delay;
       const releaseStart = t + Math.max(0.12, duration * 0.92);

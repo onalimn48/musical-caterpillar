@@ -2,6 +2,9 @@ export const DEFAULT_PATCH = {
   oscType: "sine",
   cutoff: 1600,
   resonance: 1.2,
+  noiseMix: 0,
+  lfoDepth: 0,
+  lfoRate: 1.8,
   attack: 0.03,
   decay: 0.16,
   sustain: 0.68,
@@ -9,34 +12,28 @@ export const DEFAULT_PATCH = {
   volume: 0.22,
 };
 
-export const NOTE_BUTTONS = ["C4", "D4", "E4", "G4", "A4", "C5"];
-
-export const LESSON_CARDS = [
-  {
-    id: "shape",
-    title: "Shape the Voice",
-    summary: "Swap between smooth, pointed, chunky, and spiky wave shapes.",
-  },
-  {
-    id: "brightness",
-    title: "Open the Garden",
-    summary: "Hear how a filter makes the caterpillar darker or brighter.",
-  },
-  {
-    id: "tail",
-    title: "Grow the Tail",
-    summary: "Short notes bounce. Long releases leave a glowing trail.",
-  },
-];
+export const NOTE_BUTTONS = ["C", "D", "E", "G", "A", "C"];
+export const OCTAVE_OPTIONS = [2, 3, 4, 5];
 
 export const initialState = {
   phase: "menu",
   patch: DEFAULT_PATCH,
   savedPatches: [],
   audioReady: false,
-  activeLessonId: LESSON_CARDS[0].id,
+  activeLessonId: "shape",
+  octave: 4,
   lastNote: "C4",
   lastNoteIndex: 0,
   singing: false,
   wavePhase: 0,
+  drawerOpen: false,
+  lastSavedPatchName: "",
+  draftPatchName: "",
+  draftRoleTag: "",
+  lessonArmed: false,
+  lessonPreviewBeforeChange: false,
+  lessonPreviewCount: 0,
+  progressLoaded: false,
+  completedLessonIds: [],
+  lessonToast: "",
 };

@@ -1,7 +1,7 @@
 import GameLayout from "../../shared/layout/GameLayout.jsx";
 import GameContainer from "../../shared/layout/GameContainer.jsx";
 import CaterpillarAvatar from "../../shared/caterpillar/CaterpillarAvatar.jsx";
-import { LESSON_CARDS } from "../state/initialState.js";
+import { SYNTH_LESSONS } from "../state/lessonDefinitions.js";
 
 export default function MenuScreen({ onStart }) {
   return (
@@ -54,7 +54,7 @@ export default function MenuScreen({ onStart }) {
               First Stops
             </div>
             <div style={{ display: "grid", gap: 12, marginBottom: 22 }}>
-              {LESSON_CARDS.map((lesson) => (
+              {SYNTH_LESSONS.map((lesson) => (
                 <div key={lesson.id} style={{
                   padding: "14px 16px",
                   borderRadius: 18,

@@ -88,14 +88,27 @@ export default function CaterpillarAvatar({
         const taper = 1 - index / (segmentCount + 3);
         const width = 54 + taper * 18 + brightness * 3;
         const height = 56 + Math.abs(waveSample) * 20 + taper * 18 + tailGlow * 6;
-        const left = bodyStart + index * spacing;
+        const laneSpacing = shape === "pointed"
+          ? spacing + 8
+          : spacing + 4 + tailGlow * 6;
+        const left = bodyStart + index * laneSpacing;
         const verticalLift = waveSample * baseWaveHeight * snapTension;
         const rotate = shape === "chunky" ? -2 + waveSample * 4 : shape === "pointed" ? -6 + waveSample * 9 : -4 + waveSample * 6;
+        const trianglePointsUp = index % 2 === 0;
         const borderRadius = shape === "chunky"
-          ? "22px"
+          ? "8px"
           : shape === "pointed"
-            ? "48% 52% 42% 42%"
-            : "50%";
+            ? "0"
+            : shape === "spiky"
+              ? "0"
+              : "50%";
+        const clipPath = shape === "pointed"
+          ? trianglePointsUp
+            ? "polygon(50% 0%, 100% 100%, 0% 100%)"
+            : "polygon(0% 0%, 100% 0%, 50% 100%)"
+          : shape === "spiky"
+            ? "polygon(50% 0%, 58% 10%, 70% 2%, 74% 16%, 88% 8%, 84% 24%, 100% 26%, 90% 40%, 100% 50%, 90% 60%, 100% 74%, 84% 76%, 88% 92%, 74% 84%, 70% 98%, 58% 90%, 50% 100%, 42% 90%, 30% 98%, 26% 84%, 12% 92%, 16% 76%, 0% 74%, 10% 60%, 0% 50%, 10% 40%, 0% 26%, 16% 24%, 12% 8%, 26% 16%, 30% 2%, 42% 10%)"
+          : "none";
 
         return (
           <div
@@ -108,6 +121,7 @@ export default function CaterpillarAvatar({
               height,
               transform: `translateX(-50%) rotate(${rotate}deg) scaleX(${0.94 + (1 - snap) * 0.22})`,
               borderRadius,
+              clipPath,
               background: `linear-gradient(180deg, ${shellColor}, hsl(${shellHue} 84% ${38 + brightness * 9}%))`,
               border: "2px solid rgba(15,23,42,.16)",
               display: "flex",
@@ -118,12 +132,17 @@ export default function CaterpillarAvatar({
           >
             <div
               style={{
-                width: "72%",
-                height: "38%",
-                borderRadius: 999,
+                width: shape === "pointed" ? "46%" : shape === "spiky" ? "64%" : shape === "chunky" ? "66%" : "72%",
+                height: shape === "pointed" ? "18%" : shape === "spiky" ? "64%" : shape === "chunky" ? "30%" : "38%",
+                borderRadius: shape === "pointed" ? "0" : shape === "chunky" ? "4px" : 999,
+                clipPath: shape === "pointed"
+                  ? trianglePointsUp
+                    ? "polygon(50% 100%, 82% 0%, 18% 0%)"
+                    : "polygon(18% 100%, 82% 100%, 50% 0%)"
+                  : "none",
                 background: bellyColor,
                 opacity: 0.84,
-                marginTop: "22%",
+                marginTop: shape === "pointed" ? "41%" : shape === "spiky" ? "10%" : shape === "chunky" ? "26%" : "22%",
               }}
             />
             {brightness > 0.28 ? (
@@ -145,14 +164,11 @@ export default function CaterpillarAvatar({
               <div
                 style={{
                   position: "absolute",
-                  top: -6,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: 0,
-                  height: 0,
-                  borderLeft: "12px solid transparent",
-                  borderRight: "12px solid transparent",
-                  borderBottom: `20px solid ${spikeColor}`,
+                  inset: 0,
+                  clipPath: "polygon(50% 0%, 58% 10%, 70% 2%, 74% 16%, 88% 8%, 84% 24%, 100% 26%, 90% 40%, 100% 50%, 90% 60%, 100% 74%, 84% 76%, 88% 92%, 74% 84%, 70% 98%, 58% 90%, 50% 100%, 42% 90%, 30% 98%, 26% 84%, 12% 92%, 16% 76%, 0% 74%, 10% 60%, 0% 50%, 10% 40%, 0% 26%, 16% 24%, 12% 8%, 26% 16%, 30% 2%, 42% 10%)",
+                  background: `linear-gradient(180deg, ${spikeColor}, hsl(${Math.max(20, shellHue - 40)} 88% 34%))`,
+                  opacity: 0.42,
+                  pointerEvents: "none",
                 }}
               />
             ) : null}
