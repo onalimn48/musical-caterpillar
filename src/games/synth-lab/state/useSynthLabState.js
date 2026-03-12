@@ -9,7 +9,7 @@ import {
   saveSynthPatchRecord,
   saveSynthProgress,
 } from "../../shared/progression/storage.js";
-import { DEFAULT_PATCH, initialState, NOTE_BUTTONS, OCTAVE_OPTIONS } from "./initialState.js";
+import { DEFAULT_PATCH, initialState, NOTE_BUTTONS, OCTAVE_OPTIONS, SHAPE_MISSION_TYPES } from "./initialState.js";
 import { SYNTH_LESSONS } from "./lessonDefinitions.js";
 
 function clamp(value, min, max) {
@@ -52,10 +52,13 @@ function getSynthLessonProgress(state) {
   }
 
   if (state.activeLessonId === "shape") {
-    const complete = state.patch.oscType !== DEFAULT_PATCH.oscType;
+    const heardCount = state.heardShapeTypes.length;
+    const complete = SHAPE_MISSION_TYPES.every((shapeType) => state.heardShapeTypes.includes(shapeType));
     return {
       complete,
-      summary: complete ? "A different voice shape is selected." : "Try a new voice shape.",
+      summary: complete
+        ? "You heard smooth, pointed, chunky, and spiky voices."
+        : `Play all four voice shapes. Heard ${heardCount}/${SHAPE_MISSION_TYPES.length} so far.`,
     };
   }
 
@@ -225,6 +228,9 @@ export function useSynthLabState() {
       audioReady: true,
       lastNote: noteName,
       lastNoteIndex: noteIndex,
+      heardShapeTypes: current.activeLessonId === "shape" && SHAPE_MISSION_TYPES.includes(current.patch.oscType)
+        ? [...new Set([...current.heardShapeTypes, current.patch.oscType])]
+        : current.heardShapeTypes,
       lessonPreviewBeforeChange: current.lessonArmed ? current.lessonPreviewBeforeChange : true,
       lessonPreviewCount: current.lessonArmed ? current.lessonPreviewCount + 1 : current.lessonPreviewCount,
       singing: true,
@@ -235,6 +241,7 @@ export function useSynthLabState() {
   function resetPatch() {
     setState((current) => ({
       ...current,
+      heardShapeTypes: [],
       lessonArmed: true,
       lessonPreviewBeforeChange: false,
       lessonPreviewCount: 0,
@@ -269,6 +276,7 @@ export function useSynthLabState() {
   function loadPatch(patchRecord) {
     setState((current) => ({
       ...current,
+      heardShapeTypes: [],
       lessonArmed: false,
       lessonPreviewBeforeChange: false,
       lessonPreviewCount: 0,
@@ -324,6 +332,7 @@ export function useSynthLabState() {
         ? current.completedLessonIds
         : [...current.completedLessonIds, lessonId],
       activeLessonId: nextLessonId,
+      heardShapeTypes: [],
       lessonArmed: false,
       lessonPreviewBeforeChange: false,
       lessonPreviewCount: 0,
@@ -346,8 +355,10 @@ export function useSynthLabState() {
     if (lessonChanged) return undefined;
     if (!lessonProgress.complete) return undefined;
     if (!state.lessonArmed) return undefined;
-    if (!state.lessonPreviewBeforeChange) return undefined;
-    if (state.lessonPreviewCount < 1) return undefined;
+    if (state.activeLessonId !== "shape") {
+      if (!state.lessonPreviewBeforeChange) return undefined;
+      if (state.lessonPreviewCount < 1) return undefined;
+    }
     if (state.completedLessonIds.includes(state.activeLessonId)) return undefined;
 
     const lessonId = state.activeLessonId;
@@ -357,6 +368,7 @@ export function useSynthLabState() {
       ...current,
       completedLessonIds: [...current.completedLessonIds, lessonId],
       activeLessonId: nextLessonId,
+      heardShapeTypes: [],
       lessonArmed: false,
       lessonPreviewBeforeChange: false,
       lessonPreviewCount: 0,
@@ -435,6 +447,7 @@ export function useSynthLabState() {
       setLesson: (lessonId) => setState((current) => ({
         ...current,
         activeLessonId: lessonId,
+        heardShapeTypes: lessonId === "shape" ? [] : current.heardShapeTypes,
         lessonArmed: false,
         lessonPreviewBeforeChange: false,
         lessonPreviewCount: 0,

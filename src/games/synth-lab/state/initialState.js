@@ -14,6 +14,7 @@ export const DEFAULT_PATCH = {
 
 export const NOTE_BUTTONS = ["C", "D", "E", "G", "A", "C"];
 export const OCTAVE_OPTIONS = [2, 3, 4, 5];
+export const SHAPE_MISSION_TYPES = ["sine", "triangle", "square", "sawtooth"];
 
 export const initialState = {
   phase: "menu",
@@ -30,6 +31,7 @@ export const initialState = {
   lastSavedPatchName: "",
   draftPatchName: "",
   draftRoleTag: "",
+  heardShapeTypes: [],
   lessonArmed: false,
   lessonPreviewBeforeChange: false,
   lessonPreviewCount: 0,
