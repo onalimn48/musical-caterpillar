@@ -39,6 +39,16 @@ const games = [
   },
 ];
 
+const bearglarCard = {
+  path: '/bearglar',
+  icon: '🐻🎵',
+  title: 'Bearglar',
+  desc: 'Tap and hold rhythms to dodge lasers, sneak past guards, and crack the museum vault.',
+  tag: 'RHYTHM GAME',
+  accent: '#f87171',
+  tagBg: 'rgba(248,113,113,.12)',
+};
+
 const studioCard = {
   path: '/caterpillar-studio',
   icon: '🐛🎛️',
@@ -131,6 +141,51 @@ export default function LandingPage() {
         <h2 style={{fontFamily:"'Fredoka',sans-serif",textAlign:'center',fontSize:'clamp(20px,4vw,28px)',color:'#fde68a',marginBottom:32,fontWeight:600}}>
           🎵 Choose Your Adventure
         </h2>
+        <Link
+          to={bearglarCard.path}
+          className="game-card"
+          style={{
+            position:'relative',
+            display:'block',
+            textDecoration:'none',
+            color:'white',
+            marginBottom:22,
+            borderRadius:28,
+            padding:'18px 24px',
+            background:'linear-gradient(135deg,rgba(248,113,113,.14),rgba(251,191,36,.08),rgba(255,255,255,.04))',
+            border:'2px solid rgba(255,255,255,.08)',
+            boxShadow:'0 18px 36px rgba(15,23,42,.18)',
+          }}
+        >
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:20,flexWrap:'wrap'}}>
+            <div style={{display:'flex',alignItems:'center',gap:18,minWidth:0}}>
+              <div style={{fontSize:48,flex:'0 0 auto'}}>{bearglarCard.icon}</div>
+              <div style={{minWidth:0}}>
+                <div style={{fontFamily:"'Fredoka',sans-serif",fontSize:'clamp(24px,4vw,30px)',fontWeight:700,marginBottom:6}}>
+                  {bearglarCard.title}
+                </div>
+                <div style={{fontSize:15,color:'#cbd5e1',lineHeight:1.6,maxWidth:620}}>
+                  {bearglarCard.desc}
+                </div>
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+              <div style={{
+                display:'inline-block',
+                padding:'5px 12px',
+                borderRadius:10,
+                fontSize:11,
+                fontWeight:700,
+                letterSpacing:'.5px',
+                background:bearglarCard.tagBg,
+                color:bearglarCard.accent,
+              }}>
+                {bearglarCard.tag}
+              </div>
+              <div style={{fontSize:22,color:'#fce7f3'}}>→</div>
+            </div>
+          </div>
+        </Link>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20}}>
           {games.map(g => (
             <Link key={g.path} to={g.path} className="game-card" style={{

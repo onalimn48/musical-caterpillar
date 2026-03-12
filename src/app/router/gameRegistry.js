@@ -2,6 +2,11 @@ import { lazy } from 'react';
 
 export const gameRegistry = [
   {
+    path: '/bearglar',
+    title: 'Bearglar',
+    component: lazy(() => import('../../games/the-heist/index.jsx')),
+  },
+  {
     path: '/synth-lab',
     title: 'Synth Lab',
     component: lazy(() => import('../../games/synth-lab/index.jsx')),

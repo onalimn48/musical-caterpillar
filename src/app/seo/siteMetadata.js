@@ -27,6 +27,7 @@ export const INDEXABLE_PATHS = [
   "/about",
   "/why-musical-caterpillar",
   "/caterpillar-studio",
+  "/bearglar",
   "/synth-lab",
   "/caterpillar-sequencer",
   "/note-speller",
@@ -59,6 +60,12 @@ export const PAGE_SEO = {
     description:
       "Open Caterpillar Studio to design sounds in Sound Garden and build musical loops in Loop Trail.",
     schemaType: "CollectionPage",
+  },
+  "/bearglar": {
+    title: "Bearglar | Free Rhythm Game for Kids",
+    description:
+      "Play Bearglar on Musical Caterpillar to practice rhythm reading by dodging lasers, guards, and museum traps.",
+    schemaType: "WebPage",
   },
   "/synth-lab": {
     title: "Sound Garden | Simple Synth Game for Kids",
