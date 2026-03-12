@@ -141,6 +141,25 @@ export default function LandingPage() {
         <h2 style={{fontFamily:"'Fredoka',sans-serif",textAlign:'center',fontSize:'clamp(20px,4vw,28px)',color:'#fde68a',marginBottom:32,fontWeight:600}}>
           🎵 Choose Your Adventure
         </h2>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20}}>
+          {games.map(g => (
+            <Link key={g.path} to={g.path} className="game-card" style={{
+              position:'relative',display:'block',textDecoration:'none',color:'white',
+              background:'linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))',
+              border:'2px solid rgba(255,255,255,.08)',borderRadius:24,padding:'32px 24px',
+              textAlign:'center',cursor:'pointer',
+            }}>
+              <div style={{fontSize:56,marginBottom:12}}>{g.icon}</div>
+              <div style={{fontFamily:"'Fredoka',sans-serif",fontSize:22,fontWeight:700,marginBottom:6}}>{g.title}</div>
+              <div style={{fontSize:14,color:'#94a3b8',lineHeight:1.5}}>{g.desc}</div>
+              <div style={{
+                display:'inline-block',marginTop:12,padding:'4px 12px',borderRadius:8,
+                fontSize:11,fontWeight:700,letterSpacing:'.5px',
+                background:g.tagBg,color:g.accent,
+              }}>{g.tag}</div>
+            </Link>
+          ))}
+        </div>
         <Link
           to={bearglarCard.path}
           className="game-card"
@@ -149,7 +168,7 @@ export default function LandingPage() {
             display:'block',
             textDecoration:'none',
             color:'white',
-            marginBottom:22,
+            marginTop:22,
             borderRadius:28,
             padding:'18px 24px',
             background:'linear-gradient(135deg,rgba(248,113,113,.14),rgba(251,191,36,.08),rgba(255,255,255,.04))',
@@ -186,25 +205,6 @@ export default function LandingPage() {
             </div>
           </div>
         </Link>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20}}>
-          {games.map(g => (
-            <Link key={g.path} to={g.path} className="game-card" style={{
-              position:'relative',display:'block',textDecoration:'none',color:'white',
-              background:'linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02))',
-              border:'2px solid rgba(255,255,255,.08)',borderRadius:24,padding:'32px 24px',
-              textAlign:'center',cursor:'pointer',
-            }}>
-              <div style={{fontSize:56,marginBottom:12}}>{g.icon}</div>
-              <div style={{fontFamily:"'Fredoka',sans-serif",fontSize:22,fontWeight:700,marginBottom:6}}>{g.title}</div>
-              <div style={{fontSize:14,color:'#94a3b8',lineHeight:1.5}}>{g.desc}</div>
-              <div style={{
-                display:'inline-block',marginTop:12,padding:'4px 12px',borderRadius:8,
-                fontSize:11,fontWeight:700,letterSpacing:'.5px',
-                background:g.tagBg,color:g.accent,
-              }}>{g.tag}</div>
-            </Link>
-          ))}
-        </div>
         <Link
           to={studioCard.path}
           className="game-card"
