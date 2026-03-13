@@ -1255,6 +1255,12 @@ export default function BurglarGame() {
     }
     handleInputPress("button");
   }, [countingIn, gameOver, handleInputPress, levelCompleteOverlay, startSelectedMenuMode, started]);
+  const handleScenePress = useCallback(() => {
+    handleInputPress("scene");
+  }, [handleInputPress]);
+  const handleSceneRelease = useCallback(() => {
+    handleInputRelease("scene");
+  }, [handleInputRelease]);
   const notationPreviewEntries = useMemo(() => {
     if (!notationLabOpen) return [];
     return [
@@ -1373,6 +1379,8 @@ export default function BurglarGame() {
         levelBanner={levelBanner}
         teachingOverlay={teachingOverlay}
         continueTeachingIntro={continueTeachingIntro}
+        handleScenePress={handleScenePress}
+        handleSceneRelease={handleSceneRelease}
         gameHud={{
           width: W,
           height: H,

@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 
 const DEFAULT_LAYOUT = {
   width: 720,
@@ -145,6 +145,7 @@ const RhythmLane = memo(function RhythmLane({
   showStartBarline = true,
   showEndBarline = true,
 }) {
+  const [mobileVisualOffset, setMobileVisualOffset] = useState(0);
   const {
     width: laneWidth = DEFAULT_LAYOUT.width,
     laneY = DEFAULT_LAYOUT.laneY,
@@ -156,6 +157,17 @@ const RhythmLane = memo(function RhythmLane({
     musicNotationFontFamily = DEFAULT_NOTATION.musicNotationFontFamily,
     standaloneEighthFlagPath = DEFAULT_NOTATION.standaloneEighthFlagPath,
   } = notation;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const updateOffset = () => {
+      setMobileVisualOffset(window.innerWidth <= 520 ? 4 : 0);
+    };
+    updateOffset();
+    window.addEventListener("resize", updateOffset);
+    return () => window.removeEventListener("resize", updateOffset);
+  }, []);
+
   const { beamSegments, groupMap, phraseBarlines } = useMemo(() => {
     const nextBeamSegments = [];
     const nextGroupMap = new Map();
@@ -214,7 +226,7 @@ const RhythmLane = memo(function RhythmLane({
   };
 
   const Note = ({ note }) => {
-    const noteX = note.laneBaseX ?? note.x ?? 0;
+    const noteX = (note.laneBaseX ?? note.x ?? 0) + mobileVisualOffset;
     const isCountIn = note.kind === "count_in";
     const isHold = note.kind === "hold";
     const noteStyle = {
@@ -360,8 +372,8 @@ const RhythmLane = memo(function RhythmLane({
           .filter(barline => (showEndBarline || barline.key !== `barline-${beatsPerBar}`))
           .map(barline => (
           <g key={barline.key}>
-            <line x1={barline.x} y1={laneY - 22} x2={barline.x} y2={laneY + 22} stroke="#e8f6ff" strokeWidth={2.2} opacity={0.7} />
-            <line x1={barline.x} y1={laneY - 24} x2={barline.x} y2={laneY + 24} stroke="#7ce7ff" strokeWidth={8} opacity={0.12} />
+            <line x1={barline.x + mobileVisualOffset} y1={laneY - 22} x2={barline.x + mobileVisualOffset} y2={laneY + 22} stroke="#e8f6ff" strokeWidth={2.2} opacity={0.7} />
+            <line x1={barline.x + mobileVisualOffset} y1={laneY - 24} x2={barline.x + mobileVisualOffset} y2={laneY + 24} stroke="#7ce7ff" strokeWidth={8} opacity={0.12} />
           </g>
         ))}
         {notes.map(note => <Note key={note.id} note={note} />)}

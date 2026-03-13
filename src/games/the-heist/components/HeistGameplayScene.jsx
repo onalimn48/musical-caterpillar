@@ -34,6 +34,8 @@ export const HeistGameplayScene = memo(function HeistGameplayScene({
   levelBanner,
   teachingOverlay,
   continueTeachingIntro,
+  handleScenePress,
+  handleSceneRelease,
   gameHud,
   startOverlay,
   levelCompleteOverlayProps,
@@ -48,9 +50,26 @@ export const HeistGameplayScene = memo(function HeistGameplayScene({
   HeistMuseumBackground,
 }) {
   return (
-    <div style={{position:"relative",width:"min(100%, 720px)",maxWidth:"100%",aspectRatio:`${width} / ${height}`,border:"1px solid #ff336622",borderRadius:4,
+    <div
+      onPointerDown={event => {
+        event.preventDefault();
+        handleScenePress();
+      }}
+      onPointerUp={event => {
+        event.preventDefault();
+        handleSceneRelease();
+      }}
+      onPointerCancel={event => {
+        event.preventDefault();
+        handleSceneRelease();
+      }}
+      onPointerLeave={event => {
+        event.preventDefault();
+        handleSceneRelease();
+      }}
+      style={{position:"relative",width:"min(100%, 720px)",maxWidth:"100%",aspectRatio:`${width} / ${height}`,border:"1px solid #ff336622",borderRadius:4,
       overflow:"hidden",boxShadow:"0 0 50px #ff33660e,0 0 100px #00000099",
-      animation:hitFlash?"sh 0.45s ease":"none"}}>
+      animation:hitFlash?"sh 0.45s ease":"none",touchAction:"manipulation"}}>
       <HeistMuseumBackground
         key={museumBgVersion}
         worldXSourceRef={worldXRef}
