@@ -1,0 +1,13 @@
+project_id = "tjqmsvycjktfalikznta"
+
+[functions.lookup-class-by-code]
+verify_jwt = false
+
+[functions.list-assignments-for-student]
+verify_jwt = false
+
+[functions.record-attempt-started]
+verify_jwt = false
+
+[functions.record-attempt-completed]
+verify_jwt = false

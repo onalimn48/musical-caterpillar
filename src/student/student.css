@@ -1,0 +1,158 @@
+.student-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(254, 240, 138, 0.22), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(96, 165, 250, 0.18), transparent 24%),
+    linear-gradient(180deg, #132238 0%, #1f3556 52%, #29446b 100%);
+  color: #f8fbff;
+  font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.student-page__content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
+}
+
+.student-page__hero {
+  margin-bottom: 18px;
+}
+
+.student-eyebrow {
+  margin: 0 0 8px;
+  color: #fde68a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.student-page__hero h1,
+.student-card h2,
+.student-card h3 {
+  margin: 0;
+}
+
+.student-page__hero p,
+.student-card p,
+.student-card li,
+.student-label {
+  color: #d7e5f7;
+}
+
+.student-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.student-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background: rgba(12, 20, 36, 0.66);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  padding: 24px;
+}
+
+.student-form,
+.student-actions,
+.student-identity-summary {
+  display: grid;
+  gap: 14px;
+}
+
+.student-field {
+  display: grid;
+  gap: 8px;
+}
+
+.student-field input,
+.student-field select {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: inherit;
+  padding: 14px 16px;
+}
+
+.student-field input:focus,
+.student-field select:focus {
+  outline: 2px solid rgba(253, 230, 138, 0.7);
+  outline-offset: 2px;
+}
+
+.student-primary-button,
+.student-secondary-button {
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  padding: 12px 18px;
+}
+
+.student-primary-button {
+  background: linear-gradient(135deg, #fde68a 0%, #7dd3fc 100%);
+  color: #122033;
+  font-weight: 700;
+}
+
+.student-secondary-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+}
+
+.student-primary-button:disabled,
+.student-secondary-button:disabled,
+.student-field input:disabled,
+.student-field select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.student-alert {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+}
+
+.student-alert--error {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fecaca;
+}
+
+.student-alert--info {
+  background: rgba(125, 211, 252, 0.14);
+  color: #dbeafe;
+}
+
+.student-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fde68a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+.student-actions {
+  grid-template-columns: repeat(3, minmax(0, auto));
+  justify-content: start;
+}
+
+.student-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+@media (max-width: 700px) {
+  .student-card {
+    padding: 20px;
+  }
+
+  .student-actions {
+    grid-template-columns: 1fr;
+  }
+}

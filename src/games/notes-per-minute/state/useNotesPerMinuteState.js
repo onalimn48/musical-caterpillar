@@ -306,6 +306,10 @@ export function useNotesPerMinuteState() {
     return startRun(practiceConfig);
   }, [practiceConfig, startRun]);
 
+  const startAssignmentRun = useCallback((runConfig) => {
+    return startRun(runConfig);
+  }, [startRun]);
+
   const finishRun = useCallback(async (finalResults) => {
     if (finishRunRef.current) return;
     finishRunRef.current = true;
@@ -519,6 +523,7 @@ export function useNotesPerMinuteState() {
     beginRun,
     startBenchmark,
     startPractice,
+    startAssignmentRun,
     resetToMenu,
   };
 }

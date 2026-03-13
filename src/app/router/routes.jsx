@@ -8,6 +8,7 @@ import WhyMusicalCaterpillar from '../../pages/WhyMusicalCaterpillar.jsx';
 import CaterpillarStudioPage from '../pages/CaterpillarStudioPage.jsx';
 import Seo from '../seo/Seo.jsx';
 import { STATIC_CONTENT_PATHS } from '../seo/siteMetadata.js';
+import TeacherProtectedRoute from '../../teacher/TeacherProtectedRoute.jsx';
 
 function StaticPageRedirect({ path }) {
   if (typeof window !== 'undefined') {
@@ -56,6 +57,22 @@ function GameWrapper({ children, path }) {
   );
 }
 
+function TeacherWrapper({ children }) {
+  return (
+    <Suspense fallback={<Loading/>}>
+      {children}
+    </Suspense>
+  );
+}
+
+function StudentWrapper({ children }) {
+  return (
+    <Suspense fallback={<Loading/>}>
+      {children}
+    </Suspense>
+  );
+}
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -71,18 +88,34 @@ export default function AppRoutes() {
         />
       ))}
       {gameRegistry.map((game) => {
-        const GameComponent = game.component;
+        const RouteComponent = game.component;
+        let element = <RouteComponent/>;
+
+        if (game.requiresTeacherAuth) {
+          element = <TeacherProtectedRoute>{element}</TeacherProtectedRoute>;
+        }
+
+        if (game.layout === 'game') {
+          element = (
+            <GameWrapper path={game.path}>
+              {element}
+            </GameWrapper>
+          );
+        }
+
+        if (game.layout === 'teacher') {
+          element = <TeacherWrapper>{element}</TeacherWrapper>;
+        }
+
+        if (game.layout === 'student') {
+          element = <StudentWrapper>{element}</StudentWrapper>;
+        }
+
         return (
           <Route
             key={game.path}
             path={game.path}
-            element={
-              <GameWrapper
-                path={game.path}
-              >
-                <GameComponent/>
-              </GameWrapper>
-            }
+            element={element}
           />
         );
       })}

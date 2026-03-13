@@ -1,6 +1,7 @@
 // Architecture: index.jsx is composition only; state/ holds reducers, state machines, and orchestration hooks;
 // hooks/ holds browser/device integrations like MIDI, keyboard, and timers; data/ holds static configuration
 // and content; components/ holds presentational UI components.
+import { useEffect, useRef } from "react";
 import { useNoteSpellerState } from "./state/useNoteSpellerState.js";
 import ArcadeScreen from "./components/screens/ArcadeScreen.jsx";
 import GameScreen from "./components/screens/GameScreen.jsx";
@@ -10,6 +11,9 @@ import StoryScreen from "./components/screens/StoryScreen.jsx";
 import ScrambleScreen from "./components/screens/ScrambleScreen.jsx";
 import TimedScreen from "./components/screens/TimedScreen.jsx";
 import WeakNotesScreen from "./components/screens/WeakNotesScreen.jsx";
+import { useAssignmentContext } from "../../assignment/useAssignmentContext.js";
+import { useAssignmentAttempt } from "../../assignment/useAssignmentAttempt.js";
+import StudentResultScreen from "../../assignment/StudentResultScreen.jsx";
 
 function ThemeToggle({ darkMode, onToggle, fontFamily }) {
   return (
@@ -50,6 +54,98 @@ export default function App() {
   const ff = "'Fredoka',sans-serif";
   const { state, dispatch, actions, derived } = useNoteSpellerState();
   const { darkMode } = derived;
+  const assignmentContext = useAssignmentContext("note-speller");
+  const assignmentLaunchRef = useRef(false);
+  const assignmentAttempt = useAssignmentAttempt({
+    assignment: assignmentContext.assignment,
+    studentIdentity: assignmentContext.studentIdentity,
+    enabled: assignmentContext.isAssignmentMode && !assignmentContext.loading && !assignmentContext.error,
+  });
+
+  useEffect(() => {
+    if (!assignmentContext.isAssignmentMode || !assignmentContext.assignment) {
+      assignmentLaunchRef.current = false;
+      return;
+    }
+
+    if (assignmentAttempt.startStatus !== "started" || assignmentLaunchRef.current || state.phase !== "menu") {
+      return;
+    }
+
+    assignmentLaunchRef.current = true;
+    dispatch({
+      type: "START_ASSIGNMENT",
+      clef: assignmentContext.assignment.activityConfig.clef,
+      stageIndex: Number(assignmentContext.assignment.activityConfig.stage || 1) - 1,
+    });
+  }, [
+    assignmentAttempt.startStatus,
+    assignmentContext,
+    dispatch,
+    state.phase,
+  ]);
+
+  useEffect(() => {
+    if (!assignmentContext.isAssignmentMode || state.phase !== "game" || !state.isDone || assignmentAttempt.completionStatus !== "idle") {
+      return;
+    }
+
+    assignmentAttempt.completeAttempt({
+      summary: {
+        score: state.score,
+        streak: state.streak,
+        clef: state.clef,
+        stage: state.stageIndex + 1,
+      },
+      rawResult: {
+        score: state.score,
+        streak: state.streak,
+        clef: state.clef,
+        stage: state.stageIndex + 1,
+        completedWords: state.completed,
+        message: state.message,
+      },
+    });
+  }, [
+    assignmentAttempt,
+    assignmentContext.isAssignmentMode,
+    state.clef,
+    state.completed,
+    state.isDone,
+    state.message,
+    state.phase,
+    state.score,
+    state.stageIndex,
+    state.streak,
+  ]);
+
+  if (assignmentContext.isAssignmentMode && assignmentContext.loading) {
+    return <StudentResultScreen title="Loading assignment" subtitle="Getting your assignment settings ready." summaryLines={[]} />;
+  }
+
+  if (assignmentContext.isAssignmentMode && assignmentContext.error) {
+    return <StudentResultScreen title="Assignment unavailable" subtitle="This assignment could not be loaded." summaryLines={[]} error={assignmentContext.error} />;
+  }
+
+  if (assignmentContext.isAssignmentMode && assignmentAttempt.startStatus === "error") {
+    return <StudentResultScreen title="Cannot start assignment" subtitle="The assignment could not be started." summaryLines={[]} error={assignmentAttempt.error} />;
+  }
+
+  if (assignmentContext.isAssignmentMode && (assignmentAttempt.completionStatus === "completed" || assignmentAttempt.completionStatus === "error")) {
+    return (
+      <StudentResultScreen
+        title={assignmentAttempt.completionStatus === "completed" ? "Assignment complete" : "Result saved with an issue"}
+        subtitle={assignmentContext.assignment?.title || "Note Speller"}
+        summaryLines={[
+          `Score: ${state.score}`,
+          `Streak: ${state.streak}`,
+          `Clef: ${state.clef}`,
+          `Stage: ${state.stageIndex + 1}`,
+        ]}
+        error={assignmentAttempt.completionStatus === "error" ? assignmentAttempt.error : ""}
+      />
+    );
+  }
 
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');

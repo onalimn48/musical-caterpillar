@@ -1,9 +1,14 @@
+import { useEffect, useMemo, useRef } from "react";
 import { NOTE_NAMES } from "./data/constants.js";
 import MenuScreen from "./components/MenuScreen.jsx";
 import ResultsScreen from "./components/ResultsScreen.jsx";
 import StaffView from "./components/StaffView.jsx";
 import TimerDisplay from "./components/TimerDisplay.jsx";
 import { useNotesPerMinuteState } from "./state/useNotesPerMinuteState.js";
+import { buildPracticeConfig, getBenchmarkPresetById } from "./data/benchmarks.js";
+import { useAssignmentContext } from "../../assignment/useAssignmentContext.js";
+import { useAssignmentAttempt } from "../../assignment/useAssignmentAttempt.js";
+import StudentResultScreen from "../../assignment/StudentResultScreen.jsx";
 
 function RunLabel({ activeRun }) {
   const isBenchmark = activeRun?.runType === "benchmark";
@@ -37,6 +42,7 @@ function RunLabel({ activeRun }) {
 }
 
 export default function NotesPerMinute() {
+  const assignmentContext = useAssignmentContext("notes-per-minute");
   const {
     screen,
     menuSection,
@@ -60,8 +66,91 @@ export default function NotesPerMinute() {
     beginRun,
     startBenchmark,
     startPractice,
+    startAssignmentRun,
     resetToMenu,
   } = useNotesPerMinuteState();
+  const assignmentLaunchRef = useRef(false);
+
+  const assignmentAttempt = useAssignmentAttempt({
+    assignment: assignmentContext.assignment,
+    studentIdentity: assignmentContext.studentIdentity,
+    enabled: assignmentContext.isAssignmentMode && !assignmentContext.loading && !assignmentContext.error,
+  });
+
+  const assignmentRunConfig = useMemo(() => {
+    if (!assignmentContext.assignment) {
+      return null;
+    }
+
+    const config = assignmentContext.assignment.activityConfig;
+
+    if (config.runType === "benchmark") {
+      return getBenchmarkPresetById(config.presetId);
+    }
+
+    return buildPracticeConfig({
+      clef: config.clef,
+      durationSeconds: config.durationSeconds,
+      allowLedgerLines: config.allowLedgerLines,
+      includeAccidentals: config.includeAccidentals,
+      inputMode: "keyboard",
+    });
+  }, [assignmentContext.assignment]);
+
+  useEffect(() => {
+    if (!assignmentContext.isAssignmentMode || !assignmentRunConfig) {
+      assignmentLaunchRef.current = false;
+      return;
+    }
+
+    if (assignmentAttempt.startStatus !== "started" || assignmentLaunchRef.current) {
+      return;
+    }
+
+    assignmentLaunchRef.current = true;
+    startAssignmentRun(assignmentRunConfig);
+  }, [
+    assignmentAttempt.startStatus,
+    assignmentContext.isAssignmentMode,
+    assignmentRunConfig,
+    startAssignmentRun,
+  ]);
+
+  useEffect(() => {
+    if (!assignmentContext.isAssignmentMode || !completedSession || assignmentAttempt.completionStatus !== "idle") {
+      return;
+    }
+
+    assignmentAttempt.completeAttempt({
+      summary: {
+        npm: Number(completedSession.summary?.rawNpm ?? completedSession.summary?.npm ?? 0),
+        accuracy: Number(completedSession.summary?.accuracy || 0),
+        score: completedSession.summary?.fluencyScore ?? null,
+        rawNpm: Number(completedSession.summary?.rawNpm ?? completedSession.summary?.npm ?? 0),
+        fluencyScore: completedSession.summary?.fluencyScore ?? null,
+        qualifiedBenchmark: Boolean(completedSession.qualifiedBenchmark),
+        presetId: completedSession.presetId,
+        clef: completedSession.config?.clef || completedSession.summary?.clef,
+      },
+      rawResult: completedSession,
+    });
+  }, [
+    assignmentAttempt,
+    assignmentContext.isAssignmentMode,
+    completedSession,
+  ]);
+
+  if (assignmentContext.isAssignmentMode && assignmentContext.loading) {
+    return <StudentResultScreen title="Loading assignment" subtitle="Getting your assignment settings ready." summaryLines={[]} />;
+  }
+
+  if (assignmentContext.isAssignmentMode && assignmentContext.error) {
+    return <StudentResultScreen title="Assignment unavailable" subtitle="This assignment could not be loaded." summaryLines={[]} error={assignmentContext.error} />;
+  }
+
+  if (assignmentContext.isAssignmentMode && assignmentAttempt.startStatus === "error") {
+    return <StudentResultScreen title="Cannot start assignment" subtitle="The assignment could not be started." summaryLines={[]} error={assignmentAttempt.error} />;
+  }
 
   const isReadyState = screen === "playing" && activeRun && !hasRunStarted;
   const isBenchmarkRun = activeRun?.runType === "benchmark";
@@ -73,7 +162,24 @@ export default function NotesPerMinute() {
     ? "Play any MIDI note or click to begin."
     : "Press any key or click to begin.";
 
-  if (screen === "menu") {
+  if (assignmentContext.isAssignmentMode && (assignmentAttempt.completionStatus === "completed" || assignmentAttempt.completionStatus === "error")) {
+    const summary = completedSession?.summary;
+
+    return (
+      <StudentResultScreen
+        title={assignmentAttempt.completionStatus === "completed" ? "Assignment complete" : "Result saved with an issue"}
+        subtitle={assignmentContext.assignment?.title || "Notes Per Minute"}
+        summaryLines={summary ? [
+          `Notes per minute: ${summary.rawNpm ?? summary.npm ?? 0}`,
+          `Accuracy: ${summary.accuracy ?? 0}%`,
+          `Clef: ${completedSession?.config?.clef || ""}`,
+        ] : []}
+        error={assignmentAttempt.completionStatus === "error" ? assignmentAttempt.error : ""}
+      />
+    );
+  }
+
+  if (screen === "menu" && !assignmentContext.isAssignmentMode) {
     return (
       <MenuScreen
         menuSection={menuSection}
@@ -92,6 +198,9 @@ export default function NotesPerMinute() {
   }
 
   if (screen === "results") {
+    if (assignmentContext.isAssignmentMode) {
+      return null;
+    }
     return <ResultsScreen session={completedSession} onRestart={resetToMenu} />;
   }
 

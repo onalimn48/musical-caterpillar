@@ -55,6 +55,24 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           timedClefProgress: state.timedClefProgress,
         };
       }
+      case "START_ASSIGNMENT": {
+        const stageIdx = Math.min(Math.max((action.stageIndex ?? 0), 0), STAGES.length - 1);
+        const word = pickWord(STAGES[stageIdx].words, []);
+        return {
+          ...INITIAL_STATE,
+          phase: "game",
+          clef: action.clef,
+          unlockedStages: state.unlockedStages,
+          stageIndex: stageIdx,
+          score: state.score,
+          word,
+          slots: getSlots(word),
+          message: `Hint: "${word.h}"`,
+          stats: state.stats,
+          powerups: state.powerups,
+          timedClefProgress: state.timedClefProgress,
+        };
+      }
       case "MENU":
         return {
           ...INITIAL_STATE,
