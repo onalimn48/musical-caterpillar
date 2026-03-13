@@ -1,5 +1,35 @@
 import { supabase } from '../teacher/supabaseClient.js';
 
+async function extractFunctionError(error) {
+  const response = error?.context;
+
+  if (!response) {
+    return error?.message || 'Assignment request failed.';
+  }
+
+  try {
+    const payload = await response.clone().json();
+
+    if (payload?.error) {
+      return payload.error;
+    }
+  } catch (_jsonError) {
+    // Fall through to text parsing.
+  }
+
+  try {
+    const text = await response.text();
+
+    if (text) {
+      return text;
+    }
+  } catch (_textError) {
+    // Fall through to the generic fallback below.
+  }
+
+  return error?.message || 'Assignment request failed.';
+}
+
 async function invokeAssignmentFunction(name, body) {
   if (!supabase) {
     throw new Error('Supabase is not configured.');
@@ -8,27 +38,7 @@ async function invokeAssignmentFunction(name, body) {
   const { data, error } = await supabase.functions.invoke(name, { body });
 
   if (error) {
-    const response = error.context;
-
-    if (response) {
-      try {
-        const payload = await response.json();
-        if (payload?.error) {
-          throw new Error(payload.error);
-        }
-      } catch (_jsonError) {
-        try {
-          const text = await response.text();
-          if (text) {
-            throw new Error(text);
-          }
-        } catch (_textError) {
-          // Fall through.
-        }
-      }
-    }
-
-    throw new Error(error.message || 'Assignment request failed.');
+    throw new Error(await extractFunctionError(error));
   }
 
   if (data?.error) {

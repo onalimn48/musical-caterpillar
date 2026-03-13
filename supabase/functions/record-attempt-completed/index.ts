@@ -11,15 +11,15 @@ const supabase = createClient(
 );
 
 function deriveScore(summary: Record<string, unknown>) {
-  if (typeof summary.score === 'number') return summary.score;
-  if (typeof summary.fluencyScore === 'number') return summary.fluencyScore;
-  if (typeof summary.rawNpm === 'number') return summary.rawNpm;
-  if (typeof summary.npm === 'number') return summary.npm;
+  if (typeof summary.score === 'number' && Number.isFinite(summary.score)) return summary.score;
+  if (typeof summary.fluencyScore === 'number' && Number.isFinite(summary.fluencyScore)) return summary.fluencyScore;
+  if (typeof summary.rawNpm === 'number' && Number.isFinite(summary.rawNpm)) return summary.rawNpm;
+  if (typeof summary.npm === 'number' && Number.isFinite(summary.npm)) return summary.npm;
   return null;
 }
 
 function deriveAccuracy(summary: Record<string, unknown>) {
-  if (typeof summary.accuracy === 'number') return summary.accuracy;
+  if (typeof summary.accuracy === 'number' && Number.isFinite(summary.accuracy)) return summary.accuracy;
   return null;
 }
 

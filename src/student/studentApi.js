@@ -1,5 +1,35 @@
 import { supabase } from '../teacher/supabaseClient.js';
 
+async function extractFunctionError(error) {
+  const response = error?.context;
+
+  if (!response) {
+    return error?.message || 'Unable to look up class code.';
+  }
+
+  try {
+    const payload = await response.clone().json();
+
+    if (payload?.error) {
+      return payload.error;
+    }
+  } catch (_jsonError) {
+    // Fall through to text parsing.
+  }
+
+  try {
+    const text = await response.text();
+
+    if (text) {
+      return text;
+    }
+  } catch (_textError) {
+    // Fall through to the generic fallback below.
+  }
+
+  return error?.message || 'Unable to look up class code.';
+}
+
 export async function lookupClassByCode(classCode) {
   const normalizedCode = classCode.trim().toUpperCase();
 
@@ -18,29 +48,7 @@ export async function lookupClassByCode(classCode) {
   });
 
   if (error) {
-    const response = error.context;
-
-    if (response) {
-      try {
-        const payload = await response.json();
-
-        if (payload?.error) {
-          throw new Error(payload.error);
-        }
-      } catch (_jsonError) {
-        try {
-          const text = await response.text();
-
-          if (text) {
-            throw new Error(text);
-          }
-        } catch (_textError) {
-          // Fall through to the generic error below.
-        }
-      }
-    }
-
-    throw new Error(error.message || 'Unable to look up class code.');
+    throw new Error(await extractFunctionError(error));
   }
 
   if (data?.error) {
