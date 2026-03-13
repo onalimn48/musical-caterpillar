@@ -346,9 +346,9 @@ const RhythmLane = memo(function RhythmLane({
       <line x1={hitX} y1={laneY} x2={spawnX} y2={laneY} stroke="#60cfff" strokeWidth={9} opacity={0.05} />
       {showHitLine && (
         <>
-          <rect x={hitX - 8} y={laneY - 24} width={16} height={48} rx={6} fill="#ffffff" opacity={0.1} />
-          <line x1={hitX} y1={laneY - 27} x2={hitX} y2={laneY + 27} stroke="#ffffff" strokeWidth={3.5} />
-          <line x1={hitX} y1={laneY - 27} x2={hitX} y2={laneY + 27} stroke="#7ce7ff" strokeWidth={11} opacity={0.16} />
+          <rect x={hitX - 4} y={laneY - 22} width={8} height={44} rx={4} fill="#ffffff" opacity={0.08} />
+          <line x1={hitX} y1={laneY - 24} x2={hitX} y2={laneY + 24} stroke="#ffffff" strokeWidth={2.2} />
+          <line x1={hitX} y1={laneY - 24} x2={hitX} y2={laneY + 24} stroke="#7ce7ff" strokeWidth={6} opacity={0.13} />
           <text x={30} y={laneY - 30} fontSize={8} fill="#5da8d8" fontFamily="monospace" letterSpacing={2}>
             HIT LINE
           </text>
