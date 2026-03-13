@@ -22,6 +22,10 @@ export default function MusicalCaterpillarMeter({
   milestoneScopeKey = "default",
   width = 360,
   height = 190,
+  showCounters = true,
+  showTierBadge = true,
+  showTierRing = true,
+  showTierToast = true,
 }) {
 
 
@@ -351,6 +355,7 @@ export default function MusicalCaterpillarMeter({
   }, [clampProgress, evolving, showOverlay]);
 
   useEffect(() => {
+    if (!showTierToast) return;
     const milestoneTierName = streakMilestone?.tier || null;
     const scopeTierKey = milestoneTierName ? `${milestoneScopeKey}:${milestoneTierName}` : null;
     const prevTierKey = prevMilestoneTierRef.current;
@@ -363,7 +368,7 @@ export default function MusicalCaterpillarMeter({
     setTierMessage(message);
     const t = setTimeout(() => setTierMessage(null), 2800);
     timersRef.current.push(t);
-  }, [milestoneScopeKey, streakMilestone, tierMessages]);
+  }, [milestoneScopeKey, showTierToast, streakMilestone, tierMessages]);
 
   // Face growth with progress (0..10)
   const smilePath = useMemo(() => {
@@ -545,19 +550,21 @@ export default function MusicalCaterpillarMeter({
           <g id="meter-ornaments">
             {milestoneTier !== "base" && (
               <>
-                <ellipse
-                  className="mc-tier-ring"
-                  cx="210"
-                  cy="105"
-                  rx="128"
-                  ry="54"
-                  fill="none"
-                  stroke={variant.glow}
-                  strokeOpacity={variant.ringOpacity}
-                  strokeWidth="6"
-                  strokeDasharray={variant.ringDash}
-                />
-                {variant.badge && (
+                {showTierRing && (
+                  <ellipse
+                    className="mc-tier-ring"
+                    cx="210"
+                    cy="105"
+                    rx="128"
+                    ry="54"
+                    fill="none"
+                    stroke={variant.glow}
+                    strokeOpacity={variant.ringOpacity}
+                    strokeWidth="6"
+                    strokeDasharray={variant.ringDash}
+                  />
+                )}
+                {showTierBadge && variant.badge && (
                   <g transform="translate(214 32)">
                     <g className={milestoneTier === "fire" ? "mc-tier-flame" : "mc-tier-float"}>
                       <rect x="-42" y="-14" width="84" height="28" rx="14" fill={variant.badgeBg} stroke={variant.glow} strokeWidth="2.5" />
@@ -747,36 +754,40 @@ export default function MusicalCaterpillarMeter({
             <rect x="310" y="35" width="80" height="14" rx="7" fill={variant.hatBand} />
           </g>
 
-          <g id="streak-counter" transform="translate(410 92)">
-            <rect
-              x="-6"
-              y="-18"
-              width="74"
-              height="32"
-              rx="14"
-              fill={variant.badgeBg}
-              stroke={milestoneTier === "base" ? "#d1d5db" : variant.glow}
-              strokeWidth="2.5"
-            />
-            <text x="31" y="3" textAnchor="middle" fontSize="15" fontWeight="800" fill="#0E1822">
-              x{streak}
-            </text>
-          </g>
-          <g id="butterfly-helper" transform="translate(441 132)">
-            <rect
-              x="-38"
-              y="-15"
-              width="76"
-              height="30"
-              rx="15"
-              fill="rgba(255,255,255,0.92)"
-              stroke={milestoneTier === "base" ? "#d1d5db" : variant.glow}
-              strokeWidth="2"
-            />
-            <text x="0" y="4" textAnchor="middle" fontSize="12" fontWeight="700" fill="#0E1822">
-              {`🦋 in ${butterflyRemaining}`}
-            </text>
-          </g>
+          {showCounters && (
+            <>
+              <g id="streak-counter" transform="translate(410 92)">
+                <rect
+                  x="-6"
+                  y="-18"
+                  width="74"
+                  height="32"
+                  rx="14"
+                  fill={variant.badgeBg}
+                  stroke={milestoneTier === "base" ? "#d1d5db" : variant.glow}
+                  strokeWidth="2.5"
+                />
+                <text x="31" y="3" textAnchor="middle" fontSize="15" fontWeight="800" fill="#0E1822">
+                  x{streak}
+                </text>
+              </g>
+              <g id="butterfly-helper" transform="translate(441 132)">
+                <rect
+                  x="-38"
+                  y="-15"
+                  width="76"
+                  height="30"
+                  rx="15"
+                  fill="rgba(255,255,255,0.92)"
+                  stroke={milestoneTier === "base" ? "#d1d5db" : variant.glow}
+                  strokeWidth="2"
+                />
+                <text x="0" y="4" textAnchor="middle" fontSize="12" fontWeight="700" fill="#0E1822">
+                  {`🦋 in ${butterflyRemaining}`}
+                </text>
+              </g>
+            </>
+          )}
           </g>
           </g>
         </g>
