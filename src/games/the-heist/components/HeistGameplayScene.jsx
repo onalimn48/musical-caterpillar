@@ -48,7 +48,7 @@ export const HeistGameplayScene = memo(function HeistGameplayScene({
   HeistMuseumBackground,
 }) {
   return (
-    <div style={{position:"relative",width:"min(100%, 720px)",maxWidth:"100%",border:"1px solid #ff336622",borderRadius:4,
+    <div style={{position:"relative",width:"min(100%, 720px)",maxWidth:"100%",aspectRatio:`${width} / ${height}`,border:"1px solid #ff336622",borderRadius:4,
       overflow:"hidden",boxShadow:"0 0 50px #ff33660e,0 0 100px #00000099",
       animation:hitFlash?"sh 0.45s ease":"none"}}>
       <HeistMuseumBackground
@@ -62,9 +62,10 @@ export const HeistGameplayScene = memo(function HeistGameplayScene({
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        width={width}
-        height={height}
-        style={{display:"block",maxWidth:"100%",position:"relative",zIndex:1}}
+        preserveAspectRatio="xMidYMid meet"
+        width="100%"
+        height="100%"
+        style={{display:"block",position:"relative",zIndex:1}}
       >
         {rhythmLane}
         {laserObstacleLayer}

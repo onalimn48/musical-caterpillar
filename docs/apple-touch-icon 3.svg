@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-  <rect width="180" height="180" rx="40" fill="#162055"/>
-  <circle cx="90" cy="90" r="58" fill="#0f766e" opacity=".22"/>
-  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="92">🐛</text>
-</svg>
