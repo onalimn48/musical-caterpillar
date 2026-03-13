@@ -161,7 +161,15 @@ const RhythmLane = memo(function RhythmLane({
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
     const updateOffset = () => {
-      setMobileVisualOffset(window.innerWidth <= 520 ? 4 : 0);
+      if (window.innerWidth <= 420) {
+        setMobileVisualOffset(14);
+        return;
+      }
+      if (window.innerWidth <= 520) {
+        setMobileVisualOffset(10);
+        return;
+      }
+      setMobileVisualOffset(0);
     };
     updateOffset();
     window.addEventListener("resize", updateOffset);
