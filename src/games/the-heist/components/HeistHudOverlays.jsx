@@ -399,6 +399,7 @@ export const TeachingIntroOverlay = memo(function TeachingIntroOverlay({
   width,
   height,
   teachingOverlay,
+  onContinue,
 }) {
   if (!teachingOverlay) return null;
   const cardWidth = Math.min(width - 24, 364);
@@ -409,6 +410,11 @@ export const TeachingIntroOverlay = memo(function TeachingIntroOverlay({
       <foreignObject x={width / 2 - cardWidth / 2} y={Math.max(14, height / 2 - cardHeight / 2 - 8)} width={cardWidth} height={cardHeight}>
         <div
           xmlns="http://www.w3.org/1999/xhtml"
+          onPointerDown={event => {
+            event.preventDefault();
+            event.stopPropagation();
+            onContinue?.();
+          }}
           style={{
             height:"100%",
             border:"1px solid rgba(124,231,255,0.24)",

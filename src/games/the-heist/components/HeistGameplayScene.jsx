@@ -33,6 +33,7 @@ export const HeistGameplayScene = memo(function HeistGameplayScene({
   missFlash,
   levelBanner,
   teachingOverlay,
+  continueTeachingIntro,
   gameHud,
   startOverlay,
   levelCompleteOverlayProps,
@@ -110,7 +111,12 @@ export const HeistGameplayScene = memo(function HeistGameplayScene({
 
         <GameHud {...gameHud} />
         <StartOverlay {...startOverlay} />
-        <TeachingIntroOverlay width={width} height={height} teachingOverlay={teachingOverlay} />
+        <TeachingIntroOverlay
+          width={width}
+          height={height}
+          teachingOverlay={teachingOverlay}
+          onContinue={continueTeachingIntro}
+        />
         <LevelCompleteOverlay {...levelCompleteOverlayProps} />
 
         {gameOver && (

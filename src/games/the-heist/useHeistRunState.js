@@ -1497,6 +1497,7 @@ export function useHeistRunState({
     setLevelTempoOverrideValue,
     startSelectedMenuMode,
     previewLevelClearOverlay,
+    continueTeachingIntro,
     handleInputPress,
     handleInputRelease,
     restart,

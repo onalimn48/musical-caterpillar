@@ -1134,6 +1134,7 @@ export default function BurglarGame() {
     setLevelTempoOverrideValue,
     startSelectedMenuMode,
     previewLevelClearOverlay,
+    continueTeachingIntro,
     handleInputPress,
     handleInputRelease,
     returnToMenu,
@@ -1371,6 +1372,7 @@ export default function BurglarGame() {
         missFlash={missFlash}
         levelBanner={levelBanner}
         teachingOverlay={teachingOverlay}
+        continueTeachingIntro={continueTeachingIntro}
         gameHud={{
           width: W,
           height: H,
