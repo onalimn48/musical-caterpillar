@@ -15,6 +15,17 @@ import { useAssignmentContext } from "../../assignment/useAssignmentContext.js";
 import { useAssignmentAttempt } from "../../assignment/useAssignmentAttempt.js";
 import StudentResultScreen from "../../assignment/StudentResultScreen.jsx";
 
+function getAssignmentWordTarget(assignment) {
+  const rawValue = assignment?.activityConfig?.targetWords ?? assignment?.activityConfig?.wordTarget;
+  const value = Number(rawValue);
+
+  if (Number.isFinite(value) && value > 0) {
+    return Math.floor(value);
+  }
+
+  return 10;
+}
+
 function ThemeToggle({ darkMode, onToggle, fontFamily }) {
   return (
     <button
@@ -52,9 +63,13 @@ function ThemeToggle({ darkMode, onToggle, fontFamily }) {
 // ═══════════════════════════════════════════════════════════
 export default function App() {
   const ff = "'Fredoka',sans-serif";
-  const { state, dispatch, actions, derived } = useNoteSpellerState();
-  const { darkMode } = derived;
   const assignmentContext = useAssignmentContext("note-speller");
+  const assignmentWordTarget = getAssignmentWordTarget(assignmentContext.assignment);
+  const { state, dispatch, actions, derived } = useNoteSpellerState({
+    isAssignmentMode: assignmentContext.isAssignmentMode,
+    assignmentWordTarget,
+  });
+  const { darkMode } = derived;
   const assignmentLaunchRef = useRef(false);
   const assignmentAttempt = useAssignmentAttempt({
     assignment: assignmentContext.assignment,
@@ -86,7 +101,13 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    if (!assignmentContext.isAssignmentMode || state.phase !== "game" || !state.isDone || assignmentAttempt.completionStatus !== "idle") {
+    if (
+      !assignmentContext.isAssignmentMode
+      || state.phase !== "game"
+      || !state.isDone
+      || state.completed < assignmentWordTarget
+      || assignmentAttempt.completionStatus !== "idle"
+    ) {
       return;
     }
 
@@ -96,6 +117,11 @@ export default function App() {
         streak: state.streak,
         clef: state.clef,
         stage: state.stageIndex + 1,
+        completedWords: state.completed,
+        targetWords: assignmentWordTarget,
+        hintCountTotal: state.assignmentDiagnostics.hintCountTotal,
+        hintCountByNote: state.assignmentDiagnostics.hintCountByNote,
+        fourthTryFailuresByNote: state.assignmentDiagnostics.fourthTryFailuresByNote,
       },
       rawResult: {
         score: state.score,
@@ -103,12 +129,15 @@ export default function App() {
         clef: state.clef,
         stage: state.stageIndex + 1,
         completedWords: state.completed,
+        targetWords: assignmentWordTarget,
+        assignmentDiagnostics: state.assignmentDiagnostics,
         message: state.message,
       },
     });
   }, [
     assignmentAttempt,
     assignmentContext.isAssignmentMode,
+    assignmentWordTarget,
     state.clef,
     state.completed,
     state.isDone,
@@ -136,11 +165,13 @@ export default function App() {
       <StudentResultScreen
         title={assignmentAttempt.completionStatus === "completed" ? "Assignment complete" : "Result saved with an issue"}
         subtitle={assignmentContext.assignment?.title || "Note Speller"}
+        currentAssignmentId={assignmentContext.assignment?.id || ""}
         summaryLines={[
           `Score: ${state.score}`,
           `Streak: ${state.streak}`,
           `Clef: ${state.clef}`,
           `Stage: ${state.stageIndex + 1}`,
+          `Words: ${state.completed}/${assignmentWordTarget}`,
         ]}
         error={assignmentAttempt.completionStatus === "error" ? assignmentAttempt.error : ""}
       />

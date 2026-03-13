@@ -130,12 +130,18 @@ export default function StudentAssignmentsPage() {
                   <h3>{assignment.title}</h3>
                   {assignment.instructions ? <p>{assignment.instructions}</p> : null}
                   <p>Due: {formatDueDate(assignment.dueAt)}</p>
-                  <Link
-                    className="student-primary-button"
-                    to={`${getGamePathByGameId(assignment.gameId)}?assignmentId=${assignment.id}`}
-                  >
-                    Start
-                  </Link>
+                  {assignment.studentStatus === 'completed' ? (
+                    <p className="student-alert student-alert--info">
+                      Completed{assignment.completedAt ? ` on ${formatDueDate(assignment.completedAt)}` : ''}.
+                    </p>
+                  ) : (
+                    <Link
+                      className="student-primary-button"
+                      to={`${getGamePathByGameId(assignment.gameId)}?assignmentId=${assignment.id}`}
+                    >
+                      Start
+                    </Link>
+                  )}
                 </article>
               ))}
             </div>

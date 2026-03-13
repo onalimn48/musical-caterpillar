@@ -7,6 +7,7 @@ export const INIT_TIMED_CLEF_PROGRESS = {
 
 export const INITIAL_STATE = {
   phase: "menu", clef: "treble",
+  assignmentMode: false,
   word: null, slots: [], slotIndex: 0, guessed: {}, highlights: {},
   streak: 0, score: 0, stageIndex: 0,
   butterflyCorrectCount: 0,
@@ -14,6 +15,7 @@ export const INITIAL_STATE = {
   isButterfly: false, showConfetti: false,
   streakMilestone: null,
   message: "", usedWords: [], isDone: false, wrongCount: 0, slotWrongCount: 0,
+  assignmentHintShownForSlot: false,
   completed: 0, unlockedStages: [0], popup: null,
   arcadeScore: 0, arcadeOver: false, arcadeClef: null,
   arcadeWordDone: false,
@@ -31,6 +33,11 @@ export const INITIAL_STATE = {
     wordsCompleted: 0, correctGuesses: 0, totalGuesses: 0,
     bestStreak: 0, butterflies: 0, xp: 0, noteAttempts: {}, noteCorrect: {},
     legendaryBadges: { treble: false, alto: false, bass: false },
+  },
+  assignmentDiagnostics: {
+    hintCountTotal: 0,
+    hintCountByNote: {},
+    fourthTryFailuresByNote: {},
   },
   showStats: false,
   storyChapter: 0,

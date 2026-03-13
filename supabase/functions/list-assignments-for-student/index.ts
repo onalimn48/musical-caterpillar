@@ -67,10 +67,64 @@ Deno.serve(async (request) => {
       createdAt: assignment.created_at,
     }));
 
+    const assignmentIds = mappedAssignments.map((assignment) => assignment.id);
+    let attemptsByAssignmentId = new Map<string, Array<{
+      status: string;
+      started_at: string | null;
+      completed_at: string | null;
+    }>>();
+
+    if (assignmentIds.length > 0) {
+      const { data: attempts, error: attemptsError } = await supabase
+        .from('assignment_attempts')
+        .select('assignment_id, status, started_at, completed_at')
+        .eq('class_id', classId)
+        .eq('student_id', studentId)
+        .in('assignment_id', assignmentIds)
+        .order('started_at', { ascending: false });
+
+      if (attemptsError) {
+        throw attemptsError;
+      }
+
+      attemptsByAssignmentId = (attempts ?? []).reduce((map, attempt) => {
+        const current = map.get(attempt.assignment_id) || [];
+        current.push({
+          status: attempt.status,
+          started_at: attempt.started_at,
+          completed_at: attempt.completed_at,
+        });
+        map.set(attempt.assignment_id, current);
+        return map;
+      }, new Map<string, Array<{
+        status: string;
+        started_at: string | null;
+        completed_at: string | null;
+      }>>());
+    }
+
+    const assignmentsWithStatus = mappedAssignments.map((assignment) => {
+      const attempts = attemptsByAssignmentId.get(assignment.id) || [];
+      const completedAttempt = attempts.find((attempt) => attempt.status === 'completed') || null;
+      const latestAttempt = attempts[0] || null;
+      const studentStatus = completedAttempt
+        ? 'completed'
+        : latestAttempt
+          ? latestAttempt.status
+          : 'not_started';
+
+      return {
+        ...assignment,
+        studentStatus,
+        completedAt: completedAttempt?.completed_at || null,
+        canStart: studentStatus !== 'completed',
+      };
+    });
+
     return Response.json(
       assignmentId
-        ? { assignment: mappedAssignments[0] ?? null }
-        : { assignments: mappedAssignments },
+        ? { assignment: assignmentsWithStatus[0] ?? null }
+        : { assignments: assignmentsWithStatus },
       { headers: corsHeaders }
     );
   } catch (error) {

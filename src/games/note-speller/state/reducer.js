@@ -50,6 +50,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           ...INITIAL_STATE,
           phase: "game", clef: action.clef, unlockedStages: state.unlockedStages,
           stageIndex: startStage, score: state.score,
+          assignmentMode: false,
           word, slots: getSlots(word), message: `Hint: "${word.h}"`,
           stats: state.stats, powerups: state.powerups,
           timedClefProgress: state.timedClefProgress,
@@ -61,6 +62,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         return {
           ...INITIAL_STATE,
           phase: "game",
+          assignmentMode: true,
           clef: action.clef,
           unlockedStages: state.unlockedStages,
           stageIndex: stageIdx,
@@ -158,6 +160,47 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           const loseStreak = !state.shieldActive;
           const newShield = false;
           const newStreak = loseStreak ? 0 : state.streak;
+          const nextDiagnostics = {
+            ...state.assignmentDiagnostics,
+            hintCountByNote: { ...state.assignmentDiagnostics.hintCountByNote },
+            fourthTryFailuresByNote: { ...state.assignmentDiagnostics.fourthTryFailuresByNote },
+          };
+
+          if (state.assignmentMode && newSlotWrongs === 3) {
+            nextDiagnostics.hintCountTotal += 1;
+            nextDiagnostics.hintCountByNote[expected] = (nextDiagnostics.hintCountByNote[expected] || 0) + 1;
+            return {
+              ...state,
+              highlights: { ...state.highlights, [state.slotIndex]: "wrong" },
+              wrongCount: state.wrongCount + 1,
+              slotWrongCount: newSlotWrongs,
+              streak: newStreak,
+              shieldActive: newShield,
+              assignmentHintShownForSlot: true,
+              assignmentDiagnostics: nextDiagnostics,
+              message: state.shieldActive
+                ? "🛡️ Shield absorbed it. Staff hint opened."
+                : "Staff hint opened. Try the note one more time.",
+              stats: newStats,
+            };
+          }
+
+          if (state.assignmentMode && newSlotWrongs >= 4) {
+            nextDiagnostics.fourthTryFailuresByNote[expected] = (nextDiagnostics.fourthTryFailuresByNote[expected] || 0) + 1;
+            return {
+              ...state,
+              highlights: { ...state.highlights, [state.slotIndex]: "reveal" },
+              wrongCount: state.wrongCount + 1,
+              slotWrongCount: newSlotWrongs,
+              streak: newStreak,
+              shieldActive: newShield,
+              assignmentHintShownForSlot: false,
+              assignmentDiagnostics: nextDiagnostics,
+              message: state.shieldActive ? `🛡️ Shield! That note is ${expected}!` : `That note is ${expected}!`,
+              stats: newStats,
+            };
+          }
+
           if (newSlotWrongs >= 3) {
             return {
               ...state, highlights: { ...state.highlights, [state.slotIndex]: "reveal" },
@@ -199,6 +242,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
             highlights: newHL,
             slotIndex: state.slotIndex + 1,
             slotWrongCount: 0,
+            assignmentHintShownForSlot: false,
             streak: newStreak,
             butterflyCorrectCount: newButterflyCorrectCount,
             butterflyPending: state.butterflyPending || butterflyHitNow,
@@ -237,6 +281,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
           butterflyPending: false,
           score: state.score + pts, completed: state.completed + 1,
           isButterfly: butterfly, showConfetti: butterfly || !!milestone, slotWrongCount: 0,
+          assignmentHintShownForSlot: false,
           streakMilestone: milestone,
           doubleActive: false, shieldActive: false,
           message: milestoneMsg,
@@ -255,6 +300,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         return {
           ...state, guessed: newGuessed, highlights: newHL, isDone: true, streak: 0,
           score: state.score + 1, completed: state.completed + 1, slotWrongCount: 0,
+          assignmentHintShownForSlot: false,
           doubleActive: false, shieldActive: false,
           message: `"${state.word.w}" — Keep practicing!`, stats: newStats,
         };
@@ -274,6 +320,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         return {
           ...state, word, slots: getSlots(word), slotIndex: 0, guessed: {}, highlights: {},
           isDone: false, wrongCount: 0, slotWrongCount: 0,
+          assignmentHintShownForSlot: false,
           message: `Hint: "${word.h}"`, usedWords: newUsed,
           isButterfly: false, showConfetti: false, streakMilestone: null, butterflyPending: false, doubleActive: false, shieldActive: false,
           streak: action.resetStreak ? 0 : state.streak,
@@ -292,6 +339,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         return {
           ...state, popup: null, word, slots: getSlots(word), slotIndex: 0,
           guessed: {}, highlights: {}, isDone: false, wrongCount: 0, slotWrongCount: 0,
+          assignmentHintShownForSlot: false,
           message: `Hint: "${word.h}"`, usedWords: [],
           isButterfly: false, showConfetti: false, streakMilestone: null, butterflyPending: false,
         };
@@ -303,6 +351,7 @@ export function createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY
         return {
           ...state, stageIndex: action.index, word, slots: getSlots(word), slotIndex: 0,
           guessed: {}, highlights: {}, isDone: false, wrongCount: 0, slotWrongCount: 0,
+          assignmentHintShownForSlot: false,
           message: `Hint: "${word.h}"`, usedWords: [],
         };
       }

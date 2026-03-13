@@ -85,6 +85,17 @@ export function useAssignmentContext(expectedGameId = '') {
           return;
         }
 
+        if (assignment.studentStatus === 'completed' || assignment.canStart === false) {
+          setState({
+            assignmentId,
+            assignment: null,
+            studentIdentity,
+            loading: false,
+            error: 'This assignment is already completed.',
+          });
+          return;
+        }
+
         setState({
           assignmentId,
           assignment,

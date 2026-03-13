@@ -54,6 +54,27 @@ Deno.serve(async (request) => {
       return Response.json({ error: 'Student not found in this class.' }, { status: 404, headers: corsHeaders });
     }
 
+    const { data: existingAttempts, error: existingAttemptsError } = await supabase
+      .from('assignment_attempts')
+      .select('id, status, started_at, completed_at')
+      .eq('assignment_id', assignment.id)
+      .eq('class_id', classId)
+      .eq('student_id', studentId)
+      .order('started_at', { ascending: false });
+
+    if (existingAttemptsError) {
+      throw existingAttemptsError;
+    }
+
+    const completedAttempt = (existingAttempts ?? []).find((attempt) => attempt.status === 'completed');
+
+    if (completedAttempt) {
+      return Response.json(
+        { error: 'This assignment has already been completed.' },
+        { status: 409, headers: corsHeaders }
+      );
+    }
+
     const startedAt = new Date().toISOString();
     const { data: attempt, error: attemptError } = await supabase
       .from('assignment_attempts')

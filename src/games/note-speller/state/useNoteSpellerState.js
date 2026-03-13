@@ -28,7 +28,13 @@ import {
 import { INITIAL_STATE } from "./initialState.js";
 import { createNoteSpellerReducer } from "./reducer.js";
 
-export function useNoteSpellerState() {
+export function useNoteSpellerState(options = {}) {
+  const assignmentWordTarget = Number(options.assignmentWordTarget);
+  const stopAtAssignmentTarget = Boolean(
+    options.isAssignmentMode
+    && Number.isFinite(assignmentWordTarget)
+    && assignmentWordTarget > 0
+  );
   const reducer = useMemo(
     () => createNoteSpellerReducer({ STAGES, POWERUPS, ARCADE_WORDS, STORY_CHAPTERS, SONGS }),
     [],
@@ -374,6 +380,11 @@ export function useNoteSpellerState() {
   }, [dispatch, state.highlights, state.phase, state.slotWrongCount]);
 
   useEffect(() => {
+    if (state.phase !== "game" || !state.assignmentMode || !state.assignmentHintShownForSlot) return;
+    setShowStaffHint(true);
+  }, [state.assignmentHintShownForSlot, state.assignmentMode, state.phase]);
+
+  useEffect(() => {
     if (!state.arcadeWordDone) return;
     const t = setTimeout(() => dispatch({ type: "ARCADE_ADVANCE" }), 500);
     return () => clearTimeout(t);
@@ -440,6 +451,7 @@ export function useNoteSpellerState() {
 
   useEffect(() => {
     if (state.phase !== "game" || !state.isDone) return;
+    if (stopAtAssignmentTarget && state.completed >= assignmentWordTarget) return;
     if (state.streakMilestone || state.isButterfly) {
       playSuccessChime();
       const delay = state.streakMilestone
@@ -478,7 +490,7 @@ export function useNoteSpellerState() {
       setTimeout(() => dispatch({ type: "NEXT" }), 300);
     }, 1400);
     return () => clearTimeout(t);
-  }, [STAGES, dispatch, state.phase, state.isDone, state.isButterfly, state.streakMilestone, state.score, state.unlockedStages, state.streak]);
+  }, [STAGES, assignmentWordTarget, dispatch, state.completed, state.phase, state.isDone, state.isButterfly, state.streakMilestone, state.score, state.unlockedStages, state.streak, stopAtAssignmentTarget]);
 
   useEffect(() => () => clearTimer(), [clearTimer]);
 
@@ -505,6 +517,7 @@ export function useNoteSpellerState() {
     prevStreakLBRef.current = inLB;
     if (!wasInLB || inLB) return;
     if (state.phase !== "game" || !state.isDone) return;
+    if (stopAtAssignmentTarget && state.completed >= assignmentWordTarget) return;
     for (let i = 0; i < STAGES.length; i++) {
       if (!state.unlockedStages.includes(i) && state.score >= STAGES[i].threshold) {
         dispatch({ type: "UNLOCK", index: i });
@@ -513,7 +526,7 @@ export function useNoteSpellerState() {
     }
     dispatch({ type: "TRANSITION" });
     setTimeout(() => dispatch({ type: "NEXT" }), 300);
-  }, [STAGES, dispatch, state.streakLBEntering, state.showStreakLB, state.phase, state.isDone, state.score, state.unlockedStages]);
+  }, [STAGES, assignmentWordTarget, dispatch, state.completed, state.streakLBEntering, state.showStreakLB, state.phase, state.isDone, state.score, state.unlockedStages, stopAtAssignmentTarget]);
 
   return {
     state: { ...state, clef: activeClef },

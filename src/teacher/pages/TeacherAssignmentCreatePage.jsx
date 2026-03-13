@@ -25,6 +25,7 @@ function buildDefaultFormState(defaultClassId = '') {
     npmPracticeIncludeAccidentals: false,
     noteSpellerClef: 'treble',
     noteSpellerStage: 1,
+    noteSpellerTargetWords: 10,
   };
 }
 
@@ -103,6 +104,7 @@ export default function TeacherAssignmentCreatePage() {
         mode: 'game',
         clef: formState.noteSpellerClef,
         stage: Number(formState.noteSpellerStage),
+        targetWords: Math.max(1, Math.min(50, Number(formState.noteSpellerTargetWords) || 10)),
       };
     }
 
@@ -372,6 +374,20 @@ export default function TeacherAssignmentCreatePage() {
                       </option>
                     ))}
                   </select>
+                </label>
+                <label className="teacher-field">
+                  <span>Number of words</span>
+                  <input
+                    disabled={submitting}
+                    max="50"
+                    min="1"
+                    onChange={(event) => setFormState((current) => ({
+                      ...current,
+                      noteSpellerTargetWords: Number(event.target.value || 10),
+                    }))}
+                    type="number"
+                    value={formState.noteSpellerTargetWords}
+                  />
                 </label>
               </>
             )}

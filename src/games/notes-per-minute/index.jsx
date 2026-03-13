@@ -169,6 +169,7 @@ export default function NotesPerMinute() {
       <StudentResultScreen
         title={assignmentAttempt.completionStatus === "completed" ? "Assignment complete" : "Result saved with an issue"}
         subtitle={assignmentContext.assignment?.title || "Notes Per Minute"}
+        currentAssignmentId={assignmentContext.assignment?.id || ""}
         summaryLines={summary ? [
           `Notes per minute: ${summary.rawNpm ?? summary.npm ?? 0}`,
           `Accuracy: ${summary.accuracy ?? 0}%`,

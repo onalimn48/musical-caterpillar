@@ -59,6 +59,40 @@ function getAttemptScore(attempt) {
   return typeof value === 'number' ? value : Number(value);
 }
 
+function formatTopNoteCounts(noteCounts = {}, emptyLabel = 'None') {
+  const entries = Object.entries(noteCounts)
+    .map(([note, count]) => [note, Number(count)])
+    .filter(([, count]) => Number.isFinite(count) && count > 0)
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
+
+  if (entries.length === 0) {
+    return emptyLabel;
+  }
+
+  const topEntries = entries.slice(0, 3).map(([note, count]) => `${note} (${count})`);
+  return entries.length > 3 ? `${topEntries.join(', ')} +${entries.length - 3} more` : topEntries.join(', ');
+}
+
+function getAssignmentDiagnosticSummary(attempt) {
+  const summary = getAttemptSummary(attempt);
+  const hintCountTotal = Number(summary.hintCountTotal);
+  const hintCountByNote = summary.hintCountByNote || {};
+  const fourthTryFailuresByNote = summary.fourthTryFailuresByNote || {};
+  const parts = [];
+
+  if (Number.isFinite(hintCountTotal) && hintCountTotal > 0) {
+    parts.push(`Hints ${hintCountTotal}`);
+    parts.push(`Hinted notes: ${formatTopNoteCounts(hintCountByNote)}`);
+  }
+
+  const forcedRescues = formatTopNoteCounts(fourthTryFailuresByNote, '');
+  if (forcedRescues) {
+    parts.push(`4th try misses: ${forcedRescues}`);
+  }
+
+  return parts;
+}
+
 function formatAttemptResult(gameId, attempt) {
   if (!attempt) {
     return 'No result yet';
@@ -358,6 +392,13 @@ export default function TeacherAssignmentDetailPage() {
                     <p className="teacher-muted-copy">
                       Latest activity: {formatDateTime(studentSummary.lastActivityAt)}
                     </p>
+                    {assignment?.game_id === 'note-speller'
+                      ? getAssignmentDiagnosticSummary(studentSummary.latestCompletedAttempt).map((line) => (
+                        <p className="teacher-muted-copy" key={line}>
+                          {line}
+                        </p>
+                      ))
+                      : null}
                   </div>
                   <div className="teacher-stat-card">
                     <span className="teacher-label">Best result</span>

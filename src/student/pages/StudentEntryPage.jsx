@@ -15,6 +15,7 @@ export default function StudentEntryPage() {
   const navigate = useNavigate();
   const [rememberedIdentities, setRememberedIdentities] = useState([]);
   const [selectedRememberedKey, setSelectedRememberedKey] = useState('');
+  const [showRememberedCard, setShowRememberedCard] = useState(false);
   const [classCode, setClassCode] = useState('');
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState('');
@@ -30,6 +31,7 @@ export default function StudentEntryPage() {
   useEffect(() => {
     const identities = loadRememberedStudentIdentities();
     setRememberedIdentities(identities);
+    setShowRememberedCard(identities.length > 0);
 
     if (identities.length > 0) {
       setSelectedRememberedKey(`${identities[0].classId}:${identities[0].studentId}`);
@@ -103,6 +105,7 @@ export default function StudentEntryPage() {
   }
 
   function handleChooseAnotherStudent() {
+    setShowRememberedCard(false);
     setActiveIdentity(null);
     setLookupError('');
     setMissingNameMessage('');
@@ -110,6 +113,7 @@ export default function StudentEntryPage() {
   }
 
   function handleEnterDifferentClassCode() {
+    setShowRememberedCard(false);
     setActiveIdentity(null);
     setClassroom(null);
     setClassCode('');
@@ -129,7 +133,7 @@ export default function StudentEntryPage() {
         </header>
 
         <div className="student-stack">
-          {rememberedIdentities.length > 0 ? (
+          {showRememberedCard && rememberedIdentities.length > 0 ? (
             <section className="student-card">
               <p className="student-eyebrow">Welcome back</p>
               <h2>
@@ -241,7 +245,7 @@ export default function StudentEntryPage() {
                       ))}
                     </select>
                   </label>
-                  <div className="student-actions">
+                  <div className="student-actions student-actions--roster">
                     <button
                       className="student-primary-button"
                       onClick={handleSelectIdentity}
@@ -266,7 +270,7 @@ export default function StudentEntryPage() {
                   {missingNameMessage ? (
                     <p className="student-alert student-alert--info">{missingNameMessage}</p>
                   ) : null}
-                  <ul className="student-list">
+                  <ul className="student-list student-list--roster">
                     {classroom.students.map((student) => (
                       <li key={student.id}>{student.displayName}</li>
                     ))}

@@ -1,11 +1,70 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { listAssignmentsForStudent } from './assignmentApi.js';
+import { getCurrentStudentIdentity } from '../student/studentStorage.js';
 
 export default function StudentResultScreen({
   title,
   subtitle,
   summaryLines,
+  currentAssignmentId = '',
   error = '',
 }) {
+  const [remainingAssignments, setRemainingAssignments] = useState([]);
+  const [remainingLoading, setRemainingLoading] = useState(false);
+
+  useEffect(() => {
+    const studentIdentity = getCurrentStudentIdentity();
+
+    if (!studentIdentity || error) {
+      setRemainingAssignments([]);
+      setRemainingLoading(false);
+      return;
+    }
+
+    let active = true;
+
+    async function loadRemainingAssignments() {
+      setRemainingLoading(true);
+
+      try {
+        const data = await listAssignmentsForStudent({
+          classId: studentIdentity.classId,
+          studentId: studentIdentity.studentId,
+        });
+
+        if (!active) {
+          return;
+        }
+
+        setRemainingAssignments(
+          (data.assignments || []).filter((assignment) => (
+            assignment.id !== currentAssignmentId && assignment.studentStatus !== 'completed'
+          ))
+        );
+      } catch (_loadError) {
+        if (!active) {
+          return;
+        }
+
+        setRemainingAssignments([]);
+      } finally {
+        if (active) {
+          setRemainingLoading(false);
+        }
+      }
+    }
+
+    loadRemainingAssignments();
+
+    return () => {
+      active = false;
+    };
+  }, [currentAssignmentId, error]);
+
+  const hasRemainingAssignments = remainingAssignments.length > 0;
+  const assignmentsButtonLabel = hasRemainingAssignments ? 'Go to remaining assignments' : 'Back to assignments';
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -42,6 +101,17 @@ export default function StudentResultScreen({
             ))}
           </ul>
         ) : null}
+        {!error && !remainingLoading && hasRemainingAssignments ? (
+          <p style={{
+            margin: '14px 0 0',
+            padding: '12px 14px',
+            borderRadius: 14,
+            background: 'rgba(125, 211, 252, 0.14)',
+            color: '#dbeafe',
+          }}>
+            You still have {remainingAssignments.length} assignment{remainingAssignments.length === 1 ? '' : 's'} left.
+          </p>
+        ) : null}
         {error ? (
           <p style={{
             padding: '12px 14px',
@@ -64,7 +134,7 @@ export default function StudentResultScreen({
               textDecoration: 'none',
             }}
           >
-            Back to assignments
+            {assignmentsButtonLabel}
           </Link>
           <Link
             to="/student"

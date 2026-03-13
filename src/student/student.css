@@ -142,9 +142,17 @@
   justify-content: start;
 }
 
+.student-actions--roster {
+  margin-top: 10px;
+}
+
 .student-list {
   margin: 0;
   padding-left: 18px;
+}
+
+.student-list--roster {
+  margin-top: 10px;
 }
 
 @media (max-width: 700px) {
