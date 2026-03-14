@@ -106,8 +106,6 @@ export default function LandingPage() {
       <Seo path="/"/>
       <style>{`
         *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-        @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}
-        @keyframes fall{0%{transform:translateY(-20px) rotate(0deg)}100%{transform:translateY(100vh) rotate(360deg)}}
         @keyframes catBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
         .game-card{transition:all .3s cubic-bezier(.34,1.56,.64,1)!important}
         .game-card:hover{transform:translateY(-6px) scale(1.02)}
@@ -115,29 +113,18 @@ export default function LandingPage() {
         @media(prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}}
       `}</style>
 
-      {/* Stars */}
       <div style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:0}}>
-        {Array.from({length:40}).map((_,i) => (
-          <div key={i} style={{
-            position:'absolute',borderRadius:'50%',background:'#e0e7ff',
-            left:`${(i*17+7)%100}%`,top:`${(i*23+11)%60}%`,
-            width:2+((i*3)%3),height:2+((i*3)%3),
-            animation:`twinkle ${1.5+(i%20)/10}s ease-in-out infinite`,
-            animationDelay:`${(i*0.15)%3}s`,
-          }}/>
-        ))}
-      </div>
-
-      {/* Snowflakes */}
-      <div style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:0}}>
-        {Array.from({length:15}).map((_,i) => (
-          <div key={i} style={{
-            position:'fixed',color:'white',fontSize:8+(i%10),opacity:.35,
-            left:`${(i*7+3)%100}%`,
-            animation:`fall ${6+(i%8)}s linear infinite`,
-            animationDelay:`${(i*0.6)%8}s`,
-          }}>❄</div>
-        ))}
+        <div style={{
+          position:'absolute',
+          left:'50%',
+          top:'-12%',
+          width:'78vw',
+          height:'32vh',
+          transform:'translateX(-50%)',
+          background:'radial-gradient(ellipse at center, rgba(103,232,249,.18) 0%, rgba(167,139,250,.1) 32%, rgba(255,255,255,0) 72%)',
+          filter:'blur(10px)',
+          opacity:.9,
+        }}/>
       </div>
 
       {/* Hero */}
