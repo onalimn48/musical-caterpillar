@@ -813,9 +813,7 @@ const HeistMuseumBackground = memo(forwardRef(function HeistMuseumBackground({
     let lastRenderAt = 0;
     let shimmer = 0;
     let dustFrame = 0;
-    function renderLoop(ts = performance.now()) {
-      if (destroyed) return;
-      rafId = requestAnimationFrame(renderLoop);
+    function renderIfDue(ts) {
       if (document.hidden) return;
       const targetFrameMs = gameplayActiveRef.current ? GAMEPLAY_TARGET_FRAME_MS : MENU_TARGET_FRAME_MS;
       if (lastRenderAt && ts - lastRenderAt < targetFrameMs) return;
@@ -841,6 +839,14 @@ const HeistMuseumBackground = memo(forwardRef(function HeistMuseumBackground({
       if (guardAssignmentsDirty) syncGuardMappings();
       renderer.render(scene, camera);
     }
+    // During gameplay the game tick calls renderIfDue directly; the loop only
+    // drives rendering while the menu is open (gameplayActive === false).
+    function renderLoop(ts = performance.now()) {
+      if (destroyed) return;
+      rafId = requestAnimationFrame(renderLoop);
+      if (gameplayActiveRef.current) return;
+      renderIfDue(ts);
+    }
 
     resize();
     window.addEventListener("resize", resize);
@@ -855,6 +861,7 @@ const HeistMuseumBackground = memo(forwardRef(function HeistMuseumBackground({
       guardAssignmentsDirty = true;
     };
     apiRef.current.worldX = getWorldX;
+    apiRef.current.renderIfDue = renderIfDue;
     window.heistBg = apiRef.current;
     if (onReady) onReady(apiRef.current);
 
@@ -879,6 +886,7 @@ const HeistMuseumBackground = memo(forwardRef(function HeistMuseumBackground({
       apiRef.current.getGuards = () => [];
       apiRef.current.getGuardAssignments = () => new Map();
       apiRef.current.markGuardsDirty = null;
+      apiRef.current.renderIfDue = null;
       apiRef.current.scene = null;
       apiRef.current.camera = null;
       apiRef.current.renderer = null;

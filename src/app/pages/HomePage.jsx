@@ -59,13 +59,42 @@ const studioCard = {
   tagBg: 'rgba(244,114,182,.12)',
 };
 
-const pills = ['🎛️ Sound Design', '🥁 Sequencing', '🎧 Ear Training', '🎼 Note Reading', '📱 Works on Phone', '🆓 100% Free'];
+const pills = ['🎛️ Sound Design', '🥁 Sequencing', '🎧 Ear Training', '🎼 Note Reading', '📱 Works on Phone', '🧑‍🏫 Premium Teacher Tools'];
 const teacherLinks = [
   { path: '/music-theory-games-for-kids', label: 'Music Theory Games for Kids' },
   { path: '/music-classroom-games', label: 'Music Classroom Games' },
   { path: '/how-to-teach-note-reading', label: 'How to Teach Note Reading' },
   { path: '/music-warmups', label: 'Music Warmups' },
   { path: '/notes-per-minute-fluency', label: 'Note Reading Fluency Benchmark' },
+];
+const comparisonRows = [
+  ['Real staff notation', 'Yes', 'Usually limited', 'Mixed'],
+  ['Teacher assignments', 'Yes', 'Rare', 'No'],
+  ['Student login required', 'No general account', 'Often yes', 'Varies'],
+  ['Pricing model', 'Free games, optional premium teacher tools', 'Usually paid', 'Freemium or paid'],
+];
+const homepageFaqs = [
+  {
+    question: 'Can teachers use this with a whole class?',
+    answer: 'Yes. Teachers can create classes, add rosters, post assignments, and review results from the teacher dashboard.',
+  },
+  {
+    question: 'Does it support standards alignment labeling?',
+    answer: 'Yes. Musical Caterpillar can be labeled against classroom standards frameworks such as NAfME and Common Core Arts so teachers can connect activities to the skills they are targeting.',
+  },
+  {
+    question: 'Do students need an account?',
+    answer: 'No. Students can enter a class code, choose their name from the roster, and begin without creating a separate account.',
+  },
+  {
+    question: 'Is Musical Caterpillar free?',
+    answer: 'The games are free to play. Teacher reporting and backend classroom tools can be offered as premium features.',
+  },
+];
+const trustLinks = [
+  { path: '/privacy', label: 'Privacy' },
+  { path: '/terms', label: 'Terms' },
+  { path: '/contact', label: 'Contact' },
 ];
 
 export default function LandingPage() {
@@ -288,6 +317,113 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+
+        <div style={{
+          marginTop: 22,
+          padding: '24px 22px',
+          borderRadius: 20,
+          background: 'linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03))',
+          border: '1px solid rgba(255,255,255,.1)',
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 18 }}>
+            <div style={{ fontFamily: "'Fredoka',sans-serif", fontSize: 22, color: '#fde68a', marginBottom: 8 }}>
+              Teacher Snapshot
+            </div>
+            <p style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.6, maxWidth: 620, margin: '0 auto' }}>
+              A quick summary for teachers deciding whether Musical Caterpillar fits lessons, labs, or take-home practice.
+            </p>
+          </div>
+
+          <div style={{ overflowX: 'auto', marginBottom: 18 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '12px', color: '#f8fafc', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Feature</th>
+                  <th style={{ textAlign: 'left', padding: '12px', color: '#4ade80', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Musical Caterpillar</th>
+                  <th style={{ textAlign: 'left', padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Many App-Style Music Games</th>
+                  <th style={{ textAlign: 'left', padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Worksheet Sites</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map(([feature, musicalCaterpillar, appStyle, worksheet]) => (
+                  <tr key={feature}>
+                    <td style={{ padding: '12px', color: '#f8fafc', borderBottom: '1px solid rgba(255,255,255,.08)' }}>{feature}</td>
+                    <td style={{ padding: '12px', color: '#bbf7d0', borderBottom: '1px solid rgba(255,255,255,.08)' }}>{musicalCaterpillar}</td>
+                    <td style={{ padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.08)' }}>{appStyle}</td>
+                    <td style={{ padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.08)' }}>{worksheet}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 14 }}>
+            {homepageFaqs.map((faq) => (
+              <div
+                key={faq.question}
+                style={{
+                  padding: '16px 16px 18px',
+                  borderRadius: 16,
+                  background: 'rgba(15,23,42,.28)',
+                  border: '1px solid rgba(255,255,255,.08)',
+                }}
+              >
+                <div style={{ color: '#f8fafc', fontWeight: 700, marginBottom: 8 }}>{faq.question}</div>
+                <div style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.6 }}>{faq.answer}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+            <Link
+              to="/why-musical-caterpillar"
+              style={{
+                textDecoration: 'none',
+                color: '#c7d2fe',
+                fontWeight: 700,
+                fontSize: 14,
+              }}
+            >
+              Read the full teacher rationale →
+            </Link>
+          </div>
+        </div>
+
+        <div style={{
+          marginTop: 22,
+          padding: '20px 22px',
+          borderRadius: 20,
+          background: 'linear-gradient(135deg,rgba(34,211,238,.12),rgba(255,255,255,.04))',
+          border: '1px solid rgba(255,255,255,.1)',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontFamily: "'Fredoka',sans-serif", fontSize: 22, color: '#f8fafc', marginBottom: 8 }}>
+            Trust and Contact
+          </div>
+          <p style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 1.6, maxWidth: 620, margin: '0 auto 16px' }}>
+            Teachers and families can review the site policies and reach support directly.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
+            {trustLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                style={{
+                  textDecoration: 'none',
+                  padding: '10px 14px',
+                  borderRadius: 12,
+                  color: '#f8fafc',
+                  background: 'rgba(15,23,42,.28)',
+                  border: '1px solid rgba(255,255,255,.08)',
+                  fontWeight: 700,
+                  fontSize: 14,
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Feature pills */}
@@ -315,6 +451,17 @@ export default function LandingPage() {
           >
             Why Musical Caterpillar
           </Link>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {trustLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                style={{ color: '#94a3b8', fontSize: 13, textDecoration: 'none' }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
           <p style={{color:'#475569',fontSize:12}}>Made with 🎵 for young musicians everywhere</p>
         </div>
       </footer>

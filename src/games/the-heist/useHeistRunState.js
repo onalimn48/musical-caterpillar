@@ -77,6 +77,7 @@ export function useHeistRunState({
   kick,
   snare,
   resetMuseumScene,
+  museumBgApiRef,
   resetIds,
 }) {
   const initialUnlockedLevelRef = useRef(loadHighestUnlockedLevel(clampCampaignLevel));
@@ -1297,9 +1298,8 @@ export function useHeistRunState({
         note.requiresPressHold &&
         note.holdStartedAt !== null &&
         !note.missed &&
-        isInputHeld() &&
         ts >= (note.freezeStartTime ?? note.holdStartTime) &&
-        ts <= (note.freezeEndTime ?? note.holdEndTime)
+        ts <= (note.holdEndTime ?? note.freezeEndTime ?? note.requiredHoldEndTime)
       );
       if (activeQuietHold) {
         if (curPoseRef.current !== "freeze") {
@@ -1427,6 +1427,7 @@ export function useHeistRunState({
         obsRef.current = keep;
         syncObstacleRender(keep);
       }
+      museumBgApiRef?.current?.renderIfDue?.(ts);
       animRef.current = requestAnimationFrame(tick);
     };
     animRef.current = requestAnimationFrame(tick);

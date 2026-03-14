@@ -84,6 +84,8 @@ export const HeistMenuPanel = memo(function HeistMenuPanel({
   setHoveredTreasureLevel,
   setTreasureRoomOpen,
   endlessLeaderboard,
+  backgroundMode,
+  setBackgroundModeValue,
 }) {
   if (!showMenuScreen) return null;
   return (
@@ -176,6 +178,51 @@ export const HeistMenuPanel = memo(function HeistMenuPanel({
 
       <div style={{marginTop:12,fontSize:"clamp(8px, 2.3vw, 9px)",color:"#ffffff55",letterSpacing:"clamp(0.9px, 0.4vw, 1.8px)",lineHeight:1.45}}>
         {`${(isMenuEndlessSelection ? "Procedural heist route" : displayLevelDef.environment).toUpperCase()} · ${displayCoaching.toUpperCase()}`}
+      </div>
+      <div style={{marginTop:14,padding:"12px 12px 10px",border:"1px solid #ff33661f",borderRadius:8,background:"rgba(20,6,14,.4)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:8}}>
+          <div>
+            <div style={{fontSize:"clamp(8px, 2.3vw, 9px)",color:"#ff9ab288",letterSpacing:"clamp(1.2px, 0.6vw, 2.6px)"}}>BACKGROUND MODE</div>
+            <div style={{fontSize:"clamp(12px, 3.3vw, 13px)",color:"#fff7ef",letterSpacing:"clamp(0.8px, 0.4vw, 1.6px)"}}>
+              {backgroundMode === "3d" ? "3D museum background" : "2D fast museum background"}
+            </div>
+          </div>
+          <div style={{fontSize:"clamp(8px, 2.3vw, 9px)",color:"#ffffff55",letterSpacing:"clamp(0.8px, 0.4vw, 1.6px)"}}>
+            2D LOADS FASTEST
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2, minmax(0, 1fr))",gap:8}}>
+          {[
+            { id: "2d", label: "2D" },
+            { id: "3d", label: "3D" },
+          ].map((option) => {
+            const isSelected = backgroundMode === option.id;
+            return (
+              <button
+                key={option.id}
+                onPointerDown={event => {
+                  event.preventDefault();
+                  setBackgroundModeValue(option.id);
+                }}
+                style={{
+                  background: isSelected ? "#ff336622" : "#07111f",
+                  border: `1px solid ${isSelected ? "#ff3366" : "#7ce7ff22"}`,
+                  color: isSelected ? "#fff7ef" : "#c7d2fe",
+                  padding: "10px 0",
+                  fontFamily: "monospace",
+                  fontSize: "clamp(11px, 3vw, 12px)",
+                  letterSpacing: "clamp(1px, 0.5vw, 2px)",
+                  cursor: "pointer",
+                  borderRadius: 6,
+                  boxShadow: isSelected ? "0 0 14px #ff336633" : "none",
+                  touchAction: "manipulation",
+                }}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:14,gap:10,flexWrap:"wrap"}}>
         <div style={{fontSize:"clamp(8px, 2.3vw, 9px)",color:"#ffd88988",letterSpacing:"clamp(0.9px, 0.4vw, 1.8px)"}}>

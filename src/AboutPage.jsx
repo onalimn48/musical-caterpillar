@@ -84,8 +84,8 @@ export default function AboutPage() {
             >
               Back to Home
             </Link>
-            <a
-              href="mailto:support@musicalcaterpillar.com"
+            <Link
+              to="/contact"
               style={{
                 display:'inline-flex',alignItems:'center',justifyContent:'center',
                 textDecoration:'none',padding:'12px 20px',borderRadius:14,
@@ -95,7 +95,7 @@ export default function AboutPage() {
               }}
             >
               Contact
-            </a>
+            </Link>
           </div>
         </div>
       </div>

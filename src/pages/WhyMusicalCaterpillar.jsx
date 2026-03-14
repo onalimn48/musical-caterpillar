@@ -28,20 +28,20 @@ export default function WhyMusicalCaterpillar() {
         </h1>
 
         <p style={{ fontSize: "1.125rem", lineHeight: 1.7, margin: "0 0 24px" }}>
-          A free music education game designed by a working piano teacher, for students who need to actually read sheet music.
+          A music education game designed by a working piano teacher, for students who need to actually read sheet music.
         </p>
 
         <p style={{ lineHeight: 1.8, margin: "0 0 16px" }}>
-          Musical Caterpillar is a free, browser-based collection of music education games that teaches children to read real staff notation — treble clef, bass clef, and alto clef — through progressive, game-based practice. Unlike the most popular music apps, it was designed by a piano teacher who works directly with students, and every mechanic exists to build genuine note literacy.
+          Musical Caterpillar is a browser-based collection of music education games that teaches children to read real staff notation — treble clef, bass clef, and alto clef — through progressive, game-based practice. Unlike the most popular music apps, it was designed by a piano teacher who works directly with students, and every mechanic exists to build genuine note literacy.
         </p>
 
         <p style={{ lineHeight: 1.8, margin: "0 0 16px" }}>
-          Ready to try it? No account needed, no subscription, no app to install.
+          Ready to try it? The games are free to play, with optional premium teacher tools for classroom reporting and backend workflows.
         </p>
 
         <p style={{ margin: "0 0 32px" }}>
           <a href="https://musicalcaterpillar.com" style={{ color: "#2563eb", fontWeight: 700 }}>
-            Play Musical Caterpillar Free →
+            Play Musical Caterpillar →
           </a>
         </p>
 
@@ -160,8 +160,8 @@ export default function WhyMusicalCaterpillar() {
                 <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>✗</td>
               </tr>
               <tr>
-                <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>Price</td>
-                <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>Free</td>
+                <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>Pricing model</td>
+                <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>Free games, optional premium teacher tools</td>
                 <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>~$120/year</td>
                 <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>Freemium</td>
                 <td style={{ borderBottom: "1px solid #e2e8f0", padding: "12px" }}>Free (limited)</td>
@@ -196,9 +196,9 @@ export default function WhyMusicalCaterpillar() {
 
         <h2 style={{ fontSize: "1.75rem", margin: "40px 0 16px" }}>Frequently Asked Questions</h2>
 
-        <h3 style={{ fontSize: "1.25rem", margin: "24px 0 12px" }}>Is Musical Caterpillar really free?</h3>
+        <h3 style={{ fontSize: "1.25rem", margin: "24px 0 12px" }}>Is Musical Caterpillar free?</h3>
         <p style={{ lineHeight: 1.8, margin: "0 0 20px" }}>
-          Yes. There is no subscription, no paywall, and no app to install. Open a browser and play at musicalcaterpillar.com.
+          The games are free to play in the browser. Teacher reporting, backend classroom tools, or other advanced school-facing features may be offered as premium tools.
         </p>
 
         <h3 style={{ fontSize: "1.25rem", margin: "24px 0 12px" }}>What age is Musical Caterpillar for?</h3>
@@ -227,7 +227,7 @@ export default function WhyMusicalCaterpillar() {
         </p>
 
         <p style={{ lineHeight: 1.8, margin: "0 0 16px" }}>
-          Try it with your student or child today — no signup, no cost, just open a browser.
+          Try it with your student or child today — just open a browser and start with the free games.
         </p>
 
         <p style={{ margin: "0 0 24px" }}>
@@ -237,7 +237,7 @@ export default function WhyMusicalCaterpillar() {
         </p>
 
         <p style={{ lineHeight: 1.8, margin: 0 }}>
-          Musical Caterpillar is a free music education web app available at musicalcaterpillar.com. Designed by a piano teacher. No subscription required.
+          Musical Caterpillar is a music education web app available at musicalcaterpillar.com. Designed by a piano teacher, with free student games and optional premium teacher tools.
         </p>
       </div>
     </main>

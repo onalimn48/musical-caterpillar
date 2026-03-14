@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef, memo, useMemo } from "react";
-import HeistMuseumBackground from "./HeistMuseumBackground.jsx";
+import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef, memo, useMemo, lazy, Suspense } from "react";
+import HeistMuseumBackground2D from "./HeistMuseumBackground2D.jsx";
 import RhythmLane from "./components/RhythmLane.jsx";
 import { HeistGameplayScene } from "./components/HeistGameplayScene.jsx";
 import { HeistMenuPanel, StartControls } from "./components/HeistShellPanels.jsx";
@@ -24,6 +24,7 @@ import {
   getLevelTeachingIntro,
 } from "./heist-rhythm-data.js";
 import { useHeistRunState } from "./useHeistRunState.js";
+import { loadBackgroundMode, saveBackgroundMode } from "./heist-storage.js";
 import finaleEngraverUrl from "./FinaleEngraver.otf";
 import finaleMaestroUrl from "./FinaleMaestro.otf";
 
@@ -67,6 +68,8 @@ const USE_TEMPLATE_BEAMS = true;
 const PRESS_HOLD_STYLES = new Set(["half_hold", "measure_rest", "endless_hold"]);
 const MUSIC_NOTATION_FONT_FAMILY = '"FinaleEngraverLocal","FinaleMaestroLocal","Finale Engraver","Finale Maestro","Maestro","Bravura","Academico","Apple Symbols","Arial Unicode MS","STIXGeneral",serif';
 const STANDALONE_EIGHTH_FLAG_PATH = "M8.7 -27 C15.8 -26.2, 17.2 -19.2, 13.2 -14.9 C16.8 -15.6, 17.9 -11.1, 15.6 -7.8 C12.9 -9.5, 10.8 -11, 8.7 -12.2 Z";
+const LazyHeistMuseumBackground3D = lazy(() => import("./HeistMuseumBackground.jsx"));
+const ACTOR_TARGET_FRAME_MS = 1000 / 30;
 
 // OBSTACLE_AT_BEAT = 4 → obstacle spawns 4 beats ahead of the burglar using
 // the active level tempo. Level authors only change authored data; controls,
@@ -184,8 +187,8 @@ const eBnc = t=>{
 // ─────────────────────────────────────────────────────────────────────────────
 const P = {
   //                                                                                                              gY    clearH clearL
-  run_a:      {tr:[-12,[0,-28]],   hd:[4,-44,-8],    aL:[[-8,-22],[-30,-42],[-36,-24]],aR:[[8,-22],[26,-4],[22,18]],   lL:[[0,0],[-14,28],[-8,56]],   lR:[[0,0],[16,22],[26,48]],   gY:0,   clearH:0,   clearL:88},
-  run_b:      {tr:[10,[0,-28]],    hd:[-4,-44,7],    aL:[[-8,-22],[-20,-4],[-16,18]],  aR:[[8,-22],[30,-42],[34,-22]],lL:[[0,0],[-18,22],[-24,48]],  lR:[[0,0],[14,28],[8,56]],    gY:0,   clearH:0,   clearL:88},
+  run_a:      {tr:[-12,[0,-28]],   hd:[4,-17,-8],    aL:[[-8,-22],[-30,-42],[-36,-24]],aR:[[8,-22],[26,-4],[22,18]],   lL:[[0,0],[-14,28],[-8,56]],   lR:[[0,0],[16,22],[26,48]],   gY:0,   clearH:0,   clearL:88},
+  run_b:      {tr:[10,[0,-28]],    hd:[-4,-17,7],    aL:[[-8,-22],[-20,-4],[-16,18]],  aR:[[8,-22],[30,-42],[34,-22]],lL:[[0,0],[-18,22],[-24,48]],  lR:[[0,0],[14,28],[8,56]],    gY:0,   clearH:0,   clearL:88},
   jump_open:  {tr:[-24,[0,-38]],   hd:[7,-56,-18],   aL:[[-8,-28],[-36,-50],[-50,-34]],aR:[[8,-28],[36,-50],[50,-34]],lL:[[0,0],[-28,4],[-46,-8]],   lR:[[0,0],[28,4],[46,-8]],    gY:-98, clearH:98,  clearL:208},
   jump_tuck:  {tr:[-56,[0,-18]],   hd:[26,-10,84],   aL:[[-5,-14],[-16,-2],[-8,10]],   aR:[[5,-14],[16,-2],[8,10]],  lL:[[0,0],[-6,-2],[-2,10]],    lR:[[0,0],[6,-2],[2,10]],     gY:-74, clearH:74,  clearL:150},
   dive:       {tr:[-82,[6,-16]],   hd:[20,-28,-76],  aL:[[0,-10],[-8,8],[-6,28]],      aR:[[0,-10],[36,-20],[52,-14]],lL:[[0,0],[-4,-22],[-2,-46]],  lR:[[0,0],[6,-20],[16,-42]],  gY:6,   clearH:0,   clearL:22},
@@ -434,8 +437,6 @@ function RigBurglarFigure({pose, curName, prevName, flash, hitFlash, opacity = 1
   const rightFootAngle = Math.atan2(viewerRightLeg[2][1]-viewerRightLeg[1][1], viewerRightLeg[2][0]-viewerRightLeg[1][0]) * 180 / Math.PI;
   return (
     <g style={{filter:glow, opacity}}>
-      {showShadow && <ellipse cx={0} cy={6} rx={24} ry={5} fill="#000" opacity={0.24}/>}
-
       <g transform={matrixFromSegment(FEMALE_BURGLAR_RIG.viewerLeftLeg.hip, FEMALE_BURGLAR_RIG.viewerLeftLeg.knee, viewerLeftLeg[0], viewerLeftLeg[1])}>
         <rect x="332" y="520" width="52" height="138" rx="26" fill="#111318" stroke="#3b2f2a" strokeWidth="6"/>
       </g>
@@ -464,7 +465,6 @@ function RigBurglarFigure({pose, curName, prevName, flash, hitFlash, opacity = 1
         <rect x="320" y="404" width="160" height="16" rx="8" fill="#fff7ef" stroke="#3b2f2a" strokeWidth="6"/>
         <rect x="320" y="432" width="160" height="16" rx="8" fill="#fff7ef" stroke="#3b2f2a" strokeWidth="6"/>
         <rect x="320" y="460" width="160" height="16" rx="8" fill="#fff7ef" stroke="#3b2f2a" strokeWidth="6"/>
-        <ellipse cx="400" cy="520" rx="95" ry="24" fill="#e9d9c6" opacity={0.45}/>
       </g>
 
       <g transform={matrixFromSegment(FEMALE_BURGLAR_RIG.viewerLeftArm.upper, FEMALE_BURGLAR_RIG.viewerLeftArm.elbow, viewerLeftArm[0], viewerLeftArm[1])}>
@@ -584,11 +584,22 @@ const BurglarActor = memo(forwardRef(function BurglarActor({ flash, hitFlash, be
   const yAnimRef = useRef(null);
   const poseAnimRef = useRef(null);
   const boxAnimRef = useRef(null);
+  const yCommitAtRef = useRef(0);
+  const poseCommitAtRef = useRef(0);
+  const boxCommitAtRef = useRef(0);
 
   function cancelAnimations() {
     cancelAnimationFrame(yAnimRef.current);
     cancelAnimationFrame(poseAnimRef.current);
     cancelAnimationFrame(boxAnimRef.current);
+  }
+
+  function shouldCommitFrame(commitAtRef, now, frac) {
+    if (frac >= 1 || commitAtRef.current === 0 || now - commitAtRef.current >= ACTOR_TARGET_FRAME_MS) {
+      commitAtRef.current = now;
+      return true;
+    }
+    return false;
   }
 
   function animY(from, to, dur, ef) {
@@ -597,7 +608,9 @@ const BurglarActor = memo(forwardRef(function BurglarActor({ flash, hitFlash, be
     const tick = now => {
       const frac = Math.min((now - t0) / dur, 1);
       burgYRef.current = from + (to - from) * ef(frac);
-      setBurgY(burgYRef.current);
+      if (shouldCommitFrame(yCommitAtRef, now, frac)) {
+        setBurgY(burgYRef.current);
+      }
       if (frac < 1) yAnimRef.current = requestAnimationFrame(tick);
     };
     yAnimRef.current = requestAnimationFrame(tick);
@@ -619,7 +632,9 @@ const BurglarActor = memo(forwardRef(function BurglarActor({ flash, hitFlash, be
     const t0 = performance.now();
     const tick = now => {
       const frac = Math.min((now - t0) / dur, 1);
-      setBoxT(frac);
+      if (shouldCommitFrame(boxCommitAtRef, now, frac)) {
+        setBoxT(frac);
+      }
       if (frac < 1) boxAnimRef.current = requestAnimationFrame(tick);
     };
     boxAnimRef.current = requestAnimationFrame(tick);
@@ -637,7 +652,9 @@ const BurglarActor = memo(forwardRef(function BurglarActor({ flash, hitFlash, be
     const dur = isJumpPose ? beatMs * 0.08 : beatMs * 0.22;
     const tick = now => {
       const frac = Math.min((now - t0) / dur, 1);
-      setPoseT(frac);
+      if (shouldCommitFrame(poseCommitAtRef, now, frac)) {
+        setPoseT(frac);
+      }
       if (frac < 1) poseAnimRef.current = requestAnimationFrame(tick);
     };
     poseAnimRef.current = requestAnimationFrame(tick);
@@ -656,6 +673,9 @@ const BurglarActor = memo(forwardRef(function BurglarActor({ flash, hitFlash, be
     prevNameRef.current = "run_a";
     boxModeRef.current = "idle";
     burgYRef.current = 0;
+    yCommitAtRef.current = 0;
+    poseCommitAtRef.current = 0;
+    boxCommitAtRef.current = 0;
     setCurName("run_a");
     setPrevName("run_a");
     setPoseT(1);
@@ -1069,10 +1089,13 @@ function getLevelPreviewPxPerBeat(spanBeats) {
 export default function BurglarGame() {
   const [threeBgReady, setThreeBgReady] = useState(false);
   const [museumBgVersion, setMuseumBgVersion] = useState(0);
+  const [backgroundMode, setBackgroundMode] = useState(() => loadBackgroundMode());
   const [treasureRoomOpen, setTreasureRoomOpen] = useState(false);
   const [notationLabOpen, setNotationLabOpen] = useState(false);
   const [hoveredTreasureLevel, setHoveredTreasureLevel] = useState(null);
+  const museumBgApiRef = useRef(null);
   const resetMuseumScene = useCallback(() => {
+    museumBgApiRef.current = null;
     setThreeBgReady(false);
     setMuseumBgVersion(version => version + 1);
   }, []);
@@ -1182,12 +1205,40 @@ export default function BurglarGame() {
     kick,
     snare,
     resetMuseumScene,
+    museumBgApiRef,
     resetIds: resetRunIds,
   });
 
-  const handleMuseumReady = useCallback(() => {
-    setThreeBgReady(true);
+  const handleMuseumReady = useCallback((api) => {
+    museumBgApiRef.current = api ?? null;
+    if (backgroundMode === "3d") {
+      setThreeBgReady(true);
+    }
+  }, [backgroundMode]);
+
+  useEffect(() => {
+    saveBackgroundMode(backgroundMode);
+    setThreeBgReady(false);
+    setMuseumBgVersion(version => version + 1);
+  }, [backgroundMode]);
+
+  const setBackgroundModeValue = useCallback((mode) => {
+    setBackgroundMode(mode === "3d" ? "3d" : "2d");
   }, []);
+
+  const ActiveMuseumBackground = useMemo(() => {
+    if (backgroundMode === "3d") {
+      return function MuseumBackgroundWithFallback(props) {
+        return (
+          <Suspense fallback={<HeistMuseumBackground2D {...props}/>}>
+            <LazyHeistMuseumBackground3D {...props}/>
+          </Suspense>
+        );
+      };
+    }
+
+    return HeistMuseumBackground2D;
+  }, [backgroundMode]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER
@@ -1271,6 +1322,8 @@ export default function BurglarGame() {
         notes: buildNotationPreviewNotes(phrase.rhythmEvents, `phrase-${phrase.id}`, 48, 84, phrase.spanBeats),
         spanBeats: phrase.spanBeats,
         beatsPerBar: getBeatsPerBar(DEFAULT_TIME_SIGNATURE),
+        measureCount: phrase.spanBeats / getBeatsPerBar(DEFAULT_TIME_SIGNATURE),
+        hasUniformMeasures: phrase.spanBeats % getBeatsPerBar(DEFAULT_TIME_SIGNATURE) === 0 && [4, 8].includes(phrase.spanBeats),
       })),
       ...ENDLESS_BLUEPRINTS.map(blueprint => ({
         id: blueprint.id,
@@ -1285,8 +1338,24 @@ export default function BurglarGame() {
           Math.max(...blueprint.rhythmEvents.map(event => event.at + (event.durationBeats || 1)), 0)
         ),
         beatsPerBar: getBeatsPerBar(DEFAULT_TIME_SIGNATURE),
+        measureCount: Math.max(...blueprint.rhythmEvents.map(event => event.at + (event.durationBeats || 1)), 0) / getBeatsPerBar(DEFAULT_TIME_SIGNATURE),
+        hasUniformMeasures: Math.max(...blueprint.rhythmEvents.map(event => event.at + (event.durationBeats || 1)), 0) % getBeatsPerBar(DEFAULT_TIME_SIGNATURE) === 0 && [4, 8].includes(Math.max(...blueprint.rhythmEvents.map(event => event.at + (event.durationBeats || 1)), 0)),
       })),
-    ];
+    ].map(entry => ({
+      ...entry,
+      measureGuides: entry.notes.length
+        ? Array.from({ length: Math.floor(entry.spanBeats / entry.beatsPerBar) + 1 }, (_, index) => {
+            const beat = index * entry.beatsPerBar;
+            const pxPerBeat = entry.notes[0].pxPerBeat;
+            const anchorX = (entry.notes[0].laneBaseX ?? entry.notes[0].x ?? 0) - (entry.notes[0].absoluteBeatInRun ?? 0) * pxPerBeat;
+            return {
+              beat,
+              x: anchorX + beat * pxPerBeat,
+              measureNumber: index + 1,
+            };
+          })
+        : [],
+    }));
   }, [notationLabOpen]);
   const levelNotationPreviewEntries = useMemo(() => {
     if (!notationLabOpen) return [];
@@ -1303,6 +1372,19 @@ export default function BurglarGame() {
         beatsPerBar: getBeatsPerBar(getTimeSignatureLabel(levelDef)),
         pxPerBeat,
         previewWidth: Math.max(960, 104 + levelPreview.spanBeats * pxPerBeat),
+        measureCount: levelPreview.spanBeats / getBeatsPerBar(getTimeSignatureLabel(levelDef)),
+        hasUniformMeasures: levelPreview.spanBeats % getBeatsPerBar(getTimeSignatureLabel(levelDef)) === 0 && [4, 8].includes(getBeatsPerBar(getTimeSignatureLabel(levelDef))) ? true : levelPreview.spanBeats % getBeatsPerBar(getTimeSignatureLabel(levelDef)) === 0,
+        measureGuides: levelPreview.notes.length
+          ? Array.from({ length: Math.floor(levelPreview.spanBeats / getBeatsPerBar(getTimeSignatureLabel(levelDef))) + 1 }, (_, index) => {
+              const beat = index * getBeatsPerBar(getTimeSignatureLabel(levelDef));
+              const anchorX = 48;
+              return {
+                beat,
+                x: anchorX + beat * pxPerBeat,
+                measureNumber: index + 1,
+              };
+            })
+          : [],
       };
     });
   }, [notationLabOpen]);
@@ -1363,7 +1445,7 @@ export default function BurglarGame() {
           />
         )}
         laserObstacleLayer={<LaserObstacleLayer obstacles={laserObsRender} worldLayerRef={laserWorldRef}/>}
-        guardFallbackLayer={<GuardFallbackLayer obstacles={guardObsRender} worldLayerRef={guardWorldRef} visible={!threeBgReady}/>}
+        guardFallbackLayer={<GuardFallbackLayer obstacles={guardObsRender} worldLayerRef={guardWorldRef} visible={backgroundMode !== "3d" || !threeBgReady}/>}
         burglar={<BurglarActor ref={burglarActorRef} flash={beatFlash} hitFlash={hitFlash} beatMs={currentBeatMs()}/>}
         tapGood={tapGood}
         rhythmHitX={RHYTHM_HIT_X}
@@ -1438,7 +1520,7 @@ export default function BurglarGame() {
         endlessMode={endlessMode}
         endlessStealValue={endlessStealValue}
         endlessLeaderboard={endlessLeaderboard}
-        HeistMuseumBackground={HeistMuseumBackground}
+        HeistMuseumBackground={ActiveMuseumBackground}
       />
 
       <StartControls
@@ -1482,6 +1564,8 @@ export default function BurglarGame() {
         setHoveredTreasureLevel={setHoveredTreasureLevel}
         setTreasureRoomOpen={setTreasureRoomOpen}
         endlessLeaderboard={endlessLeaderboard}
+        backgroundMode={backgroundMode}
+        setBackgroundModeValue={setBackgroundModeValue}
       />
 
       <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",justifyContent:"center",width:"min(100%, 720px)"}}>

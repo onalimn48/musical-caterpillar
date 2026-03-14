@@ -1,5 +1,29 @@
 import { memo } from "react";
 
+function buildMeasureGuides(notes, beatsPerBar, spanBeats, beatAccessor) {
+  if (!notes.length || !Number.isFinite(beatsPerBar) || beatsPerBar <= 0 || !Number.isFinite(spanBeats)) {
+    return [];
+  }
+  const positionedNotes = notes.filter(note =>
+    Number.isFinite(note.pxPerBeat) &&
+    Number.isFinite(note.laneBaseX ?? note.x) &&
+    Number.isFinite(beatAccessor(note))
+  );
+  if (!positionedNotes.length) return [];
+  const pxPerBeat = positionedNotes[0].pxPerBeat;
+  const reference = positionedNotes[0];
+  const anchorX = (reference.laneBaseX ?? reference.x ?? 0) - beatAccessor(reference) * pxPerBeat;
+  const guides = [];
+  for (let beat = 0; beat <= spanBeats; beat += beatsPerBar) {
+    guides.push({
+      beat,
+      x: anchorX + beat * pxPerBeat,
+      measureNumber: Math.floor(beat / beatsPerBar) + 1,
+    });
+  }
+  return guides;
+}
+
 export const MenuModeToggle = memo(function MenuModeToggle({
   selectedMenuMode,
   displayStageAccent,
@@ -137,7 +161,12 @@ export const NotationLabOverlay = memo(function NotationLabOverlay({
                   <div style={{fontSize:9,color:"#ffd88988",letterSpacing:2.2}}>{entry.tag}</div>
                   <div style={{fontSize:14,color:"#fff7ef",letterSpacing:1.5}}>{entry.title}</div>
                 </div>
-                <div style={{fontSize:9,color:"#ffffff55",letterSpacing:1.6}}>{`${entry.spanBeats} BEATS`}</div>
+                <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}>
+                  <div style={{fontSize:9,color:"#ffffff55",letterSpacing:1.6}}>{`${entry.measureCount} MEASURES · ${entry.spanBeats} BEATS`}</div>
+                  {!entry.hasUniformMeasures && (
+                    <div style={{fontSize:9,color:"#ff8d8d",letterSpacing:1.6}}>NON-4/8 SPAN</div>
+                  )}
+                </div>
               </div>
               <div style={{overflowX:"auto",paddingBottom:4}}>
                 <svg
@@ -147,7 +176,30 @@ export const NotationLabOverlay = memo(function NotationLabOverlay({
                   style={{display:"block",background:"linear-gradient(180deg, rgba(14,8,6,.86), rgba(12,8,16,.72))",borderRadius:8}}
                 >
                   <g transform="translate(0,0)">
+                    {entry.measureGuides.slice(0, -1).map((guide, index) => (
+                      <rect
+                        key={`${entry.id}-measure-band-${guide.beat}`}
+                        x={guide.x}
+                        y={18}
+                        width={Math.max(0, (entry.measureGuides[index + 1]?.x ?? guide.x) - guide.x)}
+                        height={height - 46}
+                        fill={index % 2 === 0 ? "#ffffff05" : "#7ce7ff05"}
+                      />
+                    ))}
                     <RhythmLane notes={entry.notes} beatsPerBar={entry.beatsPerBar} {...laneProps}/>
+                    {entry.measureGuides.map(guide => (
+                      <text
+                        key={`${entry.id}-measure-${guide.beat}`}
+                        x={guide.x + 4}
+                        y={24}
+                        fontSize={8}
+                        fill="#ffe6a8"
+                        fontFamily="monospace"
+                        letterSpacing={1.2}
+                      >
+                        {`M${guide.measureNumber}`}
+                      </text>
+                    ))}
                     {entry.notes.map(note => (
                       <text
                         key={`${entry.id}-${note.id}-count`}
@@ -174,11 +226,39 @@ export const NotationLabOverlay = memo(function NotationLabOverlay({
                   <div style={{fontSize:9,color:"#7ce7ff88",letterSpacing:2.2}}>{entry.tag}</div>
                   <div style={{fontSize:14,color:"#fff7ef",letterSpacing:1.5}}>{entry.title}</div>
                 </div>
-                <div style={{fontSize:9,color:"#ffffff55",letterSpacing:1.6}}>{`${entry.spanBeats} BEATS`}</div>
+                <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}>
+                  <div style={{fontSize:9,color:"#ffffff55",letterSpacing:1.6}}>{`${entry.measureCount} MEASURES · ${entry.spanBeats} BEATS`}</div>
+                  {!entry.hasUniformMeasures && (
+                    <div style={{fontSize:9,color:"#ff8d8d",letterSpacing:1.6}}>NON-4/8 SPAN</div>
+                  )}
+                </div>
               </div>
               <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="220" style={{display:"block",background:"linear-gradient(180deg, rgba(1,5,12,.86), rgba(1,7,16,.72))",borderRadius:8}}>
                 <g transform="translate(-18,-56) scale(1.9)">
+                  {entry.measureGuides.slice(0, -1).map((guide, index) => (
+                    <rect
+                      key={`${entry.id}-measure-band-${guide.beat}`}
+                      x={guide.x}
+                      y={18}
+                      width={Math.max(0, (entry.measureGuides[index + 1]?.x ?? guide.x) - guide.x)}
+                      height={height - 46}
+                      fill={index % 2 === 0 ? "#ffffff05" : "#7ce7ff05"}
+                    />
+                  ))}
                   <RhythmLane notes={entry.notes} beatsPerBar={entry.beatsPerBar} {...laneProps}/>
+                  {entry.measureGuides.map(guide => (
+                    <text
+                      key={`${entry.id}-measure-${guide.beat}`}
+                      x={guide.x + 4}
+                      y={24}
+                      fontSize={8}
+                      fill="#ffe6a8"
+                      fontFamily="monospace"
+                      letterSpacing={1.2}
+                    >
+                      {`M${guide.measureNumber}`}
+                    </text>
+                  ))}
                   {entry.notes.map(note => (
                     <text
                       key={`${entry.id}-${note.id}-count`}

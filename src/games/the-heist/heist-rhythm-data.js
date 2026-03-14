@@ -233,18 +233,21 @@ export function createHeistRhythmData({ obstacleAtBeat }) {
       difficulty: 3,
       levelHint: "DOTTED + PAIR",
     }),
-    makePhrase("vault_hold", "FREEZE", pattern(q(0), q(1), q(2), hold(3, 2, "half_hold"), pair(5, "vh-1"), q(6)), {
+    makePhrase("vault_hold", "FREEZE", pattern(q(0), q(1), hold(2, 2, "half_hold"), pair(4, "vh-1"), q(5), q(6), q(7)), {
       difficulty: 4,
       levelHint: "HALF HOLD",
-      boxCue: { startBeat: 3, durationBeats: 2 },
+      boxCue: { startBeat: 2, durationBeats: 2 },
+      spanBeats: 8,
     }),
-    makePhrase("vault_jump", "JUMP", pattern(q(0), q(1), pair(2, "vj-1"), q(3), q(4), q(5), q(6)), {
+    makePhrase("vault_jump", "JUMP", pattern(q(0), q(1), pair(2, "vj-1"), q(3), q(4), q(5), q(6), q(7)), {
       difficulty: 4,
       levelHint: "BREATH BEFORE HOLD",
+      spanBeats: 8,
     }),
-    makePhrase("vault_duck", "DUCK", pattern(q(0), pair(1, "vd-1"), q(2), q(3), hold(4, 2, "half_hold"), q(6)), {
+    makePhrase("vault_duck", "DUCK", pattern(q(0), pair(1, "vd-1"), hold(2, 2, "half_hold"), q(4), q(5), q(6), q(7)), {
       difficulty: 4,
       levelHint: "PAIRS TO HOLD",
+      spanBeats: 8,
     }),
     makePhrase("watch_setup_quarters", "RUN", pattern(q(0), q(1), q(2), q(3)), {
       difficulty: 5,
@@ -509,8 +512,8 @@ export function getLevelTeachingIntro(levelDef) {
       sampleSpanBeats: 4,
       sampleEvents: [
         { kind: "quarter", at: 0, durationBeats: 1 },
-        { kind: "hold", at: 1, durationBeats: 2, holdStyle: "half_hold" },
-        { kind: "quarter", at: 3, durationBeats: 1 },
+        { kind: "quarter", at: 1, durationBeats: 1 },
+        { kind: "hold", at: 2, durationBeats: 2, holdStyle: "half_hold" },
       ],
     },
     7: {

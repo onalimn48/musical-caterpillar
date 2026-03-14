@@ -2,6 +2,7 @@ export const ENDLESS_LEADERBOARD_KEY = "the-heist-endless-leaderboard-v1";
 export const HIGHEST_UNLOCKED_LEVEL_KEY = "the-heist-highest-unlocked-level-v1";
 export const TREASURE_ROOM_KEY = "the-heist-treasure-room-v1";
 export const LEVEL_TEMPO_OVERRIDES_KEY = "the-heist-level-tempo-overrides-v1";
+export const BACKGROUND_MODE_KEY = "the-heist-background-mode-v1";
 
 function safeGetItem(key, fallback) {
   if (typeof window === "undefined") return fallback;
@@ -78,5 +79,18 @@ export function saveEndlessLeaderboard(board) {
     window.localStorage.setItem(ENDLESS_LEADERBOARD_KEY, JSON.stringify(board));
   } catch {
     // Ignore localStorage failures and keep the current run playable.
+  }
+}
+
+export function loadBackgroundMode() {
+  const stored = safeGetItem(BACKGROUND_MODE_KEY, "2d");
+  return stored === "3d" ? "3d" : "2d";
+}
+
+export function saveBackgroundMode(mode) {
+  try {
+    window.localStorage.setItem(BACKGROUND_MODE_KEY, mode === "3d" ? "3d" : "2d");
+  } catch {
+    // Ignore storage failures and keep the current session playable.
   }
 }

@@ -27,6 +27,10 @@ export const INDEXABLE_PATHS = [
   "/about",
   "/why-musical-caterpillar",
   "/caterpillar-studio",
+  "/student",
+  "/privacy",
+  "/terms",
+  "/contact",
   "/bearglar",
   "/synth-lab",
   "/caterpillar-sequencer",
@@ -60,6 +64,36 @@ export const PAGE_SEO = {
     description:
       "Open Caterpillar Studio to design sounds in Sound Garden and build musical loops in Loop Trail.",
     schemaType: "CollectionPage",
+  },
+  "/teacher": {
+    title: "Teacher Dashboard | Musical Caterpillar",
+    description:
+      "Sign in to Musical Caterpillar teacher tools to manage classes, assignments, and reporting.",
+    schemaType: "WebPage",
+  },
+  "/student": {
+    title: "Student Class Code | Musical Caterpillar",
+    description:
+      "Enter a class code on Musical Caterpillar to find assignments and start student practice.",
+    schemaType: "WebPage",
+  },
+  "/privacy": {
+    title: "Privacy Policy | Musical Caterpillar",
+    description:
+      "Read the privacy policy for Musical Caterpillar, including how classroom, teacher, and device data are used.",
+    schemaType: "WebPage",
+  },
+  "/terms": {
+    title: "Terms of Use | Musical Caterpillar",
+    description:
+      "Read the terms of use for Musical Caterpillar and its games, teacher tools, and classroom features.",
+    schemaType: "WebPage",
+  },
+  "/contact": {
+    title: "Contact Musical Caterpillar",
+    description:
+      "Get in touch with Musical Caterpillar for teacher, parent, classroom, or support questions.",
+    schemaType: "ContactPage",
   },
   "/bearglar": {
     title: "Bearglar | Free Rhythm Game for Kids",

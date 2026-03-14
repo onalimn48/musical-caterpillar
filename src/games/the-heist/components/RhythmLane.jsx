@@ -193,24 +193,24 @@ const RhythmLane = memo(function RhythmLane({
       );
     }
     const nextPhraseBarlines = [];
-    const barlineNotes = notes.filter(note => Number.isFinite(note.absoluteBeatInRun) && Number.isFinite(note.pxPerBeat));
+    const barlineNotes = notes
+      .filter(note => Number.isFinite(note.absoluteBeatInRun) && Number.isFinite(note.pxPerBeat))
+      .sort((left, right) => left.absoluteBeatInRun - right.absoluteBeatInRun);
     if (barlineNotes.length) {
       const pxPerBeat = barlineNotes[0].pxPerBeat;
-      const anchorX = barlineNotes.reduce(
-        (sum, note) => sum + ((note.laneBaseX ?? note.x ?? 0) - note.absoluteBeatInRun * pxPerBeat),
-        0
-      ) / barlineNotes.length;
-      const boundaryInset = Math.min(24, pxPerBeat * 0.24);
+      const referenceNote = barlineNotes[0];
+      const anchorX = (referenceNote.laneBaseX ?? referenceNote.x ?? 0) - referenceNote.absoluteBeatInRun * pxPerBeat;
+      const boundaryInset = Math.min(18, pxPerBeat * 0.18);
       const minBeat = Math.min(...barlineNotes.map(note => note.absoluteBeatInRun));
-      const maxBeat = Math.max(...barlineNotes.map(note => note.absoluteBeatInRun));
-      nextPhraseBarlines.push({
-        key: "barline-start",
-        x: anchorX - boundaryInset,
-      });
-      const firstBoundary = Math.ceil((minBeat + 0.001) / beatsPerBar) * beatsPerBar;
-      for (let beat = firstBoundary; beat < maxBeat + beatsPerBar; beat += beatsPerBar) {
+      const maxBeatEnd = Math.max(
+        ...barlineNotes.map(note => note.absoluteBeatInRun + (note.durationBeats || 1))
+      );
+      const firstBoundaryBeat = Math.floor(minBeat / beatsPerBar) * beatsPerBar;
+      const lastBoundaryBeat = Math.ceil(maxBeatEnd / beatsPerBar) * beatsPerBar;
+      for (let beat = firstBoundaryBeat; beat <= lastBoundaryBeat; beat += beatsPerBar) {
         nextPhraseBarlines.push({
           key: `barline-${beat}`,
+          kind: beat === firstBoundaryBeat ? "start" : (beat === lastBoundaryBeat ? "end" : "interior"),
           x: anchorX + beat * pxPerBeat - boundaryInset,
         });
       }
@@ -280,22 +280,14 @@ const RhythmLane = memo(function RhythmLane({
         );
       }
       if (isHalfHold || isWholeHold || isDottedHalfHold) {
-        const showDurationTrail = false;
-        const trailStartX = isWholeHold ? 13 : 11;
-        const trailEndX = Math.max(trailStartX + 34, holdWidth);
         const noteFill = "#07101d";
         const noteStroke = "#ffd792";
         const noteCore = "#fff3d1";
         return (
           <g transform={`translate(${noteX},${laneY})`} opacity={note.missed ? 0.45 : 1}>
-            {showDurationTrail && <line x1={trailStartX} y1={0} x2={trailEndX} y2={0} stroke="#D4860A" strokeWidth={10} strokeLinecap="round" opacity={0.14} />}
-            {showDurationTrail && <line x1={trailStartX} y1={0} x2={trailEndX} y2={0} stroke={noteStroke} strokeWidth={3.2} strokeLinecap="round" opacity={0.5} />}
-            {showDurationTrail && <line x1={trailStartX} y1={0} x2={trailEndX} y2={0} stroke={noteCore} strokeWidth={1.3} strokeLinecap="round" opacity={0.92} />}
             <ellipse cx={0} cy={0} rx={10} ry={7.2} fill={noteFill} stroke={noteStroke} strokeWidth={2.1} />
-            <ellipse cx={0} cy={0} rx={4.3} ry={3} fill={noteFill} opacity={0.96} />
             {!isWholeHold && <rect x={8.5} y={-28} width={2.8} height={28} rx={1.4} fill={noteCore} opacity={0.95} />}
             {isDottedHalfHold && <circle cx={15.5} cy={0} r={2.3} fill={noteCore} opacity={0.95} />}
-            {showDurationTrail && <line x1={trailEndX} y1={-6} x2={trailEndX} y2={6} stroke={noteStroke} strokeWidth={1.4} opacity={0.52} />}
             {showHoldHint && (isHalfHold || isWholeHold || isDottedHalfHold) && (
               <text x={28} y={-14} textAnchor="start" fontSize={8} fill="#ffd792" fontFamily="monospace" letterSpacing={1.5}>
                 HOLD
@@ -319,9 +311,7 @@ const RhythmLane = memo(function RhythmLane({
     if (isStandaloneEighth) {
       return (
         <g transform={`translate(${noteX},${laneY})`} opacity={note.missed ? 0.45 : 1}>
-          <circle cx={0} cy={0} r={18} fill={activeCol} opacity={0.09} />
           <ellipse cx={-2} cy={1} rx={9} ry={7} fill={activeCol} stroke={coreCol} strokeWidth={1.3} />
-          <ellipse cx={-2} cy={1} rx={6} ry={4.8} fill={coreCol} opacity={0.28} />
           <rect x={5.5} y={-29} width={3.2} height={30} rx={1.6} fill={coreCol} opacity={0.95} />
           <path
             d={standaloneEighthFlagPath}
@@ -340,9 +330,7 @@ const RhythmLane = memo(function RhythmLane({
     }
     return (
       <g transform={`translate(${noteX},${laneY})`} opacity={note.missed ? 0.45 : 1}>
-        <circle cx={0} cy={0} r={18} fill={activeCol} opacity={0.09} />
         <ellipse cx={0} cy={0} rx={headRx} ry={headRy} fill={activeCol} stroke={coreCol} strokeWidth={1.3} />
-        <ellipse cx={0} cy={0} rx={headRx - 3} ry={headRy - 2.2} fill={coreCol} opacity={0.28} />
         {!isCountIn && <rect x={headRx - 1.5} y={-stemH} width={3} height={stemH} rx={1.5} fill={coreCol} opacity={0.92} />}
         {note.kind === "dotted_quarter" && <circle cx={headRx + 8} cy={0} r={2.4} fill={coreCol} />}
         {note.accent === "offbeat" && (
@@ -363,12 +351,10 @@ const RhythmLane = memo(function RhythmLane({
     <g>
       <rect x={18} y={laneY - 26} width={laneWidth - 36} height={54} rx={8} fill="#020714" opacity={0.72} />
       <line x1={hitX} y1={laneY} x2={spawnX} y2={laneY} stroke="#173052" strokeWidth={2} />
-      <line x1={hitX} y1={laneY} x2={spawnX} y2={laneY} stroke="#60cfff" strokeWidth={9} opacity={0.05} />
       {showHitLine && (
         <>
           <rect x={hitX - 4} y={laneY - 22} width={8} height={44} rx={4} fill="#ffffff" opacity={0.08} />
           <line x1={hitX} y1={laneY - 24} x2={hitX} y2={laneY + 24} stroke="#ffffff" strokeWidth={2.2} />
-          <line x1={hitX} y1={laneY - 24} x2={hitX} y2={laneY + 24} stroke="#7ce7ff" strokeWidth={6} opacity={0.13} />
           <text x={30} y={laneY - 30} fontSize={8} fill="#5da8d8" fontFamily="monospace" letterSpacing={2}>
             HIT LINE
           </text>
@@ -376,12 +362,11 @@ const RhythmLane = memo(function RhythmLane({
       )}
       <g ref={motionRef} transform="translate(0,0)">
         {phraseBarlines
-          .filter(barline => (showStartBarline || barline.key !== "barline-start"))
-          .filter(barline => (showEndBarline || barline.key !== `barline-${beatsPerBar}`))
+          .filter(barline => (showStartBarline || barline.kind !== "start"))
+          .filter(barline => (showEndBarline || barline.kind !== "end"))
           .map(barline => (
           <g key={barline.key}>
             <line x1={barline.x + mobileVisualOffset} y1={laneY - 22} x2={barline.x + mobileVisualOffset} y2={laneY + 22} stroke="#e8f6ff" strokeWidth={2.2} opacity={0.7} />
-            <line x1={barline.x + mobileVisualOffset} y1={laneY - 24} x2={barline.x + mobileVisualOffset} y2={laneY + 24} stroke="#7ce7ff" strokeWidth={8} opacity={0.12} />
           </g>
         ))}
         {notes.map(note => <Note key={note.id} note={note} />)}
@@ -392,7 +377,6 @@ const RhythmLane = memo(function RhythmLane({
               return (
                 <g key={beamIdx}>
                   <line x1={beamSegment.x1} y1={y} x2={beamSegment.x2} y2={y} stroke="#f0fbff" strokeWidth={5.2} opacity={0.98} strokeLinecap="butt" />
-                  <line x1={beamSegment.x1} y1={y} x2={beamSegment.x2} y2={y} stroke="#7ce7ff" strokeWidth={11.5} opacity={0.26} strokeLinecap="butt" />
                 </g>
               );
             })}
