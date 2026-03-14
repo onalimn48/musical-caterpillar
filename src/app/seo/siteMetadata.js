@@ -14,6 +14,7 @@ export const STATIC_CONTENT_PATHS = [
   "/how-to-teach-note-reading",
   "/music-warmups",
   "/music-theory-centers",
+  "/steady-beat-game",
   "/note-reading-game",
   "/interval-training-game",
   "/chord-ear-training-game",
@@ -64,6 +65,12 @@ export const PAGE_SEO = {
     description:
       "Open Caterpillar Studio to design sounds in Sound Garden and build musical loops in Loop Trail.",
     schemaType: "CollectionPage",
+  },
+  "/teachers": {
+    title: "For Music Teachers | Musical Caterpillar",
+    description:
+      "See how Musical Caterpillar fits classrooms with browser-based music games, class codes, assignments, and teacher-friendly workflows.",
+    schemaType: "WebPage",
   },
   "/teacher": {
     title: "Teacher Dashboard | Musical Caterpillar",

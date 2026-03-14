@@ -9,6 +9,7 @@ import CaterpillarStudioPage from '../pages/CaterpillarStudioPage.jsx';
 import PrivacyPage from '../../pages/PrivacyPage.jsx';
 import TermsPage from '../../pages/TermsPage.jsx';
 import ContactPage from '../../pages/ContactPage.jsx';
+import TeacherPage from '../../pages/TeacherPage.jsx';
 import Seo from '../seo/Seo.jsx';
 import { STATIC_CONTENT_PATHS } from '../seo/siteMetadata.js';
 import TeacherProtectedRoute from '../../teacher/TeacherProtectedRoute.jsx';
@@ -83,6 +84,7 @@ export default function AppRoutes() {
       <Route path="/about" element={<AboutPage/>}/>
       <Route path="/why-musical-caterpillar" element={<WhyMusicalCaterpillar/>}/>
       <Route path="/caterpillar-studio" element={<CaterpillarStudioPage/>}/>
+      <Route path="/teachers" element={<TeacherPage/>}/>
       <Route path="/privacy" element={<PrivacyPage/>}/>
       <Route path="/terms" element={<TermsPage/>}/>
       <Route path="/contact" element={<ContactPage/>}/>

@@ -8,7 +8,7 @@ const games = [
     path: '/note-speller',
     icon: '📝🐛',
     title: 'Note Speller',
-    desc: 'Read notes on the staff to spell real words! Level up as you learn treble and bass clef.',
+    desc: 'Read notes on the staff to spell real words and build note-name fluency.',
     tag: 'NOTE READING',
     accent: '#4ade80',
     glow: 'linear-gradient(135deg,rgba(74,222,128,.08),rgba(34,211,238,.04))',
@@ -19,7 +19,7 @@ const games = [
     path: '/notes-per-minute',
     icon: '⏱️🎵',
     title: 'Notes Per Minute',
-    desc: 'How fast can you read? Race the clock to identify notes and beat your high score!',
+    desc: 'Race the clock, identify notes, and build note-reading speed with practice.',
     tag: 'SPEED CHALLENGE',
     accent: '#fb923c',
     glow: 'linear-gradient(135deg,rgba(251,146,60,.08),rgba(245,158,11,.04))',
@@ -30,7 +30,7 @@ const games = [
     path: '/chord-snowman',
     icon: '⛄🎧',
     title: 'Chord Snowman',
-    desc: 'Train your ear! Learn intervals, build chords, and guide a caterpillar through a winter journey.',
+    desc: 'Train your ear with intervals and chords in a listening game built for real musical recognition.',
     tag: 'EAR TRAINING',
     accent: '#818cf8',
     glow: 'linear-gradient(135deg,rgba(99,102,241,.08),rgba(139,92,246,.04))',
@@ -43,7 +43,7 @@ const bearglarCard = {
   path: '/bearglar',
   icon: '🐻🎵',
   title: 'Bearglar',
-  desc: 'Tap and hold rhythms to dodge lasers, sneak past guards, and crack the museum vault.',
+  desc: 'Practice rhythm in a sneaky musical challenge built around timing, pulse, and attention.',
   tag: 'RHYTHM GAME',
   accent: '#f87171',
   tagBg: 'rgba(248,113,113,.12)',
@@ -53,13 +53,13 @@ const studioCard = {
   path: '/caterpillar-studio',
   icon: '🐛🎛️',
   title: 'Caterpillar Studio',
-  desc: 'Open the music-making suite with Sound Garden and Loop Trail.',
+  desc: 'Create sounds, loops, and musical ideas with simple tools for young musicians.',
   tag: 'CREATE MUSIC',
   accent: '#f472b6',
   tagBg: 'rgba(244,114,182,.12)',
 };
 
-const pills = ['🎛️ Sound Design', '🥁 Sequencing', '🎧 Ear Training', '🎼 Note Reading', '📱 Works on Phone', '🧑‍🏫 Premium Teacher Tools'];
+const pills = ['🎼 Note Reading', '🎧 Ear Training', '🥁 Rhythm Practice', '🎛️ Music Making', '📱 Phones and Tablets', '🧑‍🏫 Teacher Friendly'];
 const teacherLinks = [
   { path: '/music-theory-games-for-kids', label: 'Music Theory Games for Kids' },
   { path: '/music-classroom-games', label: 'Music Classroom Games' },
@@ -76,19 +76,19 @@ const comparisonRows = [
 const homepageFaqs = [
   {
     question: 'Can teachers use this with a whole class?',
-    answer: 'Yes. Teachers can create classes, add rosters, post assignments, and review results from the teacher dashboard.',
+    answer: 'Yes. Teachers can create classes, post assignments, and review student results.',
   },
   {
     question: 'Does it support standards alignment labeling?',
-    answer: 'Yes. Musical Caterpillar can be labeled against classroom standards frameworks such as NAfME and Common Core Arts so teachers can connect activities to the skills they are targeting.',
+    answer: 'Yes. Teachers can connect activities to classroom goals and standards they are already teaching.',
   },
   {
     question: 'Do students need an account?',
-    answer: 'No. Students can enter a class code, choose their name from the roster, and begin without creating a separate account.',
+    answer: 'No. Students can join with a class code and choose their name from the roster.',
   },
   {
     question: 'Is Musical Caterpillar free?',
-    answer: 'The games are free to play. Teacher reporting and backend classroom tools can be offered as premium features.',
+    answer: 'The games are free to play.',
   },
 ];
 const trustLinks = [
@@ -160,16 +160,113 @@ export default function LandingPage() {
           WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',
           backgroundClip:'text',margin:'8px 0 12px',lineHeight:1.1,
         }}>Musical Caterpillar</h1>
-        <p style={{fontSize:'clamp(14px,3vw,18px)',color:'#94a3b8',maxWidth:500,margin:'0 auto',lineHeight:1.6}}>
-          Fun music games that teach note reading, ear training, and more — one little step at a time!
+        <p style={{fontSize:'clamp(14px,3vw,18px)',color:'#94a3b8',maxWidth:620,margin:'0 auto',lineHeight:1.6}}>
+          Play note reading, ear training, rhythm, and music-making games in the browser. Musical Caterpillar also includes classroom-friendly tools for teachers.
         </p>
+        <div style={{
+          display:'flex',
+          flexWrap:'wrap',
+          justifyContent:'center',
+          gap:10,
+          marginTop:18,
+        }}>
+          {['Real staff notation', 'No student accounts', 'Works on phones and tablets'].map((pill) => (
+            <div
+              key={pill}
+              style={{
+                padding:'8px 12px',
+                borderRadius:999,
+                fontSize:12,
+                fontWeight:700,
+                color:'#dbeafe',
+                background:'rgba(15,23,42,.28)',
+                border:'1px solid rgba(255,255,255,.08)',
+              }}
+            >
+              {pill}
+            </div>
+          ))}
+        </div>
+        <div style={{
+          display:'flex',
+          flexWrap:'wrap',
+          justifyContent:'center',
+          gap:12,
+          marginTop:18,
+        }}>
+          <Link
+            to="/student"
+            style={{
+              display:'inline-flex',
+              alignItems:'center',
+              justifyContent:'center',
+              textDecoration:'none',
+              padding:'12px 18px',
+              borderRadius:14,
+              background:'linear-gradient(135deg,#4ade80,#22d3ee)',
+              color:'#082f49',
+              fontWeight:800,
+              fontSize:15,
+              boxShadow:'0 10px 24px rgba(15,23,42,.18)',
+            }}
+          >
+            For Students
+          </Link>
+          <Link
+            to="/teacher/sign-in"
+            style={{
+              display:'inline-flex',
+              alignItems:'center',
+              justifyContent:'center',
+              textDecoration:'none',
+              padding:'12px 18px',
+              borderRadius:14,
+              background:'linear-gradient(135deg,#67e8f9,#a5f3fc)',
+              color:'#082f49',
+              fontWeight:800,
+              fontSize:15,
+              boxShadow:'0 10px 24px rgba(15,23,42,.18)',
+            }}
+          >
+            For Teachers
+          </Link>
+          <Link
+            to="/teachers"
+            style={{
+              display:'inline-flex',
+              alignItems:'center',
+              justifyContent:'center',
+              textDecoration:'none',
+              padding:'12px 18px',
+              borderRadius:14,
+              background:'linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.06))',
+              border:'1px solid rgba(255,255,255,.14)',
+              color:'#f8fafc',
+              fontWeight:700,
+              fontSize:15,
+              boxShadow:'0 10px 24px rgba(15,23,42,.18)',
+            }}
+          >
+            How It Works
+          </Link>
+        </div>
       </section>
 
       {/* Games */}
       <section style={{position:'relative',zIndex:1,padding:'8px 20px 60px',maxWidth:900,margin:'0 auto'}}>
         <h2 style={{fontFamily:"'Fredoka',sans-serif",textAlign:'center',fontSize:'clamp(20px,4vw,28px)',color:'#fde68a',marginBottom:32,fontWeight:600}}>
-          🎵 Choose Your Adventure
+          🎵 Choose a Game
         </h2>
+        <p style={{
+          textAlign:'center',
+          color:'#cbd5e1',
+          fontSize:14,
+          lineHeight:1.6,
+          maxWidth:560,
+          margin:'-8px auto 24px',
+        }}>
+          Each game helps kids practice a different music skill through play.
+        </p>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20}}>
           {games.map(g => (
             <Link key={g.path} to={g.path} className="game-card" style={{
@@ -279,20 +376,6 @@ export default function LandingPage() {
             </div>
           </div>
         </Link>
-        <div style={{display:'flex',justifyContent:'center',marginTop:22}}>
-          <Link
-            to="/about"
-            style={{
-              display:'inline-flex',alignItems:'center',justifyContent:'center',
-              textDecoration:'none',padding:'12px 20px',borderRadius:14,
-              background:'linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.06))',
-              border:'1px solid rgba(255,255,255,.14)',color:'#f8fafc',
-              fontWeight:700,fontSize:15,boxShadow:'0 10px 24px rgba(15,23,42,.18)',
-            }}
-          >
-            About
-          </Link>
-        </div>
         <InstallAppCard/>
         <div style={{
           marginTop:28,padding:'20px 22px',borderRadius:20,
@@ -300,10 +383,10 @@ export default function LandingPage() {
           border:'1px solid rgba(255,255,255,.1)',textAlign:'center',
         }}>
           <div style={{fontFamily:"'Fredoka',sans-serif",fontSize:22,color:'#fde68a',marginBottom:8}}>
-            For Teachers
+            Classroom ideas and resources
           </div>
           <p style={{color:'#94a3b8',fontSize:14,lineHeight:1.6,maxWidth:620,margin:'0 auto 16px'}}>
-            Explore classroom ideas, warmups, and note-reading resources built to support music teachers.
+            Browse note reading, warmups, music theory games, and other teacher-friendly resources.
           </p>
           <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',gap:10}}>
             {teacherLinks.map(link => (
@@ -327,10 +410,10 @@ export default function LandingPage() {
         }}>
           <div style={{ textAlign: 'center', marginBottom: 18 }}>
             <div style={{ fontFamily: "'Fredoka',sans-serif", fontSize: 22, color: '#fde68a', marginBottom: 8 }}>
-              Teacher Snapshot
+              Why teachers use it
             </div>
             <p style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.6, maxWidth: 620, margin: '0 auto' }}>
-              A quick summary for teachers deciding whether Musical Caterpillar fits lessons, labs, or take-home practice.
+              Musical Caterpillar keeps the fun of a game while helping students practice real music skills.
             </p>
           </div>
 
@@ -340,7 +423,7 @@ export default function LandingPage() {
                 <tr>
                   <th style={{ textAlign: 'left', padding: '12px', color: '#f8fafc', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Feature</th>
                   <th style={{ textAlign: 'left', padding: '12px', color: '#4ade80', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Musical Caterpillar</th>
-                  <th style={{ textAlign: 'left', padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Many App-Style Music Games</th>
+                  <th style={{ textAlign: 'left', padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Many Game Apps</th>
                   <th style={{ textAlign: 'left', padding: '12px', color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,.12)' }}>Worksheet Sites</th>
                 </tr>
               </thead>
@@ -384,7 +467,7 @@ export default function LandingPage() {
                 fontSize: 14,
               }}
             >
-              Read the full teacher rationale →
+              Learn more about the teaching approach →
             </Link>
           </div>
         </div>
@@ -398,10 +481,10 @@ export default function LandingPage() {
           textAlign: 'center',
         }}>
           <div style={{ fontFamily: "'Fredoka',sans-serif", fontSize: 22, color: '#f8fafc', marginBottom: 8 }}>
-            Trust and Contact
+            Clear policies and direct support
           </div>
           <p style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 1.6, maxWidth: 620, margin: '0 auto 16px' }}>
-            Teachers and families can review the site policies and reach support directly.
+            Families and teachers can review site policies and contact support directly.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
             {trustLinks.map((link) => (
@@ -452,6 +535,12 @@ export default function LandingPage() {
             Why Musical Caterpillar
           </Link>
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link
+              to="/about"
+              style={{ color: '#94a3b8', fontSize: 13, textDecoration: 'none' }}
+            >
+              About
+            </Link>
             {trustLinks.map((link) => (
               <Link
                 key={link.path}
