@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="apple-mobile-web-app-capable" content="yes">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="apple-mobile-web-app-status-bar-style" content="default">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="theme-color" content="#162055">
+<title>ORA — Oral Reading Assessment</title>
+<meta name="description" content="Oral reading assessment tool with Wilson phonics step tracking and hesitation timing.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F2ED;
+  --surface: #FDFCFA;
+  --border: #DDD8D0;
+  --text: #1A1714;
+  --text-muted: #7A7570;
+  --text-faint: #B0AAA3;
+  --fluent: #2D6A4F;
+  --fluent-bg: #D8F3DC;
+  --fluent-border: #95D5B2;
+  --sounding: #B5620A;
+  --sounding-bg: #FFF0D6;
+  --sounding-border: #FFBA57;
+  --failed: #9B2335;
+  --failed-bg: #FDECEA;
+  --failed-border: #F4A5AE;
+  --active: #2463EB;
+  --active-bg: #EBF2FF;
+  --active-border: #93C5FD;
+  --speech-color: #2f8f6d;
+  --silence-color: #d88b5d;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ════════════════════════════════
+   MENU SCREEN
+════════════════════════════════ */
+.menu-screen {
+  background: var(--bg);
+}
+
+.menu-header {
+  padding: 24px 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.logo span { color: var(--text-muted); font-weight: 400; }
+
+.menu-body {
+  flex: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.menu-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.menu-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.menu-section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* Student info */
+.student-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.field-input {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.field-input:focus { border-color: var(--active); }
+
+/* Passage library */
+.passage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.passage-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+}
+
+.passage-card:hover { border-color: var(--text-muted); }
+.passage-card.selected { border-color: var(--active); background: var(--active-bg); }
+
+.passage-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.passage-card-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.passage-card-preview {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom text */
+.custom-paste-area {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.custom-paste-area.active-source {
+  border-color: var(--fluent);
+  box-shadow: 0 0 0 3px var(--fluent-bg);
+}
+
+.paste-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.paste-tab {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  transition: color 0.15s;
+}
+
+.paste-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.paste-content { padding: 16px; display: none; }
+.paste-content.active { display: block; }
+
+textarea.paste-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 15px;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.6;
+}
+
+textarea.paste-textarea:focus { border-color: var(--active); }
+
+.tag-preview {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Mic setup */
+.mic-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+
+.mic-status {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.mic-status.ready { color: var(--fluent); font-weight: 500; }
+.mic-status.error { color: var(--failed); }
+
+.meter-mini {
+  width: 120px;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.meter-mini-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--fluent), #4fbe8a);
+  transition: width 80ms linear;
+  width: 0%;
+}
+
+/* Start button */
+.menu-start-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.btn-primary {
+  background: var(--text);
+  color: white;
+  border-color: var(--text);
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) { opacity: 0.85; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover { border-color: var(--text-muted); }
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+
+.start-hint { font-size: 12px; color: var(--text-faint); }
+
+/* ════════════════════════════════
+   SESSION SCREEN
+════════════════════════════════ */
+.session-screen {
+  background: var(--bg);
+}
+
+.session-header {
+  padding: 12px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.session-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.session-student {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.session-student strong { color: var(--text); }
+
+.session-timer-display {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  min-width: 50px;
+  text-align: right;
+}
+
+.session-timer-display.running { color: var(--fluent); }
+.session-timer-display.urgent { color: var(--failed); }
+
+/* Instructions bar */
+.instructions {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 24px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.instruction-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.key-tap { background: var(--fluent-bg); color: var(--fluent); border: 1px solid var(--fluent-border); }
+.key-hold { background: var(--sounding-bg); color: var(--sounding); border: 1px solid var(--sounding-border); }
+.key-fail { background: var(--failed-bg); color: var(--failed); border: 1px solid var(--failed-border); }
+
+/* Keyboard shortcuts tooltip */
+.kb-shortcut-wrap { position: relative; }
+
+.kb-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.kb-trigger:hover { border-color: var(--text-muted); color: var(--text); }
+
+.kb-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--text);
+  color: white;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 50;
+}
+
+.kb-shortcut-wrap:hover .kb-tooltip { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+.kb-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  background: var(--text);
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.kb-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.kb-row span { color: rgba(255,255,255,0.7); }
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Session main area */
+.session-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 20px 24px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  gap: 12px;
+}
+
+/* Live meter strip */
+.live-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.live-dot.speech { background: var(--speech-color); box-shadow: 0 0 6px var(--speech-color); }
+.live-dot.silence { background: var(--silence-color); }
+
+.live-meter-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.live-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--fluent), #4fbe8a);
+  transition: width 80ms linear;
+  width: 0%;
+}
+
+.live-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 44px;
+  text-align: right;
+}
+
+/* Passage viewport */
+.passage-viewport {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  height: 200px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+}
+
+.passage {
+  padding: 56px 36px 80px;
+  line-height: 2.6;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 20px;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  will-change: transform;
+}
+
+.word {
+  display: inline-block;
+  padding: 2px 4px;
+  margin: 2px 3px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+  position: relative;
+  border: 2px solid transparent;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.word:not(.done):hover { background: var(--active-bg); border-color: var(--active-border); }
+.word.current { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
+.word.holding { background: var(--sounding-bg); border-color: var(--sounding-border); color: var(--sounding); transform: scale(1.05); }
+.word.fluent { background: var(--fluent-bg); border-color: var(--fluent-border); color: var(--fluent); }
+.word.sounding-out { background: var(--sounding-bg); border-color: var(--sounding-border); color: var(--sounding); }
+.word.failed { background: var(--failed-bg); border-color: var(--failed-border); color: var(--failed); text-decoration: line-through; text-decoration-color: var(--failed); }
+.word.done { cursor: default; }
+
+.word::after {
+  content: '';
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.word.done::after { opacity: 1; }
+
+.word[data-step="1"]::after { background: #4B6CB7; }
+.word[data-step="2"]::after { background: #6B5EA8; }
+.word[data-step="3"]::after { background: #8B5CF6; }
+.word[data-step="4"]::after { background: #0891B2; }
+.word[data-step="5"]::after { background: #059669; }
+.word[data-step="6"]::after { background: #D97706; }
+.word[data-step="7"]::after { background: #DC2626; }
+.word[data-step="8"]::after { background: #BE185D; }
+
+.hold-timer {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--sounding);
+  background: var(--sounding-bg);
+  border: 1px solid var(--sounding-border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Not started overlay */
+.not-started-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(245,242,237,0.88);
+  backdrop-filter: blur(3px);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  transition: opacity 0.3s;
+}
+
+.not-started-overlay.hidden { opacity: 0; pointer-events: none; }
+.overlay-text { font-size: 14px; color: var(--text-muted); text-align: center; }
+
+/* Gave up toast */
+.gave-up-toast {
+  display: none;
+  text-align: center;
+  animation: fadeSlideIn 0.15s ease forwards;
+}
+
+.gave-up-toast.visible { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.gave-up-btn {
+  background: var(--failed);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(155,35,53,0.3);
+}
+
+.gave-up-btn:active { transform: scale(0.97); }
+
+/* Progress bar */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* Session controls row */
+.session-controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.recording-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--failed-bg);
+  border: 1px solid var(--failed-border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--failed);
+}
+
+.rec-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--failed);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ════════════════════════════════
+   RESULTS SCREEN
+════════════════════════════════ */
+.results-screen {
+  background: var(--bg);
+}
+
+.results-header {
+  padding: 16px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.results-title-block {}
+
+.results-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.results-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.results-body {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 28px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Summary stats */
+.results-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.summary-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.stat-fluent .stat-value { color: var(--fluent); }
+.stat-sounding .stat-value { color: var(--sounding); }
+.stat-failed .stat-value { color: var(--failed); }
+.stat-speech .stat-value { color: var(--speech-color); }
+.stat-silence .stat-value { color: var(--silence-color); }
+
+/* Wilson breakdown */
+.results-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.results-panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.results-panel-body { padding: 16px 20px; }
+
+.wilson-steps { display: flex; flex-direction: column; gap: 8px; }
+
+.wilson-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.step-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 3px;
+  color: white;
+  white-space: nowrap;
+  min-width: 54px;
+  text-align: center;
+}
+
+.step-name {
+  color: var(--text-muted);
+  font-size: 12px;
+  min-width: 160px;
+}
+
+.step-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.step-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+.step-counts {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 72px;
+  text-align: right;
+}
+
+/* Word chips */
+.word-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.word-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'Libre Baskerville', serif;
+}
+
+.chip-sounding { background: var(--sounding-bg); color: var(--sounding); border: 1px solid var(--sounding-border); }
+.chip-failed { background: var(--failed-bg); color: var(--failed); border: 1px solid var(--failed-border); }
+
+.chip-time { font-family: 'IBM Plex Mono', monospace; font-size: 10px; opacity: 0.7; }
+.chip-step { font-family: 'IBM Plex Mono', monospace; font-size: 9px; opacity: 0.6; }
+
+/* Speech timeline */
+.timeline-wrap {
+  position: relative;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.74);
+  border: 1px solid var(--border);
+}
+
+.timeline-segment {
+  position: absolute;
+  top: 0; bottom: 0;
+}
+
+.timeline-segment.speech { background: linear-gradient(135deg, rgba(47,143,109,0.92), rgba(84,191,142,0.9)); }
+.timeline-segment.silence { background: linear-gradient(135deg, rgba(216,139,93,0.92), rgba(225,176,142,0.9)); }
+
+.timeline-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-faint);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 4px;
+}
+
+.timeline-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.legend-swatch.speech { background: var(--speech-color); }
+.legend-swatch.silence { background: var(--silence-color); }
+
+/* Pause buckets */
+.pause-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.pause-bucket {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.pause-bucket-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--silence-color);
+}
+
+.pause-bucket-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Audio player */
+.audio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+audio {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.export-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* Event log */
+details.event-log summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+details.event-log summary::-webkit-details-marker { display: none; }
+details.event-log[open] summary { border-bottom: 1px solid var(--border); }
+
+.event-table { padding: 12px 20px; }
+
+.event-head, .event-row-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+  padding: 7px 0;
+  font-size: 12px;
+}
+
+.event-head {
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+}
+
+.event-row-item + .event-row-item { border-top: 1px solid rgba(0,0,0,0.05); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  /* Menu */
+  .menu-body { padding: 20px 14px 40px; gap: 24px; }
+  .menu-title { font-size: 22px; }
+  .menu-header { padding: 14px 16px; }
+  .passage-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .passage-card { padding: 12px; }
+  .passage-card-preview { display: none; }
+  .passage-card-title { font-size: 13px; }
+  .passage-card-meta { font-size: 10px; }
+  .student-row { flex-direction: column; gap: 10px; }
+  .mic-row { flex-wrap: wrap; gap: 8px; }
+  .menu-start-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .btn-primary { width: 100%; text-align: center; }
+  #activeSourceLabel { display: block !important; margin-top: 4px; }
+
+  /* Session header */
+  .session-header { padding: 10px 14px; }
+  .session-student { display: none; }
+  .kb-trigger span { display: none; }
+  .kb-trigger { padding: 4px 8px; }
+
+  /* Instructions bar — compact on mobile */
+  .instructions { gap: 8px; padding: 7px 14px; flex-wrap: nowrap; overflow-x: auto; }
+  .instruction-item { flex-shrink: 0; font-size: 11px; }
+  .instruction-key { font-size: 10px; }
+
+  /* Passage viewport — taller on mobile so more text shows */
+  .passage-viewport { height: 240px; }
+  .passage { padding: 72px 18px 96px; font-size: 22px; line-height: 2.8; }
+
+  /* Words — bigger tap targets on touch */
+  .word { padding: 4px 6px; margin: 3px 4px; border-radius: 6px; }
+
+  /* Session controls */
+  .session-main { padding: 12px 14px; gap: 10px; }
+  .session-controls-row { flex-direction: column; gap: 8px; }
+  .session-controls-row .btn { width: 100%; text-align: center; }
+
+  /* Gave up button — full width, easy to hit */
+  .gave-up-btn { width: 100%; padding: 14px; font-size: 16px; border-radius: 10px; }
+
+  /* Results */
+  .results-header { padding: 12px 16px; }
+  .results-body { padding: 16px 14px 40px; gap: 16px; }
+  .results-summary-grid { grid-template-columns: repeat(3, 1fr); }
+  .stat-value { font-size: 18px; }
+  .step-name { display: none; }
+  .pause-grid { grid-template-columns: repeat(2, 1fr); }
+  .results-panel-body { padding: 12px 14px; }
+  .results-panel-header { padding: 12px 14px; }
+  .export-row { flex-direction: column; }
+  .export-row .btn { width: 100%; text-align: center; }
+
+  /* Word chips wrap nicely */
+  .word-chips { gap: 6px; }
+  .word-chip { font-size: 12px; padding: 4px 8px; }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .passage { font-size: 20px; }
+  .passage-grid { grid-template-columns: 1fr; }
+  .results-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="robots" content="index,follow">
+                                                                                                                                                                                                                                                                                                                                                                              <link rel="canonical" href="https://musicalcaterpillar.com/ora">
+                                                                                                                                                                                                                                                                                                                                                                              <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20x%3D%2250%25%22%20y%3D%220.9em%22%20font-size%3D%2290%22%20text-anchor%3D%22middle%22%3E%26%23x1F41B%3B%3C%2Ftext%3E%3C%2Fsvg%3E">
+                                                                                                                                                                                                                                                                                                                                                                              <link rel="manifest" href="/manifest.webmanifest">
+                                                                                                                                                                                                                                                                                                                                                                              <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="mobile-web-app-capable" content="yes">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="apple-mobile-web-app-title" content="Musical Caterpillar">
+                                                                                                                                                                                                                                                                                                                                                                              <meta property="og:site_name" content="Musical Caterpillar">
+                                                                                                                                                                                                                                                                                                                                                                              <meta property="og:type" content="website">
+                                                                                                                                                                                                                                                                                                                                                                              <meta property="og:title" content="ORA — Oral Reading Assessment">
+                                                                                                                                                                                                                                                                                                                                                                              <meta property="og:description" content="Oral reading assessment tool with Wilson phonics step tracking and hesitation timing.">
+                                                                                                                                                                                                                                                                                                                                                                              <meta property="og:url" content="https://musicalcaterpillar.com/ora">
+                                                                                                                                                                                                                                                                                                                                                                              <meta property="og:image" content="https://musicalcaterpillar.com/logo.png">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="twitter:card" content="summary_large_image">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="twitter:title" content="ORA — Oral Reading Assessment">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="twitter:description" content="Oral reading assessment tool with Wilson phonics step tracking and hesitation timing.">
+                                                                                                                                                                                                                                                                                                                                                                              <meta name="twitter:image" content="https://musicalcaterpillar.com/logo.png">
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebPage","name":"ORA — Oral Reading Assessment","description":"Oral reading assessment tool with Wilson phonics step tracking and hesitation timing.","url":"https://musicalcaterpillar.com/ora"}
+  </script>
+</head>
+<body>
+
+<!-- ════════════ MENU SCREEN ════════════ -->
+<div class="screen menu-screen active" id="screenMenu">
+  <header class="menu-header">
+    <div class="logo">ORA <span>/ Oral Reading Assessment</span></div>
+  </header>
+
+  <div class="menu-body">
+    <div>
+      <div class="menu-title">Start a Session</div>
+      <div class="menu-subtitle">Set up student info, choose or paste a passage, then begin.</div>
+    </div>
+
+    <!-- Student info -->
+    <div>
+      <div class="menu-section-title">Student Info</div>
+      <div class="student-row">
+        <div class="field-group">
+          <label class="field-label" for="studentName">Student Name</label>
+          <input class="field-input" id="studentName" type="text" placeholder="e.g. Alex M." autocomplete="off">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="wilsonStep">Current Wilson Step</label>
+          <select class="field-input" id="wilsonStep">
+            <option value="">Unknown / Mixed</option>
+            <option value="1">Step 1 — Closed Syllables</option>
+            <option value="2">Step 2 — Digraphs & Blends</option>
+            <option value="3">Step 3 — Welded Sounds</option>
+            <option value="4">Step 4 — VCE Syllable</option>
+            <option value="5">Step 5 — Open Syllable</option>
+            <option value="6">Step 6 — Suffixes</option>
+            <option value="7">Step 7 — R-Controlled</option>
+            <option value="8">Step 8 — Vowel Teams</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passage selector -->
+    <div>
+      <div class="menu-section-title">Choose a Passage</div>
+      <div class="passage-grid" id="passageGrid"></div>
+    </div>
+
+    <!-- Custom text -->
+    <div>
+      <div class="menu-section-title">Or Use Your Own Text</div>
+      <div class="custom-paste-area">
+        <div class="paste-tabs">
+          <button class="paste-tab active" onclick="switchPasteTab('paste')">Paste Text</button>
+          <button class="paste-tab" onclick="switchPasteTab('preview')">Preview Tagged</button>
+        </div>
+        <div class="paste-content active" id="tabPaste">
+          <textarea class="paste-textarea" id="customPassage" rows="5" placeholder="Paste any reading passage here. The app will automatically tag each word with its Wilson step using pattern matching."></textarea>
+        </div>
+        <div class="paste-content" id="tabPreview">
+          <div class="tag-preview" id="tagPreview">Type or paste text in the first tab to see Wilson tags.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mic setup -->
+    <div>
+      <div class="menu-section-title">Microphone</div>
+      <div class="mic-row">
+        <div class="mic-status" id="micStatus">Not checked yet</div>
+        <div class="meter-mini" id="meterMini" style="display:none">
+          <div class="meter-mini-fill" id="meterMiniFill"></div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="menuCheckMic()">Check Mic</button>
+        <button class="btn btn-ghost btn-sm" id="testMicBtn" onclick="menuToggleMicTest()" style="display:none">Test Mic</button>
+      </div>
+    </div>
+
+    <!-- Start -->
+    <div class="menu-start-row">
+      <button class="btn btn-primary" id="startSessionBtn" onclick="beginSession()">Start Session →</button>
+      <span class="start-hint" id="startHint">Select a passage to begin</span>
+      <span id="activeSourceLabel" style="display:none;font-size:12px;color:var(--fluent);font-weight:500;"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ SESSION SCREEN ════════════ -->
+<div class="screen session-screen" id="screenSession">
+  <header class="session-header">
+    <div class="session-header-left">
+      <div class="logo">ORA</div>
+      <div class="session-student">Student: <strong id="sessionStudentLabel">—</strong></div>
+      <div id="recordingBadge" class="recording-badge" style="display:none">
+        <div class="rec-dot"></div> REC
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="kb-shortcut-wrap">
+        <button class="kb-trigger">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>
+          <span>Keyboard shortcuts</span>
+        </button>
+        <div class="kb-tooltip">
+          <div class="kb-row"><kbd>Space</kbd><span>Word read fluently</span></div>
+          <div class="kb-row"><kbd>Hold Space</kbd><span>Student sounding out</span></div>
+          <div class="kb-row"><kbd>G</kbd><span>Student gave up</span></div>
+        </div>
+      </div>
+      <div class="session-timer-display" id="sessionTimerDisplay">0:00</div>
+    </div>
+  </header>
+
+  <div class="instructions">
+    <div class="instruction-item">
+      <span class="instruction-key key-tap">Tap</span>
+      <span>or</span>
+      <span class="instruction-key key-tap">Space</span>
+      <span>Fluent read</span>
+    </div>
+    <div class="instruction-item">
+      <span class="instruction-key key-hold">Hold → Release</span>
+      <span>Sounded out</span>
+    </div>
+    <div class="instruction-item">
+      <span class="instruction-key key-fail">G</span>
+      <span>Gave up</span>
+    </div>
+  </div>
+
+  <div class="session-main">
+    <!-- Live audio strip -->
+    <div class="live-strip" id="liveStrip" style="display:none">
+      <div class="live-dot" id="liveDot"></div>
+      <div class="live-meter-bar">
+        <div class="live-meter-fill" id="liveMeterFill"></div>
+      </div>
+      <div class="live-label" id="liveLabel">—</div>
+    </div>
+
+    <!-- Passage -->
+    <div class="passage-viewport" id="passageViewport" oncontextmenu="return false">
+      <div class="not-started-overlay" id="sessionOverlay">
+        <div class="overlay-text">Press <strong>Start Recording</strong> to begin</div>
+      </div>
+      <div class="passage" id="passage"></div>
+    </div>
+
+    <!-- Gave up -->
+    <div class="gave-up-toast" id="gaveUpToast">
+      <button class="gave-up-btn" onclick="markGaveUp()">✕ Gave Up</button>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="session-controls-row">
+      <button class="btn btn-primary" id="startRecordBtn" onclick="startRecording()">Start Recording</button>
+      <button class="btn btn-ghost" id="skipWordBtn" onclick="skipCurrentWord()" style="display:none">Skip Word</button>
+      <button class="btn btn-ghost" onclick="goToMenu()">← Back</button>
+    </div>
+
+    <div id="sessionError" style="display:none;padding:10px 14px;background:var(--failed-bg);border:1px solid var(--failed-border);border-radius:8px;font-size:13px;color:var(--failed);margin-top:4px;"></div>
+  </div>
+</div>
+
+<!-- ════════════ RESULTS SCREEN ════════════ -->
+<div class="screen results-screen" id="screenResults">
+  <header class="results-header">
+    <div class="results-title-block">
+      <div class="results-title">Session Results</div>
+      <div class="results-meta" id="resultsMeta"></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="goToMenu()">New Session</button>
+    </div>
+  </header>
+
+  <div class="results-body">
+
+    <!-- Reading stats -->
+    <div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Reading Performance</div>
+      <div class="results-summary-grid" id="readingSummary"></div>
+    </div>
+
+    <!-- Wilson breakdown -->
+    <div class="results-panel">
+      <div class="results-panel-header">Wilson Step Breakdown — Difficulty Concentration</div>
+      <div class="results-panel-body">
+        <div class="wilson-steps" id="wilsonSteps"></div>
+      </div>
+    </div>
+
+    <!-- Words with effort -->
+    <div class="results-panel">
+      <div class="results-panel-header">Words Requiring Effort or Failed</div>
+      <div class="results-panel-body">
+        <div class="word-chips" id="wordChips"></div>
+      </div>
+    </div>
+
+    <!-- Audio analysis -->
+    <div class="results-panel" id="audioResultsPanel" style="display:none">
+      <div class="results-panel-header">Audio Analysis — Speech vs Silence</div>
+      <div class="results-panel-body">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Session Duration</div>
+        <div class="results-summary-grid" id="audioSummary"></div>
+
+        <div style="margin-top:20px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Pause Analysis</div>
+          <div class="pause-grid" id="pauseGrid"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="timeline-legend">
+            <span><i class="legend-swatch speech"></i>Speech</span>
+            <span><i class="legend-swatch silence"></i>Silence / Hesitation</span>
+          </div>
+          <div class="timeline-wrap" id="timelineWrap"></div>
+          <div class="timeline-ticks">
+            <span>0s</span><span>15s</span><span>30s</span><span>45s</span><span>60s</span>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;" class="audio-section">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Recording Playback</div>
+          <audio controls id="audioPlayback"></audio>
+          <div class="export-row">
+            <button class="btn btn-secondary btn-sm" onclick="doDownloadAudio()">Download Audio</button>
+            <button class="btn btn-ghost btn-sm" onclick="doDownloadJson()">Download JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event log -->
+    <details class="results-panel event-log" id="eventLogDetails" style="display:none">
+      <summary>Raw Event Log <span id="eventLogCount"></span></summary>
+      <div class="event-table">
+        <div class="event-head"><span>Type</span><span>Timestamp</span><span>Seconds</span></div>
+        <div id="eventLogBody"></div>
+      </div>
+    </details>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// WILSON AUTO-TAGGER
+// ════════════════════════════════════════════════════════
+
+const STEP_COLORS = {
+  1:'#4B6CB7',2:'#6B5EA8',3:'#8B5CF6',
+  4:'#0891B2',5:'#059669',6:'#D97706',
+  7:'#DC2626',8:'#BE185D'
+};
+
+const STEP_NAMES = {
+  1:'Closed Syllable',2:'Digraphs & Blends',3:'Welded Sounds',
+  4:'VCE Syllable',5:'Open Syllable',6:'Suffixes',
+  7:'R-Controlled',8:'Vowel Teams/Diphthongs'
+};
+
+// Step 1 dictionary (sight words + common closed syllable words)
+const STEP1_WORDS = new Set([
+  'the','a','an','is','it','in','on','at','as','if','up','us','of','to','do','go',
+  'he','be','me','we','she','no','so','by',
+  'and','but','not','can','had','has','him','his','how','let','man','men',
+  'run','sat','set','sit','cut','get','got','hot','lot','not','pot','rot','top',
+  'big','bit','did','dig','dip','fig','fit','fix','hip','hit','hid','lip','nip',
+  'pig','pin','pip','pit','rib','rid','rip','tip','tin','win','zip',
+  'bad','bag','bat','cap','cat','dad','fab','fat','gap','gas','hat','jab','jam',
+  'lab','lag','lap','lad','mat','map','nab','nap','pad','pal','pan','pat','ram',
+  'rap','rat','sad','sap','tab','tag','tan','tap','van','wag','yak','zap',
+  'bob','bog','cod','cog','cop','cot','dog','dot','fog','fob','god','hog','hop',
+  'job','jog','jot','log','lob','mob','mop','nod','pop','pod','rob','rod','sob',
+  'sod','tom','top','tob','hob',
+  'bud','bug','bun','bus','cup','cud','dub','dug','fun','gum','gun','gut','hub',
+  'hug','hum','jug','mug','mud','nun','pun','pub','pug','rub','rug','rum','run',
+  'rut','sub','sun','tub','tug','yum',
+  'bed','beg','den','egg','elf','elk','elm','fed','fen','gem','hen','jet','keg',
+  'led','leg','let','men','met','net','peg','pen','pep','pet','red','rep','set',
+  'ten','web','wed','wet','yes','yet',
+  'off','this','that','with','them','then','when','from','they','what','were',
+  'have','been','come','your','said','will','very','just','some','more','time',
+]);
+
+// Step 3 welded sounds
+const STEP3_PATTERNS = [
+  /\b\w*(all|ell|ill|ull|oll)\b/i,
+  /\b\w*(ang|ing|ong|ung|ank|ink|onk|unk)\b/i,
+  /\b\w*(old|olt|ost|ind|ild)\b/i,
+  /\b\w*ld\b/i,
+];
+
+function tagWord(word) {
+  const w = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (!w) return { step: 1, pattern: 'punctuation' };
+
+  // Step 1 dictionary
+  if (STEP1_WORDS.has(w)) return { step: 1, pattern: 'sight/closed' };
+
+  // Step 8 — vowel teams and diphthongs (check early, most distinctive)
+  if (/ai|ay|ee|ea|oa|oe|ei|ie/.test(w)) return { step: 8, pattern: 'vowel team' };
+  if (/oo|ou|ow|oi|oy|au|aw/.test(w)) return { step: 8, pattern: 'diphthong' };
+
+  // Step 7 — r-controlled
+  if (/[aeiou]r/.test(w)) return { step: 7, pattern: 'r-controlled' };
+
+  // Step 9 — -tion, -sion, soft c/g
+  if (/tion|sion|ture/.test(w)) return { step: 9, pattern: '-tion/-sion' };
+  if (/[^aeiou]e[^aeiou]|ci|ce|cy|gi|ge|gy/.test(w)) return { step: 9, pattern: 'soft c/g' };
+
+  // Step 6 — suffixes on multi-syllable words
+  if (/ing$|ed$|er$|est$|ly$|ful$|ness$|less$|ment$|tion$/.test(w) && w.length > 5)
+    return { step: 6, pattern: 'suffix' };
+
+  // Step 5 — open syllable (ends in vowel)
+  if (/[aeiou]$/.test(w) && w.length <= 3) return { step: 5, pattern: 'open syllable' };
+
+  // Step 4 — VCE pattern
+  if (/[aeiou][^aeiou]e$/.test(w)) return { step: 4, pattern: 'VCE' };
+
+  // Step 3 — welded sounds
+  for (const pat of STEP3_PATTERNS) {
+    if (pat.test(w)) return { step: 3, pattern: 'welded' };
+  }
+
+  // Step 2 — digraphs and blends
+  if (/sh|ch|th|wh|ph|ck|ng/.test(w)) return { step: 2, pattern: 'digraph' };
+  if (/^(bl|cl|fl|gl|pl|sl|br|cr|dr|fr|gr|pr|tr|sc|sk|sm|sn|sp|st|sw|tw)/.test(w) ||
+      /(ld|lf|lk|lm|lp|lt|nd|nk|nt|pt|sk|sp|st)$/.test(w))
+    return { step: 2, pattern: 'blend' };
+
+  // Default: closed syllable Step 1
+  return { step: 1, pattern: 'closed syllable' };
+}
+
+function tokenizePassage(text) {
+  // Split on whitespace, preserve punctuation attached to words
+  return text.trim().split(/\s+/).filter(Boolean).map(raw => {
+    const clean = raw.replace(/[^a-zA-Z''-]/g, '');
+    const tagged = tagWord(clean);
+    return { text: raw, clean, step: tagged.step, pattern: tagged.pattern };
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// BUILT-IN PASSAGES
+// ════════════════════════════════════════════════════════
+
+const BUILT_IN_PASSAGES = [
+  {
+    id: 'beginner',
+    title: 'The Red Hen',
+    stepRange: 'Steps 1–2',
+    levelNote: 'Beginner',
+    text: 'The red hen sat on the mat. She had a big hat and a bag of chips. The dog ran to get the hat but the hen hid it fast. Then the cat and the dog set off to the hill with the hen.'
+  },
+  {
+    id: 'early',
+    title: 'Spring Ships',
+    stepRange: 'Steps 1–4',
+    levelNote: 'Early',
+    text: 'The big ship set off that hot spring with a chest of gold inside. She rode the waves like a brave and daring sailor. Her charts were marked with stars and she rode into the sunset with hope.'
+  },
+  {
+    id: 'mid',
+    title: 'Deep Sea Routes',
+    stepRange: 'Steps 4–7',
+    levelNote: 'Mid',
+    text: 'Her charts were marked with stars and deep blue sea routes. Out at sea the rain would pour down but she never turned back toward the safety of shore. She charted her course by starlight and never feared the dark water.'
+  },
+  {
+    id: 'advanced',
+    title: 'Storm and Shore',
+    stepRange: 'Steps 6–8',
+    levelNote: 'Advanced',
+    text: 'The storm clouds gathered over the coastline bringing sheets of rain and howling winds. The sailing crew worked tirelessly through the night bailing water from the lower decks. At dawn the clouds parted and sunlight sparkled across the calm bay.'
+  },
+  {
+    id: 'mixed',
+    title: 'The Brave Explorer',
+    stepRange: 'Steps 1–8',
+    levelNote: 'Mixed / Diagnostic',
+    text: 'The brave explorer sailed through stormy rain and deep blue seas. She marked her charts carefully noting every shoal and current. Her crew followed her commands without question trusting in her years of training and her steady unbreaking courage.'
+  }
+];
+
+// ════════════════════════════════════════════════════════
+// AUDIO / VAD ENGINE (ported from useRecorderSession)
+// ════════════════════════════════════════════════════════
+
+const SESSION_DURATION_MS = 60000;
+const SPEECH_THRESHOLD = 0.035;
+const SMOOTHING_FACTOR = 0.82;
+const MIN_SPEECH_MS = 180;
+const MIN_SILENCE_MS = 320;
+const METER_INTERVAL_MS = 50;
+
+class VoiceActivityDetector {
+  constructor() {
+    this.smoothedLevel = 0;
+    this.state = 'unknown';
+    this.candidateState = null;
+    this.candidateSinceMs = null;
+  }
+
+  step(rawLevel, elapsedMs) {
+    this.smoothedLevel = this.smoothedLevel * SMOOTHING_FACTOR + rawLevel * (1 - SMOOTHING_FACTOR);
+    const instant = this.smoothedLevel >= SPEECH_THRESHOLD ? 'speech' : 'silence';
+
+    if (this.state === 'unknown') {
+      this.state = instant;
+      this.candidateState = null;
+      this.candidateSinceMs = null;
+      return { smoothedLevel: this.smoothedLevel, nextState: this.state, changed: true };
+    }
+
+    if (instant === this.state) {
+      this.candidateState = null;
+      this.candidateSinceMs = null;
+      return { smoothedLevel: this.smoothedLevel, nextState: this.state, changed: false };
+    }
+
+    if (this.candidateState !== instant) {
+      this.candidateState = instant;
+      this.candidateSinceMs = elapsedMs;
+      return { smoothedLevel: this.smoothedLevel, nextState: this.state, changed: false };
+    }
+
+    const holdMs = elapsedMs - (this.candidateSinceMs ?? elapsedMs);
+    const required = instant === 'speech' ? MIN_SPEECH_MS : MIN_SILENCE_MS;
+
+    if (holdMs >= required) {
+      this.state = instant;
+      this.candidateState = null;
+      this.candidateSinceMs = null;
+      return { smoothedLevel: this.smoothedLevel, nextState: this.state, changed: true };
+    }
+
+    return { smoothedLevel: this.smoothedLevel, nextState: this.state, changed: false };
+  }
+}
+
+function measureRms(analyser, buffer) {
+  analyser.getFloatTimeDomainData(buffer);
+  let sum = 0;
+  for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+  return Math.sqrt(sum / buffer.length);
+}
+
+function getSupportedMimeType() {
+  if (typeof MediaRecorder === 'undefined') return '';
+  const candidates = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'];
+  return candidates.find(t => MediaRecorder.isTypeSupported(t)) ?? '';
+}
+
+function inferFilename(mimeType, id) {
+  if (mimeType.includes('ogg')) return `${id}.ogg`;
+  if (mimeType.includes('mp4')) return `${id}.mp4`;
+  return `${id}.webm`;
+}
+
+// ════════════════════════════════════════════════════════
+// APP STATE
+// ════════════════════════════════════════════════════════
+
+let selectedPassageId = null;   // built-in id or 'custom'
+let activePassageWords = [];    // [{text, clean, step, pattern}]
+let studentName = '';
+let wilsonStepContext = '';
+
+// Session state
+let sessionStarted = false;
+let sessionStartTime = null;
+let sessionTimerInterval = null;
+let currentWordIndex = 0;
+let wordStates = [];     // 'pending' | 'fluent' | 'sounding-out' | 'failed'
+let wordTimings = [];    // {holdStart, holdEnd, duration}
+let holdStartTime = null;
+let lastHoldWordIndex = null;
+let holdTimerInterval = null;
+let gaveUpTimeout = null;
+let spaceHeldSince = null;
+let spaceHoldInterval = null;
+
+// Audio recording state
+let streamRef = null;
+let recorderRef = null;
+let audioContextRef = null;
+let analyserRef = null;
+let sourceNodeRef = null;
+let detectorRef = null;
+let bufferRef = null;
+let chunksRef = [];
+let startPerfRef = 0;
+let audioMimeType = 'audio/webm';
+let meterIntervalId = null;
+let stopTimeoutId = null;
+let eventLog = [];
+let segments = [];
+let activeKind = null;
+let activeStartMs = null;
+let micStream = null;      // for menu mic test
+let menuMeterInterval = null;
+
+// Completed session data
+let completedAudioBlob = null;
+let completedAudioUrl = null;
+let completedSessionData = null;
+let completedSessionDurationMs = 0;
+
+// ── summarizeSegments (from sessionMath.ts) ──
+function summarizeSegments(segs, durationMs) {
+  const totalSpeechMs = segs.filter(s => s.kind === 'speech').reduce((a, s) => a + s.durationMs, 0);
+  const totalSilenceMs = segs.filter(s => s.kind === 'silence').reduce((a, s) => a + s.durationMs, 0);
+  const silDurations = segs.filter(s => s.kind === 'silence').map(s => s.durationMs);
+  return {
+    totalSpeechMs,
+    totalSilenceMs,
+    speechPct: durationMs === 0 ? 0 : (totalSpeechMs / durationMs) * 100,
+    silencePct: durationMs === 0 ? 0 : (totalSilenceMs / durationMs) * 100,
+    longestSilenceMs: silDurations.length ? Math.max(...silDurations) : 0,
+    silenceCount250: silDurations.filter(d => d >= 250).length,
+    silenceCount500: silDurations.filter(d => d >= 500).length,
+    silenceCount1000: silDurations.filter(d => d >= 1000).length,
+    silenceCount3000: silDurations.filter(d => d >= 3000).length,
+  };
+}
+
+// ════════════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ════════════════════════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goToMenu() {
+  cleanupAudio();
+  sessionStarted = false;
+  clearInterval(sessionTimerInterval);
+  clearInterval(holdTimerInterval);
+  clearTimeout(gaveUpTimeout);
+  clearInterval(spaceHoldInterval);
+  holdStartTime = null;
+  spaceHeldSince = null;
+  showScreen('screenMenu');
+}
+
+// ════════════════════════════════════════════════════════
+// MENU LOGIC
+// ════════════════════════════════════════════════════════
+
+function buildPassageGrid() {
+  const grid = document.getElementById('passageGrid');
+  grid.innerHTML = '';
+  BUILT_IN_PASSAGES.forEach(p => {
+    const card = document.createElement('button');
+    card.className = 'passage-card';
+    card.dataset.id = p.id;
+    card.innerHTML = `
+      <div class="passage-card-title">${p.title}</div>
+      <div class="passage-card-meta">${p.stepRange} · ${p.levelNote}</div>
+      <div class="passage-card-preview">${p.text}</div>
+    `;
+    card.addEventListener('click', () => selectPassage(p.id));
+    grid.appendChild(card);
+  });
+}
+
+function selectPassage(id) {
+  selectedPassageId = id;
+  document.querySelectorAll('.passage-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id === id);
+  });
+  // Clear custom textarea when switching to a library passage
+  if (id !== 'custom') {
+    document.getElementById('customPassage').value = '';
+    // Switch back to paste tab so the cleared state is visible
+    document.querySelectorAll('.paste-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.paste-content').forEach(c => c.classList.remove('active'));
+    document.querySelector('.paste-tab').classList.add('active');
+    document.getElementById('tabPaste').classList.add('active');
+  }
+  updateStartButton();
+}
+
+function switchPasteTab(tab) {
+  document.querySelectorAll('.paste-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.paste-content').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById(tab === 'paste' ? 'tabPaste' : 'tabPreview').classList.add('active');
+
+  if (tab === 'preview') {
+    const text = document.getElementById('customPassage').value.trim();
+    if (!text) {
+      document.getElementById('tagPreview').textContent = 'No text entered yet.';
+      return;
+    }
+    const words = tokenizePassage(text);
+    const html = words.map(w =>
+      `<span style="display:inline-block;margin:2px 3px;padding:1px 4px;border-radius:3px;
+        background:${STEP_COLORS[w.step]}22;border:1px solid ${STEP_COLORS[w.step]}55;
+        font-family:'Libre Baskerville',serif;font-size:13px;">
+        ${w.text}<sup style="font-size:8px;color:${STEP_COLORS[w.step]};margin-left:2px;">${w.step}</sup>
+      </span>`
+    ).join(' ');
+    document.getElementById('tagPreview').innerHTML = html;
+  }
+}
+
+document.getElementById('customPassage').addEventListener('input', () => {
+  const val = document.getElementById('customPassage').value.trim();
+  if (val.length > 10) {
+    selectedPassageId = 'custom';
+    document.querySelectorAll('.passage-card').forEach(c => c.classList.remove('selected'));
+  } else if (selectedPassageId === 'custom') {
+    selectedPassageId = null;
+  }
+  updateStartButton();
+});
+
+function updateStartButton() {
+  const btn = document.getElementById('startSessionBtn');
+  const hint = document.getElementById('startHint');
+  const src = document.getElementById('activeSourceLabel');
+  const hasPassage = selectedPassageId !== null;
+
+  btn.disabled = !hasPassage;
+
+  if (!hasPassage) {
+    hint.textContent = 'Select a passage above or paste your own text';
+    if (src) { src.textContent = ''; src.style.display = 'none'; }
+    return;
+  }
+
+  const name = document.getElementById('studentName').value.trim();
+  hint.textContent = name || 'No student name entered';
+
+  if (src) {
+    let label = '';
+    if (selectedPassageId === 'custom') {
+      const words = document.getElementById('customPassage').value.trim().split(/\s+/).length;
+      label = '✎ Using pasted text · ' + words + ' words';
+    } else {
+      const p = BUILT_IN_PASSAGES.find(p => p.id === selectedPassageId);
+      label = p ? '✓ “' + p.title + '” selected' : '';
+    }
+    src.textContent = label;
+    src.style.display = 'inline';
+  }
+
+  // highlight custom paste area when it's the active source
+  const pasteArea = document.querySelector('.custom-paste-area');
+  if (pasteArea) pasteArea.classList.toggle('active-source', selectedPassageId === 'custom');
+}
+
+document.getElementById('studentName').addEventListener('input', updateStartButton);
+
+// ── Menu mic test ──
+async function menuCheckMic() {
+  const status = document.getElementById('micStatus');
+  status.className = 'mic-status';
+  status.textContent = 'Checking...';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop());
+    status.className = 'mic-status ready';
+    status.textContent = '✓ Microphone ready';
+    document.getElementById('testMicBtn').style.display = 'inline-flex';
+  } catch (err) {
+    status.className = 'mic-status error';
+    status.textContent = err.name === 'NotAllowedError'
+      ? '✗ Permission denied — allow mic access'
+      : '✗ No microphone found';
+  }
+}
+
+let menuMicTestActive = false;
+
+async function menuToggleMicTest() {
+  const btn = document.getElementById('testMicBtn');
+  if (menuMicTestActive) {
+    stopMenuMicTest();
+    btn.textContent = 'Test Mic';
+    menuMicTestActive = false;
+    return;
+  }
+
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ctx = new AudioContext();
+    const src = ctx.createMediaStreamSource(micStream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.2;
+    src.connect(analyser);
+    const buffer = new Float32Array(analyser.fftSize);
+    const detector = new VoiceActivityDetector();
+    const startPerf = performance.now();
+    const mini = document.getElementById('meterMini');
+    const fill = document.getElementById('meterMiniFill');
+    mini.style.display = 'block';
+
+    menuMeterInterval = setInterval(() => {
+      analyser.getFloatTimeDomainData(buffer);
+      let sum = 0;
+      for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+      const rms = Math.sqrt(sum / buffer.length);
+      const result = detector.step(rms, performance.now() - startPerf);
+      fill.style.width = Math.min(100, result.smoothedLevel * 12 * 100) + '%';
+    }, METER_INTERVAL_MS);
+
+    btn.textContent = 'Stop Test';
+    menuMicTestActive = true;
+    window._menuAudioCtx = ctx;
+  } catch (e) {
+    document.getElementById('micStatus').className = 'mic-status error';
+    document.getElementById('micStatus').textContent = '✗ Could not start mic test';
+  }
+}
+
+function stopMenuMicTest() {
+  clearInterval(menuMeterInterval);
+  micStream?.getTracks().forEach(t => t.stop());
+  micStream = null;
+  window._menuAudioCtx?.close();
+  document.getElementById('meterMiniFill').style.width = '0%';
+}
+
+function beginSession() {
+  studentName = document.getElementById('studentName').value.trim() || 'Student';
+  wilsonStepContext = document.getElementById('wilsonStep').value;
+
+  if (selectedPassageId === 'custom') {
+    const text = document.getElementById('customPassage').value.trim();
+    activePassageWords = tokenizePassage(text);
+  } else {
+    const passage = BUILT_IN_PASSAGES.find(p => p.id === selectedPassageId);
+    activePassageWords = tokenizePassage(passage.text);
+  }
+
+  stopMenuMicTest();
+  menuMicTestActive = false;
+
+  // Reset session state
+  sessionStarted = false;
+  currentWordIndex = 0;
+  wordStates = activePassageWords.map(() => 'pending');
+  wordTimings = activePassageWords.map(() => ({ holdStart: null, holdEnd: null, duration: null }));
+  holdStartTime = null;
+  lastHoldWordIndex = null;
+  spaceHeldSince = null;
+  completedAudioBlob = null;
+  if (completedAudioUrl) { URL.revokeObjectURL(completedAudioUrl); completedAudioUrl = null; }
+  completedSessionData = null;
+  completedSessionDurationMs = 0;
+  eventLog = [];
+  segments = [];
+  activeKind = null;
+  activeStartMs = null;
+  chunksRef = [];
+
+  buildSessionPassage();
+  document.getElementById('sessionStudentLabel').textContent = studentName;
+  document.getElementById('sessionTimerDisplay').textContent = '0:00';
+  document.getElementById('sessionTimerDisplay').className = 'session-timer-display';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('sessionOverlay').classList.remove('hidden');
+  document.getElementById('startRecordBtn').style.display = 'inline-flex';
+  document.getElementById('startRecordBtn').textContent = 'Start Recording';
+  document.getElementById('startRecordBtn').disabled = false;
+  document.getElementById('skipWordBtn').style.display = 'none';
+  document.getElementById('recordingBadge').style.display = 'none';
+  document.getElementById('liveStrip').style.display = 'none';
+  document.getElementById('gaveUpToast').classList.remove('visible');
+  document.getElementById('sessionError').style.display = 'none';
+
+  showScreen('screenSession');
+}
+
+// ════════════════════════════════════════════════════════
+// SESSION PASSAGE
+// ════════════════════════════════════════════════════════
+
+function buildSessionPassage() {
+  const passage = document.getElementById('passage');
+  passage.innerHTML = '';
+  passage.style.transform = 'translateY(0)';
+
+  activePassageWords.forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = w.text;
+    span.dataset.index = i;
+    span.dataset.step = w.step;
+    span.addEventListener('contextmenu', e => e.preventDefault());
+    span.addEventListener('pointerdown', e => { e.preventDefault(); onWordDown(i); });
+    span.addEventListener('pointerup',   e => { e.preventDefault(); onWordUp(i); });
+    span.addEventListener('pointercancel', () => resolveHold());
+    passage.appendChild(span);
+    if (i < activePassageWords.length - 1) passage.appendChild(document.createTextNode(' '));
+  });
+
+  highlightCurrent();
+}
+
+function getWordEl(i) {
+  return document.querySelector(`.word[data-index="${i}"]`);
+}
+
+function highlightCurrent() {
+  document.querySelectorAll('.word.current').forEach(w => w.classList.remove('current'));
+  if (currentWordIndex < activePassageWords.length) {
+    const el = getWordEl(currentWordIndex);
+    if (el) { el.classList.add('current'); scrollToWord(el); }
+  }
+}
+
+function scrollToWord(wordEl) {
+  const viewport = document.getElementById('passageViewport');
+  const passage = document.getElementById('passage');
+  const viewportH = viewport.offsetHeight;
+  const wordTop = wordEl.offsetTop;
+  const wordH = wordEl.offsetHeight;
+  const target = Math.max(0, wordTop + wordH / 2 - viewportH / 2);
+  passage.style.transition = 'transform 0.4s cubic-bezier(0.4,0,0.2,1)';
+  passage.style.transform = `translateY(-${target}px)`;
+}
+
+// ════════════════════════════════════════════════════════
+// INTERACTION — pointer
+// ════════════════════════════════════════════════════════
+
+function onWordDown(i) {
+  if (!sessionStarted) return;
+  if (i !== currentWordIndex) return;
+  if (wordStates[i] !== 'pending') return;
+  if (holdStartTime !== null) return;
+  clearInterval(holdTimerInterval);
+  holdStartTime = Date.now();
+  lastHoldWordIndex = i;
+  const el = getWordEl(i);
+  if (el) el.classList.add('holding');
+  holdTimerInterval = setInterval(() => {
+    const el = getWordEl(i);
+    if (!el || holdStartTime === null) return;
+    let timerEl = el.querySelector('.hold-timer');
+    if (!timerEl) {
+      timerEl = document.createElement('div');
+      timerEl.className = 'hold-timer';
+      el.appendChild(timerEl);
+    }
+    timerEl.textContent = ((Date.now() - holdStartTime) / 1000).toFixed(1) + 's';
+  }, 100);
+}
+
+function onWordUp(i) { resolveHold(); }
+
+document.addEventListener('pointerup', () => { if (holdStartTime !== null) resolveHold(); });
+
+function resolveHold() {
+  if (!sessionStarted) return;
+  if (holdStartTime === null) return;
+  const i = currentWordIndex;
+  if (wordStates[i] !== 'pending') return;
+  const holdDuration = Date.now() - holdStartTime;
+  clearInterval(holdTimerInterval);
+  holdStartTime = null;
+  const el = getWordEl(i);
+  if (el) {
+    el.classList.remove('holding');
+    const t = el.querySelector('.hold-timer');
+    if (t) t.remove();
+  }
+  if (holdDuration < 200) {
+    markFluent(i);
+  } else {
+    wordTimings[i].holdStart = Date.now() - holdDuration;
+    wordTimings[i].holdEnd = Date.now();
+    wordTimings[i].duration = holdDuration;
+    lastHoldWordIndex = i;
+    markSoundingOut(i);
+    showGaveUp();
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// INTERACTION — keyboard
+// ════════════════════════════════════════════════════════
+
+document.addEventListener('keydown', e => {
+  if (!sessionStarted) return;
+  if (e.key === 'g' || e.key === 'G') {
+    if (document.getElementById('gaveUpToast').classList.contains('visible')) markGaveUp();
+    return;
+  }
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (spaceHeldSince !== null) return;
+    const i = currentWordIndex;
+    if (wordStates[i] !== 'pending') return;
+    spaceHeldSince = Date.now();
+    const el = getWordEl(i);
+    if (el) el.classList.add('holding');
+    spaceHoldInterval = setInterval(() => {
+      if (spaceHeldSince === null) return;
+      const el = getWordEl(i);
+      if (!el) return;
+      let t = el.querySelector('.hold-timer');
+      if (!t) { t = document.createElement('div'); t.className = 'hold-timer'; el.appendChild(t); }
+      t.textContent = ((Date.now() - spaceHeldSince) / 1000).toFixed(1) + 's';
+    }, 100);
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if (!sessionStarted) return;
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (spaceHeldSince === null) return;
+    const holdDuration = Date.now() - spaceHeldSince;
+    spaceHeldSince = null;
+    clearInterval(spaceHoldInterval);
+    const i = currentWordIndex;
+    if (wordStates[i] !== 'pending') return;
+    const el = getWordEl(i);
+    if (el) {
+      el.classList.remove('holding');
+      const t = el.querySelector('.hold-timer');
+      if (t) t.remove();
+    }
+    if (holdDuration < 200) {
+      markFluent(i);
+    } else {
+      wordTimings[i].holdStart = Date.now() - holdDuration;
+      wordTimings[i].holdEnd = Date.now();
+      wordTimings[i].duration = holdDuration;
+      lastHoldWordIndex = i;
+      markSoundingOut(i);
+      showGaveUp();
+    }
+  }
+});
+
+// ════════════════════════════════════════════════════════
+// WORD STATE TRANSITIONS
+// ════════════════════════════════════════════════════════
+
+function markFluent(i) {
+  wordStates[i] = 'fluent';
+  const el = getWordEl(i);
+  if (el) { el.classList.remove('current','holding'); el.classList.add('fluent','done'); }
+  advance();
+}
+
+function markSoundingOut(i) {
+  wordStates[i] = 'sounding-out';
+  const el = getWordEl(i);
+  if (el) { el.classList.remove('current','holding'); el.classList.add('sounding-out','done'); }
+  advance();
+}
+
+function markGaveUp() {
+  const i = lastHoldWordIndex;
+  if (i === null) return;
+  wordStates[i] = 'failed';
+  const el = getWordEl(i);
+  if (el) { el.classList.remove('sounding-out'); el.classList.add('failed'); }
+  dismissGaveUp();
+}
+
+function skipCurrentWord() {
+  const i = currentWordIndex;
+  if (wordStates[i] !== 'pending') return;
+  wordStates[i] = 'failed';
+  const el = getWordEl(i);
+  if (el) { el.classList.remove('current'); el.classList.add('failed','done'); }
+  advance();
+}
+
+function showGaveUp() {
+  document.getElementById('gaveUpToast').classList.add('visible');
+  gaveUpTimeout = setTimeout(dismissGaveUp, 3000);
+}
+
+function dismissGaveUp() {
+  document.getElementById('gaveUpToast').classList.remove('visible');
+  clearTimeout(gaveUpTimeout);
+  lastHoldWordIndex = null;
+}
+
+function advance() {
+  currentWordIndex++;
+  updateProgress();
+  if (currentWordIndex >= activePassageWords.length) {
+    finishPassage();
+  } else {
+    highlightCurrent();
+  }
+}
+
+function updateProgress() {
+  const pct = (currentWordIndex / activePassageWords.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function finishPassage() {
+  // Passage done — stop recording and go to results
+  document.querySelectorAll('.word.current').forEach(w => w.classList.remove('current'));
+  sessionStarted = false;
+  clearInterval(sessionTimerInterval);
+  stopRecording();
+}
+
+// ════════════════════════════════════════════════════════
+// RECORDING (ported from useRecorderSession)
+// ════════════════════════════════════════════════════════
+
+function cleanupAudio() {
+  clearInterval(meterIntervalId);
+  clearTimeout(stopTimeoutId);
+  meterIntervalId = null;
+  stopTimeoutId = null;
+  recorderRef = null;
+  detectorRef = null;
+  bufferRef = null;
+  sourceNodeRef?.disconnect();
+  sourceNodeRef = null;
+  analyserRef = null;
+  if (audioContextRef) { audioContextRef.close(); audioContextRef = null; }
+  streamRef?.getTracks().forEach(t => t.stop());
+  streamRef = null;
+}
+
+async function startRecording() {
+  const btn = document.getElementById('startRecordBtn');
+  btn.disabled = true;
+  btn.textContent = 'Starting...';
+
+  const errEl = document.getElementById('sessionError');
+  errEl.style.display = 'none';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ctx = new AudioContext();
+    const src = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.2;
+    src.connect(analyser);
+
+    const mimeType = getSupportedMimeType();
+    const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    audioMimeType = recorder.mimeType || mimeType || 'audio/webm';
+
+    streamRef = stream;
+    audioContextRef = ctx;
+    sourceNodeRef = src;
+    analyserRef = analyser;
+    recorderRef = recorder;
+    bufferRef = new Float32Array(analyser.fftSize);
+    detectorRef = new VoiceActivityDetector();
+    chunksRef = [];
+    eventLog = [{ type: 'session_start', t: 0 }];
+    segments = [];
+    activeKind = null;
+    activeStartMs = null;
+    startPerfRef = performance.now();
+
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.push(e.data); };
+    recorder.onerror = () => {
+      errEl.textContent = 'Recording error occurred.';
+      errEl.style.display = 'block';
+      cleanupAudio();
+    };
+
+    recorder.onstop = () => {
+      const endT = Math.min(SESSION_DURATION_MS, Math.max(0, Math.round(performance.now() - startPerfRef)));
+      if (activeKind === 'speech') {
+        eventLog.push({ type: 'speech_end', t: endT }, { type: 'silence_start', t: endT });
+      } else if (activeKind === 'silence') {
+        eventLog.push({ type: 'silence_end', t: endT });
+      }
+      eventLog.push({ type: 'session_end', t: endT });
+
+      if (activeKind && activeStartMs !== null) {
+        segments.push({ kind: activeKind, startMs: activeStartMs, endMs: endT, durationMs: Math.max(0, endT - activeStartMs) });
+      }
+
+      const blob = new Blob(chunksRef, { type: audioMimeType });
+      completedAudioBlob = blob;
+      completedAudioUrl = URL.createObjectURL(blob);
+      completedSessionDurationMs = endT;
+      cleanupAudio();
+      buildResults();
+      showScreen('screenResults');
+    };
+
+    recorder.start(1000); // collect data every second
+
+    // Start session timing
+    sessionStarted = true;
+    sessionStartTime = Date.now();
+    document.getElementById('sessionOverlay').classList.add('hidden');
+    document.getElementById('startRecordBtn').style.display = 'none';
+    document.getElementById('skipWordBtn').style.display = 'inline-flex';
+    document.getElementById('recordingBadge').style.display = 'inline-flex';
+    document.getElementById('liveStrip').style.display = 'flex';
+
+    // Session timer
+    sessionTimerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+      const m = Math.floor(elapsed / 60);
+      const s = elapsed % 60;
+      const el = document.getElementById('sessionTimerDisplay');
+      el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+      el.className = 'session-timer-display running' + (elapsed > 50 ? ' urgent' : '');
+    }, 500);
+
+    // VAD meter loop
+    meterIntervalId = setInterval(() => {
+      if (!analyserRef || !detectorRef || !bufferRef) return;
+      const elapsed = Math.min(SESSION_DURATION_MS, Math.max(0, Math.round(performance.now() - startPerfRef)));
+      const rms = measureRms(analyserRef, bufferRef);
+      const result = detectorRef.step(rms, elapsed);
+
+      // Update live meter
+      const fillPct = Math.min(100, result.smoothedLevel * 12 * 100);
+      document.getElementById('liveMeterFill').style.width = fillPct + '%';
+      document.getElementById('liveDot').className = `live-dot ${result.nextState}`;
+      document.getElementById('liveLabel').textContent = result.nextState === 'speech' ? 'speech' : 'silence';
+
+      if (result.changed && result.nextState !== 'unknown') {
+        const next = result.nextState;
+        if (activeKind === null) {
+          activeKind = next;
+          activeStartMs = 0;
+          eventLog.push(next === 'speech' ? { type: 'speech_start', t: 0 } : { type: 'silence_start', t: 0 });
+        } else {
+          const prev = activeKind;
+          const prevStart = activeStartMs ?? 0;
+          segments.push({ kind: prev, startMs: prevStart, endMs: elapsed, durationMs: elapsed - prevStart });
+          activeKind = next;
+          activeStartMs = elapsed;
+          if (prev === 'speech') {
+            eventLog.push({ type: 'speech_end', t: elapsed }, { type: 'silence_start', t: elapsed });
+          } else {
+            eventLog.push({ type: 'silence_end', t: elapsed }, { type: 'speech_start', t: elapsed });
+          }
+        }
+      }
+    }, METER_INTERVAL_MS);
+
+    // Auto-stop at 60s
+    stopTimeoutId = setTimeout(stopRecording, SESSION_DURATION_MS);
+
+  } catch (err) {
+    const msg = err.name === 'NotAllowedError'
+      ? 'Microphone permission denied. Allow access and try again.'
+      : 'Could not access microphone.';
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Start Recording';
+  }
+}
+
+function stopRecording() {
+  sessionStarted = false;
+  clearInterval(sessionTimerInterval);
+  clearInterval(meterIntervalId);
+  clearTimeout(stopTimeoutId);
+  document.getElementById('recordingBadge').style.display = 'none';
+  document.getElementById('skipWordBtn').style.display = 'none';
+
+  if (recorderRef && recorderRef.state === 'recording') {
+    recorderRef.stop();
+  } else {
+    // No recording was active — still build results
+    completedAudioBlob = null;
+    completedAudioUrl = null;
+    cleanupAudio();
+    buildResults();
+    showScreen('screenResults');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// RESULTS
+// ════════════════════════════════════════════════════════
+
+function buildResults() {
+  const fluent = wordStates.filter(s => s === 'fluent').length;
+  const sounding = wordStates.filter(s => s === 'sounding-out').length;
+  const failed = wordStates.filter(s => s === 'failed').length;
+  const pending = wordStates.filter(s => s === 'pending').length;
+  const total = activePassageWords.length;
+  const durationMs = completedSessionDurationMs > 0 ? completedSessionDurationMs
+    : Math.max(1000, Date.now() - sessionStartTime);
+  const elapsedSec = Math.max(1, durationMs / 1000);
+  const wcpm = Math.round((fluent / elapsedSec) * 60);
+  const attempted = total - pending;
+  const accuracy = attempted > 0 ? Math.round((fluent / attempted) * 100) : 0;
+
+  // Meta
+  const passageName = selectedPassageId === 'custom'
+    ? 'Custom Passage'
+    : BUILT_IN_PASSAGES.find(p => p.id === selectedPassageId)?.title ?? 'Passage';
+  document.getElementById('resultsMeta').textContent =
+    `${studentName} · ${passageName} · ${new Date().toLocaleDateString()}`;
+
+  // Reading summary
+  document.getElementById('readingSummary').innerHTML = `
+    <div class="summary-stat-card stat-fluent"><div class="stat-value">${fluent}</div><div class="stat-label">Fluent</div></div>
+    <div class="summary-stat-card stat-sounding"><div class="stat-value">${sounding}</div><div class="stat-label">Sounded Out</div></div>
+    <div class="summary-stat-card stat-failed"><div class="stat-value">${failed}</div><div class="stat-label">Failed</div></div>
+    ${pending > 0 ? `<div class="summary-stat-card"><div class="stat-value">${pending}</div><div class="stat-label">Skipped</div></div>` : ''}
+    <div class="summary-stat-card"><div class="stat-value">${wcpm}</div><div class="stat-label">Est. WCPM</div></div>
+    <div class="summary-stat-card"><div class="stat-value">${accuracy}%</div><div class="stat-label">Accuracy</div></div>
+    <div class="summary-stat-card"><div class="stat-value">${(elapsedSec).toFixed(1)}s</div><div class="stat-label">Duration</div></div>
+  `;
+
+  // Wilson breakdown
+  const stepData = {};
+  activePassageWords.forEach((w, i) => {
+    const s = w.step;
+    if (!stepData[s]) stepData[s] = { fluent:0, sounding:0, failed:0, total:0 };
+    stepData[s].total++;
+    if (wordStates[i] === 'fluent') stepData[s].fluent++;
+    if (wordStates[i] === 'sounding-out') stepData[s].sounding++;
+    if (wordStates[i] === 'failed') stepData[s].failed++;
+  });
+
+  document.getElementById('wilsonSteps').innerHTML = Object.entries(stepData)
+    .sort((a,b) => Number(a[0]) - Number(b[0]))
+    .map(([step, d]) => {
+      const difficulty = ((d.sounding + d.failed * 2) / (d.total * 2)) * 100;
+      const color = STEP_COLORS[step];
+      const hasIssue = d.sounding > 0 || d.failed > 0;
+      return `<div class="wilson-step-row">
+        <span class="step-badge" style="background:${color}">Step ${step}</span>
+        <span class="step-name">${STEP_NAMES[step]}</span>
+        <div class="step-bar-wrap"><div class="step-bar" style="width:${difficulty}%;background:${hasIssue ? color : 'var(--fluent)'}"></div></div>
+        <span class="step-counts">${d.fluent}✓ ${d.sounding}⚠ ${d.failed}✗</span>
+      </div>`;
+    }).join('');
+
+  // Word chips
+  const chips = activePassageWords
+    .map((w, i) => ({ w, state: wordStates[i], timing: wordTimings[i] }))
+    .filter(d => d.state === 'sounding-out' || d.state === 'failed')
+    .map(d => {
+      const cls = d.state === 'failed' ? 'chip-failed' : 'chip-sounding';
+      const icon = d.state === 'failed' ? '✕' : '◔';
+      const timeStr = d.timing.duration ? `${(d.timing.duration/1000).toFixed(1)}s` : '';
+      const color = STEP_COLORS[d.w.step];
+      return `<div class="word-chip ${cls}">
+        ${icon} <strong>${d.w.text}</strong>
+        ${timeStr ? `<span class="chip-time">${timeStr}</span>` : ''}
+        <span class="chip-step" style="color:${color}">Step ${d.w.step}</span>
+      </div>`;
+    }).join('');
+
+  document.getElementById('wordChips').innerHTML =
+    chips || '<span style="color:var(--text-muted);font-size:13px">All words read fluently 🎉</span>';
+
+  // Audio analysis — use summarizeSegments from sessionMath
+  if (completedAudioBlob && segments.length > 0) {
+    document.getElementById('audioResultsPanel').style.display = 'block';
+
+    const summary = summarizeSegments(segments, durationMs);
+
+    document.getElementById('audioSummary').innerHTML = `
+      <div class="summary-stat-card stat-speech"><div class="stat-value">${(summary.totalSpeechMs/1000).toFixed(2)}s</div><div class="stat-label">Total Speech</div></div>
+      <div class="summary-stat-card stat-silence"><div class="stat-value">${(summary.totalSilenceMs/1000).toFixed(2)}s</div><div class="stat-label">Total Silence</div></div>
+      <div class="summary-stat-card"><div class="stat-value">${summary.speechPct.toFixed(1)}%</div><div class="stat-label">Speech %</div></div>
+      <div class="summary-stat-card"><div class="stat-value">${(summary.longestSilenceMs/1000).toFixed(2)}s</div><div class="stat-label">Longest Pause</div></div>
+    `;
+
+    document.getElementById('pauseGrid').innerHTML = [
+      { ms: 250, label: '≥250ms' },
+      { ms: 500, label: '≥500ms' },
+      { ms: 1000, label: '≥1s' },
+      { ms: 3000, label: '≥3s' },
+    ].map(({ ms, label }) => {
+      const key = `silenceCount${ms}`;
+      return `<div class="pause-bucket">
+        <div class="pause-bucket-val">${summary[key]}</div>
+        <div class="pause-bucket-label">${label} pauses</div>
+      </div>`;
+    }).join('');
+
+    // Timeline — scale to actual session duration for accuracy
+    document.getElementById('timelineWrap').innerHTML = segments.map(s => `
+      <div class="timeline-segment ${s.kind}"
+        style="left:${(s.startMs/durationMs)*100}%;width:${(s.durationMs/durationMs)*100}%"
+        title="${s.kind}: ${(s.startMs/1000).toFixed(2)}s – ${(s.endMs/1000).toFixed(2)}s (${(s.durationMs/1000).toFixed(2)}s)">
+      </div>
+    `).join('');
+
+    // Audio playback
+    document.getElementById('audioPlayback').src = completedAudioUrl;
+
+    // Build structured export matching SessionExport shape from types.ts
+    completedSessionData = {
+      sessionId: `ora-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      student: studentName,
+      wilsonStepContext,
+      passageId: selectedPassageId,
+      passageText: activePassageWords.map(w => w.text).join(' '),
+      durationMs,
+      audio: {
+        mimeType: audioMimeType,
+        filename: inferFilename(audioMimeType, `ora-${Date.now()}`),
+      },
+      words: activePassageWords.map((w, i) => ({
+        text: w.text,
+        wilsonStep: w.step,
+        pattern: w.pattern,
+        state: wordStates[i],
+        holdDurationMs: wordTimings[i].duration,
+      })),
+      readingSummary: { fluent, sounding, failed, pending, wcpm, accuracy },
+      summary,
+      events: eventLog,
+      segments,
+    };
+
+    // Event log
+    document.getElementById('eventLogDetails').style.display = 'block';
+    document.getElementById('eventLogCount').textContent = `${eventLog.length} events`;
+    document.getElementById('eventLogBody').innerHTML = eventLog.map(e =>
+      `<div class="event-row-item">
+        <span>${e.type}</span>
+        <span>${e.t} ms</span>
+        <span>${(e.t/1000).toFixed(2)}s</span>
+      </div>`
+    ).join('');
+  } else {
+    // No audio — still store readable data
+    completedSessionData = {
+      sessionId: `ora-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      student: studentName,
+      wilsonStepContext,
+      passageId: selectedPassageId,
+      passageText: activePassageWords.map(w => w.text).join(' '),
+      durationMs,
+      words: activePassageWords.map((w, i) => ({
+        text: w.text,
+        wilsonStep: w.step,
+        pattern: w.pattern,
+        state: wordStates[i],
+        holdDurationMs: wordTimings[i].duration,
+      })),
+      readingSummary: { fluent, sounding, failed, pending, wcpm, accuracy },
+    };
+  }
+}
+
+function doDownloadAudio() {
+  if (!completedAudioBlob) return;
+  const id = completedSessionData?.sessionId ?? `ora-${Date.now()}`;
+  const filename = inferFilename(audioMimeType, id);
+  const url = URL.createObjectURL(completedAudioBlob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function doDownloadJson() {
+  if (!completedSessionData) return;
+  const blob = new Blob([JSON.stringify(completedSessionData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${completedSessionData.sessionId}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+
+buildPassageGrid();
+updateStartButton();
+</script>
+</body>
+</html>
